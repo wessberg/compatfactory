@@ -1,6 +1,6 @@
 <!-- SHADOW_SECTION_LOGO_START -->
 
-<div><img alt="Logo" src="https://raw.githubusercontent.com/wessberg/nodefactory/master/documentation/asset/logo.png" height="80"   /></div>
+<div><img alt="Logo" src="https://raw.githubusercontent.com/wessberg/compatfactory/master/documentation/asset/logo.png" height="80"   /></div>
 
 <!-- SHADOW_SECTION_LOGO_END -->
 
@@ -12,10 +12,10 @@
 
 <!-- SHADOW_SECTION_BADGES_START -->
 
-<a href="https://npmcharts.com/compare/node-factory?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/node-factory.svg"    /></a>
-<a href="https://www.npmjs.com/package/node-factory"><img alt="NPM version" src="https://badge.fury.io/js/node-factory.svg"    /></a>
-<a href="https://david-dm.org/wessberg/nodefactory"><img alt="Dependencies" src="https://img.shields.io/david/wessberg%2Fnodefactory.svg"    /></a>
-<a href="https://github.com/wessberg/nodefactory/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/wessberg%2Fnodefactory.svg"    /></a>
+<a href="https://npmcharts.com/compare/compatfactory?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/compatfactory.svg"    /></a>
+<a href="https://www.npmjs.com/package/compatfactory"><img alt="NPM version" src="https://badge.fury.io/js/compatfactory.svg"    /></a>
+<a href="https://david-dm.org/wessberg/compatfactory"><img alt="Dependencies" src="https://img.shields.io/david/wessberg%2Fcompatfactory.svg"    /></a>
+<a href="https://github.com/wessberg/compatfactory/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/wessberg%2Fcompatfactory.svg"    /></a>
 <a href="https://github.com/prettier/prettier"><img alt="code style: prettier" src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg"    /></a>
 <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"    /></a>
 <a href="https://www.patreon.com/bePatron?u=11315442"><img alt="Support on Patreon" src="https://img.shields.io/badge/patreon-donate-green.svg"    /></a>
@@ -28,7 +28,7 @@
 
 <!-- SHADOW_SECTION_DESCRIPTION_LONG_END -->
 
-With the release of TypeScript 4.0, the team announced that [they would move away](https://devblogs.microsoft.com/typescript/announcing-typescript-4-0/#usage-of-typescripts-node-factory-is-deprecated) from the old
+With the release of TypeScript 4.0, the team announced that [they would move away](https://devblogs.microsoft.com/typescript/announcing-typescript-4-0/#usage-of-typescripts-compatfactory-is-deprecated) from the old
 set of factory functions for creating and updating nodes, and over to a new Node Factory API.
 
 While this is great, a lot of tooling around TypeScript works across multiple versions of it and either have to stick with the old, deprecated factory functions, stop supporting older versions of TypeScript,
@@ -93,24 +93,24 @@ wrap its factory functions with the new API such that you can simply use one API
 ### npm
 
 ```
-$ npm install node-factory
+$ npm install compatfactory
 ```
 
 ### Yarn
 
 ```
-$ yarn add node-factory
+$ yarn add compatfactory
 ```
 
 ### pnpm
 
 ```
-$ pnpm add node-factory
+$ pnpm add compatfactory
 ```
 
 ### Peer Dependencies
 
-`node-factory` depends on `typescript`, so you need to manually install this as well.
+`compatfactory` depends on `typescript`, so you need to manually install this as well.
 
 <!-- SHADOW_SECTION_INSTALL_END -->
 
@@ -125,7 +125,7 @@ Simply import `ensureNodeFactory` and use it in place of the Node Factory you wo
 One very basic example could be:
 
 ```ts
-import {ensureNodeFactory} from "node-factory";
+import {ensureNodeFactory} from "compatfactory";
 
 // Will use typescript.factory if available, and otherwise return an object that wraps typescript's helper functions
 // but makes them conform with the Node Factory API
@@ -136,7 +136,7 @@ factory.createClassDeclaration(/* ... */);
 A more realistic example would be inside a Custom Transformer context:
 
 ```ts
-import {ensureNodeFactory} from "node-factory";
+import {ensureNodeFactory} from "compatfactory";
 import type TS from "typescript";
 
 function getCustomTransformers(typescript: typeof TS): TS.CustomTransformers {
