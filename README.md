@@ -1,6 +1,6 @@
 <!-- SHADOW_SECTION_LOGO_START -->
 
-<div><img alt="Logo" src="https://raw.githubusercontent.com/wessberg/compatfactory/master/documentation/asset/logo.png" height="80"   /></div>
+<div><img alt="Logo" src="https://raw.githubusercontent.com/wessberg/compatfactory/master/documentation/asset/logo.png" height="70"   /></div>
 
 <!-- SHADOW_SECTION_LOGO_END -->
 
