@@ -1098,7 +1098,35 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			name: string | TS.Identifier,
 			moduleReference: TS.ModuleReference
 		): TS.ImportEqualsDeclaration {
+			// For TypeScript < 4.0
+			if (typescript.createImportEqualsDeclaration.length === 4) {
+				return (typescript as unknown as typeof import("typescript-3-9-2")).createImportEqualsDeclaration(
+					decorators as never,
+					modifiers as never,
+					name as never,
+					moduleReference as never
+				) as unknown as TS.ImportEqualsDeclaration;
+			}
+
 			return typescript.createImportEqualsDeclaration(decorators, modifiers, isTypeOnly, name, moduleReference);
+		},
+		createMappedTypeNode(
+			readonlyToken: TS.ReadonlyKeyword | TS.PlusToken | TS.MinusToken | undefined,
+			typeParameter: TS.TypeParameterDeclaration,
+			nameType: TS.TypeNode | undefined,
+			questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
+			type: TS.TypeNode | undefined
+		): TS.MappedTypeNode {
+			if (typescript.createMappedTypeNode.length === 4) {
+				return (typescript as unknown as import("typescript-4-0-3").NodeFactory).createMappedTypeNode(
+					readonlyToken as never,
+					typeParameter as never,
+					questionToken as never,
+					type as never
+				) as unknown as TS.MappedTypeNode;
+			}
+
+			return typescript.createMappedTypeNode(readonlyToken, typeParameter, nameType, questionToken, type);
 		},
 		createExportDeclaration(
 			decorators: readonly TS.Decorator[] | undefined,
