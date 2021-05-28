@@ -35,7 +35,7 @@ While this is great, a lot of tooling around TypeScript works across multiple ve
 or interchangeably use the old or new factory functions depending on the TypeScript version being used. This is cumbersome, error prone, difficult to read, and hard to maintain.
 
 This library provides a little helper function, `ensureNodeFactory`, which takes a `NodeFactory` or a typescript object, and then returns an object conforming to the `NodeFactory` interface.
-In case a `NodeFactory` is passed to it, or if one could be found via the `typescript.factory` property, it will simply return the existing one with no further edits. For older TypeScript versions, it will
+In case a `NodeFactory` is passed to it, or if one could be found via the `typescript.factory` property, it will patch any inconsistencies there may be between the signatures of the factory functions across TypeScript versions and most often simply return the existing one with no further edits. For older TypeScript versions, it will
 wrap its factory functions with the new API such that you can simply use one API for all your operations.
 
 <!-- SHADOW_SECTION_FEATURES_START -->

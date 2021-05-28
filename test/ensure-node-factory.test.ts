@@ -4,10 +4,22 @@ import {ensureNodeFactory} from "../src/index";
 import {formatStatements} from "./util/format-statements";
 import {formatCode} from "./util/format-code";
 
-test("Wrapping a NodeFactory in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.0"), (t, {typescript}) => {
+test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.2"), (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.is(factory, typescript.factory);
 });
+
+test(
+	"Wrapping a NodeFactory that require modifications in a call to `ensureNodeFactory` returns an updated version of the NodeFactory that conforms to the latest API. #1",
+	withTypeScriptVersions(">=4.0 && <4.2"),
+	(t, {typescript}) => {
+		const factory = ensureNodeFactory(typescript);
+		t.is(factory.createSourceFile, typescript.factory.createSourceFile);
+		t.is(factory.createVariableDeclaration, typescript.factory.createVariableDeclaration);
+		t.not(factory.createImportEqualsDeclaration, typescript.factory.createImportEqualsDeclaration);
+		t.not(factory.createMappedTypeNode, typescript.factory.createMappedTypeNode);
+	}
+);
 
 test("Wrapping a TypeScript object with no Node Factory returns an object that conforms with the Node Factory API. #1", withTypeScriptVersions("<4.0"), (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);

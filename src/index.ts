@@ -4,12 +4,59 @@ import {Mutable} from "helpertypes";
 
 export function ensureNodeFactory(factoryLike: TS.NodeFactory | typeof TS): TS.NodeFactory {
 	if ("factory" in factoryLike && factoryLike.factory != null) {
-		return factoryLike.factory;
+		return normalizeNodeFactory(factoryLike.factory);
 	} else if (!("updateSourceFileNode" in factoryLike)) {
-		return factoryLike;
+		return normalizeNodeFactory(factoryLike);
 	}
 
 	return createNodeFactory(factoryLike);
+}
+
+function normalizeNodeFactory(factory: TS.NodeFactory): TS.NodeFactory {
+	const needsModifications = factory.createImportEqualsDeclaration.length === 4 || factory.createMappedTypeNode.length === 4;
+
+	if (needsModifications) {
+		return {
+			...factory,
+			...(factory.createImportEqualsDeclaration.length === 4
+				? {
+						createImportEqualsDeclaration(
+							decorators: readonly TS.Decorator[] | undefined,
+							modifiers: readonly TS.Modifier[] | undefined,
+							isTypeOnly: boolean,
+							name: string | TS.Identifier,
+							moduleReference: TS.ModuleReference
+						): TS.ImportEqualsDeclaration {
+							return (factory as unknown as import("typescript-4-1-2").NodeFactory).createImportEqualsDeclaration(
+								decorators as never,
+								modifiers as never,
+								name as never,
+								moduleReference as never
+							) as unknown as TS.ImportEqualsDeclaration;
+						}
+				  }
+				: {}),
+			...(factory.createMappedTypeNode.length === 4
+				? {
+						createMappedTypeNode(
+							readonlyToken: TS.ReadonlyKeyword | TS.PlusToken | TS.MinusToken | undefined,
+							typeParameter: TS.TypeParameterDeclaration,
+							nameType: TS.TypeNode | undefined,
+							questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
+							type: TS.TypeNode | undefined
+						): TS.MappedTypeNode {
+							return (factory as unknown as import("typescript-4-0-3").NodeFactory).createMappedTypeNode(
+								readonlyToken as never,
+								typeParameter as never,
+								questionToken as never,
+								type as never
+							) as unknown as TS.MappedTypeNode;
+						}
+				  }
+				: {})
+		};
+	}
+	return factory;
 }
 
 function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
