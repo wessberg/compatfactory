@@ -52,3 +52,15 @@ test("It is possible to construct VariableStatements via the Node Factory wrappe
 		formatCode(`const myVariable: string = "foo"`)
 	);
 });
+
+test("It is possible to construct JSDoc comments. #1", withTypeScriptVersions("<4.0"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+	t.notThrows(() => factory.createJSDocComment("Hello, World!"));
+	t.deepEqual(factory.createJSDocComment("Hello, World!").kind, typescript.SyntaxKind.JSDocComment);
+});
+
+test("It is possible to construct JSDoc comments. #2", withTypeScriptVersions("<4.0"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+	t.notThrows(() => factory.createJSDocProtectedTag(undefined, undefined));
+	t.notThrows(() => factory.createJSDocAuthorTag(undefined, undefined));
+});

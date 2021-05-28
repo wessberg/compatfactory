@@ -157,59 +157,119 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return node;
 	}
 
+	function createJSDocComment(comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined, tags?: readonly TS.JSDocTag[] | undefined): TS.JSDoc {
+		if ("createJSDocComment" in typescript) {
+			return typescript.createJSDocComment(comment, tags);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocComment ?? 312) as Mutable<TS.JSDoc>;
+		node.comment = comment;
+		node.tags = typescript.createNodeArray(tags);
+		return node;
+	}
+
+	function createJSDocParameterTag(
+		tagName: TS.Identifier | undefined,
+		name: TS.EntityName,
+		isBracketed: boolean,
+		typeExpression?: TS.JSDocTypeExpression,
+		isNameFirst?: boolean,
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocParameterTag {
+		if ("createJSDocParameterTag" in typescript) {
+			return typescript.createJSDocParameterTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocParameterTag ?? 330) as Mutable<TS.JSDocParameterTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.name = name;
+		node.isBracketed = isBracketed;
+		node.typeExpression = typeExpression;
+		if (isNameFirst) node.isNameFirst = isNameFirst;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocPrivateTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocPrivateTag {
+		if ("createJSDocPrivateTag" in typescript) {
+			return typescript.createJSDocPrivateTag(tagName, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocPrivateTag ?? 324) as Mutable<TS.JSDocPrivateTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocAugmentsTag(
+		tagName: TS.Identifier | undefined,
+		className: TS.JSDocAugmentsTag["class"],
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocAugmentsTag {
+		if ("createJSDocAugmentsTag" in typescript) {
+			return typescript.createJSDocAugmentsTag(tagName, className, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocAugmentsTag ?? 318) as Mutable<TS.JSDocAugmentsTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.class = className;
+		node.comment = comment;
+		return node;
+	}
+
 	function createJSDocDeprecatedTag(tagName: TS.Identifier, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocDeprecatedTag {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocDeprecatedTag) as Mutable<TS.JSDocDeprecatedTag>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocDeprecatedTag ?? 321) as Mutable<TS.JSDocDeprecatedTag>;
 		node.tagName = tagName;
 		node.comment = comment;
 		return node;
 	}
 
 	function createJSDocFunctionType(parameters: readonly TS.ParameterDeclaration[], type: TS.TypeNode | undefined): TS.JSDocFunctionType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocFunctionType) as Mutable<TS.JSDocFunctionType>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocFunctionType ?? 309) as Mutable<TS.JSDocFunctionType>;
 		node.parameters = typescript.createNodeArray(parameters);
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocLink(name: TS.EntityName | undefined, text: string): TS.JSDocLink {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocLink) as Mutable<TS.JSDocLink>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocLink ?? 316) as Mutable<TS.JSDocLink>;
 		node.name = name;
 		node.text = text;
 		return node;
 	}
 
 	function createJSDocNameReference(name: TS.EntityName): TS.JSDocNameReference {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocNameReference) as Mutable<TS.JSDocNameReference>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocNameReference ?? 303) as Mutable<TS.JSDocNameReference>;
 		node.name = name;
 		return node;
 	}
 
 	function createJSDocNamepathType(type: TS.TypeNode): TS.JSDocNamepathType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocNamepathType) as Mutable<TS.JSDocNamepathType>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocNamepathType ?? 311) as Mutable<TS.JSDocNamepathType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocNonNullableType(type: TS.TypeNode): TS.JSDocNonNullableType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocNonNullableType) as Mutable<TS.JSDocNonNullableType>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocNonNullableType ?? 307) as Mutable<TS.JSDocNonNullableType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocNullableType(type: TS.TypeNode): TS.JSDocNullableType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocNullableType) as Mutable<TS.JSDocNullableType>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocNullableType ?? 306) as Mutable<TS.JSDocNullableType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocOptionalType(type: TS.TypeNode): TS.JSDocOptionalType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocOptionalType) as Mutable<TS.JSDocOptionalType>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocOptionalType ?? 308) as Mutable<TS.JSDocOptionalType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocOverrideTag(tagName: TS.Identifier, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocOverrideTag {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocOverrideTag) as Mutable<TS.JSDocOverrideTag>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocOverrideTag ?? 327) as Mutable<TS.JSDocOverrideTag>;
 		node.tagName = tagName;
 		node.comment = comment;
 		return node;
@@ -220,7 +280,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		nameExpression: TS.JSDocNameReference | undefined,
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocSeeTag {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocSeeTag) as Mutable<TS.JSDocSeeTag>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocSeeTag ?? 336) as Mutable<TS.JSDocSeeTag>;
 		if (tagName != null) {
 			node.tagName = tagName;
 		}
@@ -230,30 +290,30 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function createJSDocText(text: string): TS.JSDocText {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocText) as Mutable<TS.JSDocText>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocText ?? 313) as Mutable<TS.JSDocText>;
 		node.text = text;
 		return node;
 	}
 
 	function createJSDocUnknownTag(tagName: TS.Identifier, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocUnknownTag {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocTag) as Mutable<TS.JSDocUnknownTag>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocTag ?? 317) as Mutable<TS.JSDocUnknownTag>;
 		node.tagName = tagName;
 		node.comment = comment;
 		return node;
 	}
 
 	function createJSDocUnknownType(): TS.JSDocUnknownType {
-		return typescript.createNode(typescript.SyntaxKind.JSDocUnknownType) as Mutable<TS.JSDocUnknownType>;
+		return typescript.createNode(typescript.SyntaxKind.JSDocUnknownType ?? 305) as Mutable<TS.JSDocUnknownType>;
 	}
 
 	function createJSDocVariadicType(type: TS.TypeNode): TS.JSDocVariadicType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocVariadicType) as Mutable<TS.JSDocVariadicType>;
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocVariadicType ?? 310) as Mutable<TS.JSDocVariadicType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocAllType(): TS.JSDocAllType {
-		return typescript.createNode(typescript.SyntaxKind.JSDocAllType) as TS.JSDocAllType;
+		return typescript.createNode(typescript.SyntaxKind.JSDocAllType ?? 304) as TS.JSDocAllType;
 	}
 
 	function createTemplateLiteralType(head: TS.TemplateHead, templateSpans: readonly TS.TemplateLiteralTypeSpan[]): TS.TemplateLiteralTypeNode {
@@ -272,11 +332,284 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return node;
 	}
 
+	function createJSDocAuthorTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocAuthorTag {
+		if ("createJSDocAuthorTag" in typescript) {
+			return typescript.createJSDocAuthorTag(tagName, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocAuthorTag ?? 320) as Mutable<TS.JSDocAuthorTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocCallbackTag(
+		tagName: TS.Identifier | undefined,
+		typeExpression: TS.JSDocSignature,
+		fullName?: TS.Identifier | TS.JSDocNamespaceDeclaration,
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocCallbackTag {
+		if ("createJSDocCallbackTag" in typescript) {
+			return typescript.createJSDocCallbackTag(tagName, typeExpression, fullName, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocCallbackTag ?? 328) as Mutable<TS.JSDocCallbackTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.typeExpression = typeExpression;
+		node.fullName = fullName;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocClassTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocClassTag {
+		if ("createJSDocClassTag" in typescript) {
+			return typescript.createJSDocClassTag(tagName, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocClassTag ?? 322) as Mutable<TS.JSDocClassTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocEnumTag(
+		tagName: TS.Identifier | undefined,
+		typeExpression: TS.JSDocTypeExpression,
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocEnumTag {
+		if ("createJSDocEnumTag" in typescript) {
+			return typescript.createJSDocEnumTag(tagName, typeExpression, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocEnumTag ?? 329) as Mutable<TS.JSDocEnumTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.typeExpression = typeExpression;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocImplementsTag(
+		tagName: TS.Identifier | undefined,
+		className: TS.JSDocImplementsTag["class"],
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocImplementsTag {
+		if ("createJSDocImplementsTag" in typescript) {
+			return typescript.createJSDocImplementsTag(tagName, className, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocImplementsTag ?? 319) as Mutable<TS.JSDocImplementsTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.class = className;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocPropertyTag(
+		tagName: TS.Identifier | undefined,
+		name: TS.EntityName,
+		isBracketed: boolean,
+		typeExpression?: TS.JSDocTypeExpression,
+		isNameFirst?: boolean,
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocPropertyTag {
+		if ("createJSDocPropertyTag" in typescript) {
+			return typescript.createJSDocPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocPropertyTag ?? 337) as Mutable<TS.JSDocPropertyTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.name = name;
+		node.isBracketed = isBracketed;
+		node.typeExpression = typeExpression;
+		if (isNameFirst != null) node.isNameFirst = isNameFirst;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocProtectedTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocProtectedTag {
+		if ("createJSDocProtectedTag" in typescript) {
+			return typescript.createJSDocProtectedTag(tagName, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocProtectedTag ?? 325) as Mutable<TS.JSDocProtectedTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.comment = comment;
+		return node;
+	}
+	function createJSDocPublicTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocPublicTag {
+		if ("createJSDocPublicTag" in typescript) {
+			return typescript.createJSDocPublicTag(tagName, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocPublicTag ?? 323) as Mutable<TS.JSDocPublicTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocReadonlyTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocReadonlyTag {
+		if ("createJSDocReadonlyTag" in typescript) {
+			return typescript.createJSDocReadonlyTag(tagName, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocReadonlyTag ?? 326) as Mutable<TS.JSDocReadonlyTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocReturnTag(
+		tagName: TS.Identifier | undefined,
+		typeExpression?: TS.JSDocTypeExpression,
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocReturnTag {
+		if ("createJSDocReturnTag" in typescript) {
+			return typescript.createJSDocReturnTag(tagName, typeExpression, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocReturnTag ?? 331) as Mutable<TS.JSDocReturnTag>;
+		if (tagName != null) node.tagName = tagName;
+		node.typeExpression = typeExpression;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocSignature(
+		typeParameters: readonly TS.JSDocTemplateTag[] | undefined,
+		parameters: readonly TS.JSDocParameterTag[],
+		type?: TS.JSDocReturnTag
+	): TS.JSDocSignature {
+		if ("createJSDocSignature" in typescript) {
+			return typescript.createJSDocSignature(typeParameters, parameters, type);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocSignature ?? 315) as Mutable<TS.JSDocSignature>;
+
+		node.typeParameters = typeParameters;
+		node.parameters = parameters;
+		node.type = type;
+		return node;
+	}
+
+	function createJSDocTemplateTag(
+		tagName: TS.Identifier | undefined,
+		constraint: TS.JSDocTypeExpression | undefined,
+		typeParameters: readonly TS.TypeParameterDeclaration[],
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocTemplateTag {
+		if ("createJSDocTemplateTag" in typescript) {
+			return typescript.createJSDocTemplateTag(tagName, constraint, typeParameters, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocTemplateTag ?? 334) as Mutable<TS.JSDocTemplateTag>;
+
+		if (tagName != null) node.tagName = tagName;
+		node.constraint = constraint;
+		node.typeParameters = typescript.createNodeArray(typeParameters);
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocThisTag(
+		tagName: TS.Identifier | undefined,
+		typeExpression: TS.JSDocTypeExpression,
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocThisTag {
+		if ("createJSDocThisTag" in typescript) {
+			return typescript.createJSDocThisTag(tagName, typeExpression, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocThisTag ?? 332) as Mutable<TS.JSDocThisTag>;
+
+		if (tagName != null) node.tagName = tagName;
+		node.typeExpression = typeExpression;
+		node.comment = comment;
+		return node;
+	}
+
+	function createJSDocTypeExpression(type: TS.TypeNode): TS.JSDocTypeExpression {
+		if ("createJSDocTypeExpression" in typescript) {
+			return typescript.createJSDocTypeExpression(type);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocTypeExpression ?? 302) as Mutable<TS.JSDocTypeExpression>;
+
+		node.type = type;
+		return node;
+	}
+	function createJSDocTypeLiteral(jsDocPropertyTags?: readonly TS.JSDocPropertyLikeTag[], isArrayType?: boolean): TS.JSDocTypeLiteral {
+		if ("createJSDocTypeLiteral" in typescript) {
+			return typescript.createJSDocTypeLiteral(jsDocPropertyTags, isArrayType);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocTypeLiteral ?? 314) as Mutable<TS.JSDocTypeLiteral>;
+
+		node.jsDocPropertyTags = jsDocPropertyTags;
+		if (isArrayType != null) node.isArrayType = isArrayType;
+		return node;
+	}
+
+	function createJSDocTypeTag(
+		tagName: TS.Identifier | undefined,
+		typeExpression: TS.JSDocTypeExpression,
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocTypeTag {
+		if ("createJSDocTypeTag" in typescript) {
+			return typescript.createJSDocTypeTag(tagName, typeExpression, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocTypeTag ?? 333) as Mutable<TS.JSDocTypeTag>;
+
+		if (tagName != null) node.tagName = tagName;
+		node.typeExpression = typeExpression;
+		node.comment = comment;
+		return node;
+	}
+	function createJSDocTypedefTag(
+		tagName: TS.Identifier | undefined,
+		typeExpression?: TS.JSDocTypeExpression | TS.JSDocTypeLiteral,
+		fullName?: TS.Identifier | TS.JSDocNamespaceDeclaration,
+		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
+	): TS.JSDocTypedefTag {
+		if ("createJSDocTypedefTag" in typescript) {
+			return typescript.createJSDocTypedefTag(tagName, typeExpression, fullName, comment);
+		}
+
+		const node = typescript.createNode(typescript.SyntaxKind.JSDocTypedefTag ?? 335) as Mutable<TS.JSDocTypedefTag>;
+
+		if (tagName != null) node.tagName = tagName;
+		node.typeExpression = typeExpression;
+		node.fullName = fullName;
+		node.comment = comment;
+		return node;
+	}
+
 	return {
 		...typescript,
 		createToken,
 		createConstructorTypeNode,
 		updateConstructorTypeNode,
+		createJSDocComment,
+		createJSDocParameterTag,
+		createJSDocPrivateTag,
+		createJSDocAugmentsTag,
+		createJSDocAuthorTag,
+		createJSDocCallbackTag,
+		createJSDocClassTag,
+		createJSDocEnumTag,
+		createJSDocImplementsTag,
+		createJSDocPropertyTag,
+		createJSDocProtectedTag,
+		createJSDocPublicTag,
+		createJSDocReadonlyTag,
+		createJSDocReturnTag,
+		createJSDocSignature,
+		createJSDocTemplateTag,
+		createJSDocThisTag,
+		createJSDocTypeExpression,
+		createJSDocTypeLiteral,
+		createJSDocTypeTag,
+		createJSDocTypedefTag,
 		createJSDocAllType,
 		createJSDocDeprecatedTag,
 		createJSDocFunctionType,
@@ -670,10 +1003,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		): TS.JSDocAugmentsTag {
 			return tagName === node.tagName && className === node.class && comment === node.comment
 				? node
-				: typescript.setTextRange(typescript.createJSDocAugmentsTag(tagName, className, comment), node);
+				: typescript.setTextRange(createJSDocAugmentsTag(tagName, className, comment), node);
 		},
 		updateJSDocAuthorTag(node: TS.JSDocAuthorTag, tagName: TS.Identifier | undefined, comment: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined): TS.JSDocAuthorTag {
-			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(typescript.createJSDocAuthorTag(tagName, comment), node);
+			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(createJSDocAuthorTag(tagName, comment), node);
 		},
 		updateJSDocCallbackTag(
 			node: TS.JSDocCallbackTag,
@@ -684,13 +1017,13 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		): TS.JSDocCallbackTag {
 			return tagName === node.tagName && typeExpression === node.typeExpression && fullName === node.fullName && comment === node.comment
 				? node
-				: typescript.setTextRange(typescript.createJSDocCallbackTag(tagName, typeExpression, fullName, comment), node);
+				: typescript.setTextRange(createJSDocCallbackTag(tagName, typeExpression, fullName, comment), node);
 		},
 		updateJSDocClassTag(node: TS.JSDocClassTag, tagName: TS.Identifier | undefined, comment: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined): TS.JSDocClassTag {
-			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(typescript.createJSDocClassTag(tagName, comment), node);
+			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(createJSDocClassTag(tagName, comment), node);
 		},
 		updateJSDocComment(node: TS.JSDoc, comment: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined, tags: readonly TS.JSDocTag[] | undefined): TS.JSDoc {
-			return comment === node.comment ? node : typescript.setTextRange(typescript.createJSDocComment(comment), node);
+			return comment === node.comment && tags === node.tags ? node : typescript.setTextRange(createJSDocComment(comment, tags), node);
 		},
 		updateJSDocDeprecatedTag(node: TS.JSDocDeprecatedTag, tagName: TS.Identifier, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocDeprecatedTag {
 			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(createJSDocDeprecatedTag(tagName, comment), node);
@@ -701,9 +1034,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			typeExpression: TS.JSDocTypeExpression,
 			comment: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined
 		): TS.JSDocEnumTag {
-			return tagName === node.tagName && typeExpression === node.typeExpression
-				? node
-				: typescript.setTextRange(typescript.createJSDocEnumTag(tagName, typeExpression, comment), node);
+			return tagName === node.tagName && typeExpression === node.typeExpression ? node : typescript.setTextRange(createJSDocEnumTag(tagName, typeExpression, comment), node);
 		},
 		updateJSDocFunctionType(node: TS.JSDocFunctionType, parameters: readonly TS.ParameterDeclaration[], type: TS.TypeNode | undefined): TS.JSDocFunctionType {
 			return parameters === node.parameters && type === node.type ? node : typescript.setTextRange(createJSDocFunctionType(parameters, type), node);
@@ -716,7 +1047,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		): TS.JSDocImplementsTag {
 			return tagName === node.tagName && className === node.class && comment === node.comment
 				? node
-				: typescript.setTextRange(typescript.createJSDocImplementsTag(tagName, className, comment), node);
+				: typescript.setTextRange(createJSDocImplementsTag(tagName, className, comment), node);
 		},
 		updateJSDocLink(node: TS.JSDocLink, name: TS.EntityName | undefined, text: string): TS.JSDocLink {
 			return name === node.name && text === node.text ? node : typescript.setTextRange(createJSDocLink(name, text), node);
@@ -755,14 +1086,14 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				isNameFirst === node.isNameFirst &&
 				comment === node.comment
 				? node
-				: typescript.setTextRange(typescript.createJSDocParameterTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment), node);
+				: typescript.setTextRange(createJSDocParameterTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment), node);
 		},
 		updateJSDocPrivateTag(
 			node: TS.JSDocPrivateTag,
 			tagName: TS.Identifier | undefined,
 			comment: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined
 		): TS.JSDocPrivateTag {
-			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(typescript.createJSDocPrivateTag(tagName, comment), node);
+			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(createJSDocPrivateTag(tagName, comment), node);
 		},
 		updateJSDocPropertyTag(
 			node: TS.JSDocPropertyTag,
@@ -780,24 +1111,24 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				isNameFirst === node.isNameFirst &&
 				comment === node.comment
 				? node
-				: typescript.setTextRange(typescript.createJSDocPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment), node);
+				: typescript.setTextRange(createJSDocPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment), node);
 		},
 		updateJSDocProtectedTag(
 			node: TS.JSDocProtectedTag,
 			tagName: TS.Identifier | undefined,
 			comment: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined
 		): TS.JSDocProtectedTag {
-			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(typescript.createJSDocProtectedTag(tagName, comment), node);
+			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(createJSDocProtectedTag(tagName, comment), node);
 		},
 		updateJSDocPublicTag(node: TS.JSDocPublicTag, tagName: TS.Identifier | undefined, comment: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined): TS.JSDocPublicTag {
-			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(typescript.createJSDocPublicTag(tagName, comment), node);
+			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(createJSDocPublicTag(tagName, comment), node);
 		},
 		updateJSDocReadonlyTag(
 			node: TS.JSDocReadonlyTag,
 			tagName: TS.Identifier | undefined,
 			comment: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined
 		): TS.JSDocReadonlyTag {
-			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(typescript.createJSDocReadonlyTag(tagName, comment), node);
+			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(createJSDocReadonlyTag(tagName, comment), node);
 		},
 		updateJSDocReturnTag(
 			node: TS.JSDocReturnTag,
@@ -807,7 +1138,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		): TS.JSDocReturnTag {
 			return tagName === node.tagName && comment === node.comment && typeExpression === node.typeExpression
 				? node
-				: typescript.setTextRange(typescript.createJSDocReturnTag(tagName, typeExpression, comment), node);
+				: typescript.setTextRange(createJSDocReturnTag(tagName, typeExpression, comment), node);
 		},
 		updateJSDocSeeTag(
 			node: TS.JSDocSeeTag,
@@ -827,7 +1158,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		): TS.JSDocSignature {
 			return typeParameters === node.typeParameters && parameters === node.parameters && type === node.type
 				? node
-				: typescript.setTextRange(typescript.createJSDocSignature(typeParameters, parameters, type), node);
+				: typescript.setTextRange(createJSDocSignature(typeParameters, parameters, type), node);
 		},
 		updateJSDocTemplateTag(
 			node: TS.JSDocTemplateTag,
@@ -838,7 +1169,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		): TS.JSDocTemplateTag {
 			return tagName === node.tagName && constraint === node.constraint && typeParameters === node.typeParameters && comment === node.comment
 				? node
-				: typescript.setTextRange(typescript.createJSDocTemplateTag(tagName, constraint, typeParameters, comment), node);
+				: typescript.setTextRange(createJSDocTemplateTag(tagName, constraint, typeParameters, comment), node);
 		},
 		updateJSDocText(node: TS.JSDocText, text: string): TS.JSDocText {
 			return text === node.text ? node : typescript.setTextRange(createJSDocText(text), node);
@@ -851,15 +1182,15 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		): TS.JSDocThisTag {
 			return tagName === node.tagName && typeExpression === node.typeExpression && comment === node.comment
 				? node
-				: typescript.setTextRange(typescript.createJSDocThisTag(tagName, typeExpression!, comment), node);
+				: typescript.setTextRange(createJSDocThisTag(tagName, typeExpression!, comment), node);
 		},
 		updateJSDocTypeExpression(node: TS.JSDocTypeExpression, type: TS.TypeNode): TS.JSDocTypeExpression {
-			return type === node.type ? node : typescript.setTextRange(typescript.createJSDocTypeExpression(type), node);
+			return type === node.type ? node : typescript.setTextRange(createJSDocTypeExpression(type), node);
 		},
 		updateJSDocTypeLiteral(node: TS.JSDocTypeLiteral, jsDocPropertyTags: readonly TS.JSDocPropertyLikeTag[] | undefined, isArrayType: boolean | undefined): TS.JSDocTypeLiteral {
 			return jsDocPropertyTags === node.jsDocPropertyTags && isArrayType === node.isArrayType
 				? node
-				: typescript.setTextRange(typescript.createJSDocTypeLiteral(jsDocPropertyTags, isArrayType), node);
+				: typescript.setTextRange(createJSDocTypeLiteral(jsDocPropertyTags, isArrayType), node);
 		},
 		updateJSDocTypeTag(
 			node: TS.JSDocTypeTag,
@@ -869,7 +1200,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		): TS.JSDocTypeTag {
 			return tagName === node.tagName && typeExpression === node.typeExpression && comment === node.comment
 				? node
-				: typescript.setTextRange(typescript.createJSDocTypeTag(tagName, typeExpression, comment), node);
+				: typescript.setTextRange(createJSDocTypeTag(tagName, typeExpression, comment), node);
 		},
 		updateJSDocTypedefTag(
 			node: TS.JSDocTypedefTag,
@@ -880,7 +1211,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		): TS.JSDocTypedefTag {
 			return tagName === node.tagName && typeExpression === node.typeExpression && fullName === node.fullName && comment === node.comment
 				? node
-				: typescript.setTextRange(typescript.createJSDocTypedefTag(tagName, typeExpression, fullName, comment), node);
+				: typescript.setTextRange(createJSDocTypedefTag(tagName, typeExpression, fullName, comment), node);
 		},
 		updateJSDocUnknownTag(node: TS.JSDocUnknownTag, tagName: TS.Identifier, comment: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined): TS.JSDocUnknownTag {
 			return tagName === node.tagName && comment === node.comment ? node : typescript.setTextRange(createJSDocUnknownTag(tagName, comment), node);
