@@ -1,6 +1,6 @@
 <!-- SHADOW_SECTION_LOGO_START -->
 
-<div><img alt="Logo" src="https://raw.githubusercontent.com/wessberg/nodefactory/master/documentation/asset/logo.png" height="100"   /></div>
+<div><img alt="Logo" src="https://raw.githubusercontent.com/wessberg/nodefactory/master/documentation/asset/logo.png" height="80"   /></div>
 
 <!-- SHADOW_SECTION_LOGO_END -->
 
@@ -12,8 +12,8 @@
 
 <!-- SHADOW_SECTION_BADGES_START -->
 
-<a href="https://npmcharts.com/compare/nodefactory?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/nodefactory.svg"    /></a>
-<a href="https://www.npmjs.com/package/nodefactory"><img alt="NPM version" src="https://badge.fury.io/js/nodefactory.svg"    /></a>
+<a href="https://npmcharts.com/compare/node-factory?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/node-factory.svg"    /></a>
+<a href="https://www.npmjs.com/package/node-factory"><img alt="NPM version" src="https://badge.fury.io/js/node-factory.svg"    /></a>
 <a href="https://david-dm.org/wessberg/nodefactory"><img alt="Dependencies" src="https://img.shields.io/david/wessberg%2Fnodefactory.svg"    /></a>
 <a href="https://github.com/wessberg/nodefactory/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/wessberg%2Fnodefactory.svg"    /></a>
 <a href="https://github.com/prettier/prettier"><img alt="code style: prettier" src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg"    /></a>
@@ -93,24 +93,24 @@ wrap its factory functions with the new API such that you can simply use one API
 ### npm
 
 ```
-$ npm install nodefactory
+$ npm install node-factory
 ```
 
 ### Yarn
 
 ```
-$ yarn add nodefactory
+$ yarn add node-factory
 ```
 
 ### pnpm
 
 ```
-$ pnpm add nodefactory
+$ pnpm add node-factory
 ```
 
 ### Peer Dependencies
 
-`nodefactory` depends on `typescript`, so you need to manually install this as well.
+`node-factory` depends on `typescript`, so you need to manually install this as well.
 
 <!-- SHADOW_SECTION_INSTALL_END -->
 

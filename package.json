@@ -1,5 +1,5 @@
 {
-	"name": "nodefactory",
+	"name": "node-factory",
 	"version": "0.0.0",
 	"description": "A library that unifies the TypeScript Compiler API factory functions across all versions of TypeScript and makes them conform with the Node Factory API",
 	"scripts": {
@@ -95,10 +95,10 @@
 	"es2015": "./dist/esm/index.js",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/wessberg/nodefactory.git"
+		"url": "https://github.com/wessberg/node-factory.git"
 	},
 	"bugs": {
-		"url": "https://github.com/wessberg/nodefactory/issues"
+		"url": "https://github.com/wessberg/node-factory/issues"
 	},
 	"engines": {
 		"node": ">=10.0.0"
