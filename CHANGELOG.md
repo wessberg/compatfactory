@@ -1,3 +1,9 @@
+## [0.0.4](https://github.com/wessberg/compatfactory/compare/v0.0.3...v0.0.4) (2021-05-28)
+
+### Features
+
+- add additional JSDoc factory functions for older TypeScript versions ([99ced96](https://github.com/wessberg/compatfactory/commit/99ced9601698114282b4a57c1d3afec6fc51c960))
+
 ## [0.0.3](https://github.com/wessberg/compatfactory/compare/v0.0.2...v0.0.3) (2021-05-28)
 
 ### Features
