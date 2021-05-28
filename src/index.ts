@@ -185,7 +185,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		node.name = name;
 		node.isBracketed = isBracketed;
 		node.typeExpression = typeExpression;
-		if (isNameFirst) node.isNameFirst = isNameFirst;
+		if (isNameFirst != null) node.isNameFirst = isNameFirst;
 		node.comment = comment;
 		return node;
 	}
