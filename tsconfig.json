@@ -1,0 +1,11 @@
+{
+	"extends": "@wessberg/ts-config",
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es2018",
+		"resolveJsonModule": true,
+		"noUnusedParameters": false,
+		"importHelpers": false,
+		"allowJs": true
+	}
+}
