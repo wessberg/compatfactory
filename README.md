@@ -125,7 +125,7 @@ Simply import `ensureNodeFactory` and use it in place of the Node Factory you wo
 One very basic example could be:
 
 ```ts
-import {ensureNodeFactory} from "nodefactory";
+import {ensureNodeFactory} from "node-factory";
 
 // Will use typescript.factory if available, and otherwise return an object that wraps typescript's helper functions
 // but makes them conform with the Node Factory API
@@ -136,7 +136,7 @@ factory.createClassDeclaration(/* ... */);
 A more realistic example would be inside a Custom Transformer context:
 
 ```ts
-import {ensureNodeFactory} from "./index";
+import {ensureNodeFactory} from "node-factory";
 import type TS from "typescript";
 
 function getCustomTransformers(typescript: typeof TS): TS.CustomTransformers {
