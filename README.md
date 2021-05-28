@@ -130,10 +130,7 @@ import {ensureNodeFactory} from "nodefactory";
 // Will use typescript.factory if available, and otherwise return an object that wraps typescript's helper functions
 // but makes them conform with the Node Factory API
 const factory = ensureNodeFactory(typescript);
-factory
-	.createClassDeclaration
-	// ...
-	();
+factory.createClassDeclaration(/* ... */);
 ```
 
 A more realistic example would be inside a Custom Transformer context:
