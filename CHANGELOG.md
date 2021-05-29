@@ -1,3 +1,9 @@
+## [0.0.5](https://github.com/wessberg/compatfactory/compare/v0.0.4...v0.0.5) (2021-05-29)
+
+### Bug Fixes
+
+- fix signature for createVariableDeclaration ([a311bc1](https://github.com/wessberg/compatfactory/commit/a311bc17ca73c8d899f160afed606f6ef49d3fa5))
+
 ## [0.0.4](https://github.com/wessberg/compatfactory/compare/v0.0.3...v0.0.4) (2021-05-28)
 
 ### Features
