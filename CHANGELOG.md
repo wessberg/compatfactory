@@ -1,3 +1,9 @@
+## [0.0.6](https://github.com/wessberg/compatfactory/compare/v0.0.5...v0.0.6) (2021-05-29)
+
+### Bug Fixes
+
+- allow passing an already wrapped TypeScript object to ensureNodeFactory without performing any additional wrapping ([913abb8](https://github.com/wessberg/compatfactory/commit/913abb8f7e7218876013a5f3cf48dd3f748f404e))
+
 ## [0.0.5](https://github.com/wessberg/compatfactory/compare/v0.0.4...v0.0.5) (2021-05-29)
 
 ### Bug Fixes
