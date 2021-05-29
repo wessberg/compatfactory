@@ -1420,6 +1420,9 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			return typescript.createObjectLiteral(properties, multiLine);
 		},
 		createVariableDeclaration(name: string | TS.BindingName, exclamationToken?: TS.ExclamationToken, type?: TS.TypeNode, initializer?: TS.Expression): TS.VariableDeclaration {
+			if (typescript.createVariableDeclaration.length === 4) {
+				return typescript.createVariableDeclaration(name, exclamationToken, type, initializer);
+			}
 			return typescript.createVariableDeclaration(name, type, initializer);
 		},
 		createImportEqualsDeclaration(
