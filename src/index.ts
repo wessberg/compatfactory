@@ -584,8 +584,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return node;
 	}
 
+	const {updateSourceFileNode, ...common} = typescript;
+
 	return {
-		...typescript,
+		...common,
 		createToken,
 		createConstructorTypeNode,
 		updateConstructorTypeNode,
