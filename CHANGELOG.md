@@ -1,3 +1,9 @@
+## [0.0.7](https://github.com/wessberg/compatfactory/compare/v0.0.6...v0.0.7) (2021-05-29)
+
+### Bug Fixes
+
+- use provided modifiers when creating/updating MethodSignatures ([cfac75f](https://github.com/wessberg/compatfactory/commit/cfac75fcd593384d5d3b1c1a4066f5f769f50eaf))
+
 ## [0.0.6](https://github.com/wessberg/compatfactory/compare/v0.0.5...v0.0.6) (2021-05-29)
 
 ### Bug Fixes
