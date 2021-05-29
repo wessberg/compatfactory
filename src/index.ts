@@ -701,7 +701,16 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			parameters: readonly TS.ParameterDeclaration[],
 			type: TS.TypeNode | undefined
 		): TS.MethodSignature {
-			return typescript.createMethodSignature(typeParameters, parameters, type, name, questionToken);
+			const methodSignature = typescript.createMethodSignature(typeParameters, parameters, type, name, questionToken) as Mutable<TS.MethodSignature>;
+
+			// Also set the modifiers
+			// Workaround for: https://github.com/microsoft/TypeScript/issues/35959
+			if (modifiers != null) {
+				methodSignature.modifiers = typescript.createNodeArray(modifiers);
+			}
+			return methodSignature;
+
+			return methodSignature;
 		},
 		updateMethodSignature(
 			node: TS.MethodSignature,
@@ -712,7 +721,14 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			parameters: TS.NodeArray<TS.ParameterDeclaration>,
 			type: TS.TypeNode | undefined
 		): TS.MethodSignature {
-			return typescript.updateMethodSignature(node, typeParameters, parameters, type, name, questionToken);
+			const methodSignature = typescript.updateMethodSignature(node, typeParameters, parameters, type, name, questionToken) as Mutable<TS.MethodSignature>;
+
+			// Also set the modifiers
+			// Workaround for: https://github.com/microsoft/TypeScript/issues/35959
+			if (modifiers !== methodSignature.modifiers) {
+				methodSignature.modifiers = modifiers == null ? modifiers : typescript.createNodeArray(modifiers);
+			}
+			return methodSignature;
 		},
 		updatePropertySignature(
 			node: TS.PropertySignature,
@@ -1426,6 +1442,19 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				return typescript.createVariableDeclaration(name, exclamationToken, type, initializer);
 			}
 			return typescript.createVariableDeclaration(name, type, initializer);
+		},
+		updateVariableDeclaration(
+			node: TS.VariableDeclaration,
+			name: TS.BindingName,
+			exclamationToken: TS.ExclamationToken | undefined,
+			type: TS.TypeNode | undefined,
+			initializer: TS.Expression | undefined
+		): TS.VariableDeclaration {
+			if (typescript.updateVariableDeclaration.length === 4) {
+				return typescript.updateVariableDeclaration(node, name, type, initializer);
+			}
+
+			return typescript.updateVariableDeclaration(node, name, exclamationToken, type, initializer);
 		},
 		createImportEqualsDeclaration(
 			decorators: readonly TS.Decorator[] | undefined,
