@@ -1,3 +1,9 @@
+## [0.0.8](https://github.com/wessberg/compatfactory/compare/v0.0.7...v0.0.8) (2021-06-11)
+
+### Features
+
+- **property-access-chain:** add compatibility for TypeScript < 3.6 when generating PropertyAccessChains ([909ab22](https://github.com/wessberg/compatfactory/commit/909ab22084c9070b1bb974c281c5c7b9a0548a76))
+
 ## [0.0.7](https://github.com/wessberg/compatfactory/compare/v0.0.6...v0.0.7) (2021-05-29)
 
 ### Bug Fixes
