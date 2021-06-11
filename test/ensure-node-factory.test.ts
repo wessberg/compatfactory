@@ -74,3 +74,33 @@ test("It is possible to construct JSDoc comments. #2", withTypeScriptVersions("<
 	t.notThrows(() => factory.createJSDocProtectedTag(undefined, undefined));
 	t.notThrows(() => factory.createJSDocAuthorTag(undefined, undefined));
 });
+
+test("It is possible to construct PropertyAccessChains, even for older TypeScript versions. #1", withTypeScriptVersions("<3.6"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+	factory.createPropertyAccessChain(factory.createIdentifier("foo"), factory.createToken(typescript.SyntaxKind.QuestionDotToken), factory.createIdentifier("bar"));
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createExpressionStatement(
+				factory.createPropertyAccessChain(factory.createIdentifier("foo"), factory.createToken(typescript.SyntaxKind.QuestionDotToken), factory.createIdentifier("bar"))
+			)
+		),
+		formatCode(`foo.bar`)
+	);
+});
+
+test("It is possible to construct PropertyAccessChains. #1", withTypeScriptVersions(">= 3.7 && < 4.0"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+	factory.createPropertyAccessChain(factory.createIdentifier("foo"), factory.createToken(typescript.SyntaxKind.QuestionDotToken), factory.createIdentifier("bar"));
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createExpressionStatement(
+				factory.createPropertyAccessChain(factory.createIdentifier("foo"), factory.createToken(typescript.SyntaxKind.QuestionDotToken), factory.createIdentifier("bar"))
+			)
+		),
+		formatCode(`foo?.bar`)
+	);
+});

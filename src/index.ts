@@ -1456,6 +1456,29 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 			return typescript.updateVariableDeclaration(node, name, exclamationToken, type, initializer);
 		},
+		createPropertyAccessChain(expression: TS.Expression, questionDotToken: TS.QuestionDotToken | undefined, name: string | TS.MemberName): TS.PropertyAccessChain {
+			if ("createPropertyAccessChain" in typescript) {
+				return typescript.createPropertyAccessChain(expression, questionDotToken, name);
+			}
+
+			const node = typescript.createPropertyAccess(expression, name) as Mutable<TS.PropertyAccessChain>;
+			node.questionDotToken = questionDotToken;
+			return node;
+		},
+		updatePropertyAccessChain(
+			node: TS.PropertyAccessChain,
+			expression: TS.Expression,
+			questionDotToken: TS.QuestionDotToken | undefined,
+			name: TS.MemberName
+		): TS.PropertyAccessChain {
+			if ("updatePropertyAccessChain" in typescript) {
+				return typescript.updatePropertyAccessChain(node, expression, questionDotToken, name);
+			}
+
+			const newNode = typescript.updatePropertyAccess(node, expression, name) as Mutable<TS.PropertyAccessChain>;
+			newNode.questionDotToken = questionDotToken;
+			return newNode;
+		},
 		createImportEqualsDeclaration(
 			decorators: readonly TS.Decorator[] | undefined,
 			modifiers: readonly TS.Modifier[] | undefined,
