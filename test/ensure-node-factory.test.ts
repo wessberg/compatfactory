@@ -1,10 +1,10 @@
 import test from "ava";
-import {withTypeScriptVersions} from "./util/ts-macro";
-import {ensureNodeFactory} from "../src/index";
+import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
+import {ensureNodeFactory} from "../src";
 import {formatStatements} from "./util/format-statements";
 import {formatCode} from "./util/format-code";
 
-test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.2"), (t, {typescript}) => {
+test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.4"), (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.true(factory === typescript.factory);
 });
@@ -75,6 +75,21 @@ test("It is possible to construct JSDoc comments. #2", withTypeScriptVersions("<
 	t.notThrows(() => factory.createJSDocAuthorTag(undefined, undefined));
 });
 
+test("It is possible to construct JSDoc comments. #3", withTypeScriptVersions("<4.4"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+	t.notThrows(() => factory.createJSDocMemberName(factory.createIdentifier("foo"), factory.createIdentifier("bar")));
+});
+
+test("It is possible to construct JSDoc comments. #4", withTypeScriptVersions("<4.4"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+	t.notThrows(() => factory.createJSDocLinkCode(factory.createIdentifier("foo"), "Foo"));
+});
+
+test("It is possible to construct JSDoc comments. #5", withTypeScriptVersions("<4.4"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+	t.notThrows(() => factory.createJSDocLinkPlain(factory.createIdentifier("foo"), "Foo"));
+});
+
 test("It is possible to construct PropertyAccessChains, even for older TypeScript versions. #1", withTypeScriptVersions("<3.6"), (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	factory.createPropertyAccessChain(factory.createIdentifier("foo"), factory.createToken(typescript.SyntaxKind.QuestionDotToken), factory.createIdentifier("bar"));
@@ -102,5 +117,91 @@ test("It is possible to construct PropertyAccessChains. #1", withTypeScriptVersi
 			)
 		),
 		formatCode(`foo?.bar`)
+	);
+});
+
+test("It is possible to construct ClassStaticBlockDeclarations, even for older TypeScript versions. #1", withTypeScriptVersions("<4.4"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createClassDeclaration(
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				[factory.createClassStaticBlockDeclaration(undefined, undefined, factory.createBlock([]))]
+			)
+		),
+		formatCode(`\
+		class {}`
+		)
+	);
+});
+
+test("It is possible to pass a number as argument to factory.createNumericLiteral. #1", withTypeScript, (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(typescript, factory.createExpressionStatement(factory.createNumericLiteral(0))),
+		formatCode(`0`)
+	);
+});
+
+test("It is possible to have separate write types on properties, even for older TypeScript versions. #1", withTypeScriptVersions("<4.3"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createClassDeclaration(
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				[
+					factory.createGetAccessorDeclaration(
+						undefined,
+						undefined,
+						"size",
+						[],
+						factory.createKeywordTypeNode(typescript.SyntaxKind.NumberKeyword),
+						factory.createBlock([
+							factory.createReturnStatement(factory.createNumericLiteral(0))
+						])
+					),
+					factory.createSetAccessorDeclaration(
+						undefined,
+						undefined,
+						"size",
+						[
+							factory.createParameterDeclaration(
+								undefined,
+								undefined,
+								undefined,
+								"value",
+								undefined,
+								factory.createKeywordTypeNode(typescript.SyntaxKind.StringKeyword),
+								undefined
+							)
+						],
+						factory.createBlock([
+						])
+					)
+				]
+			)
+		),
+		formatCode(`\
+		class {
+			get size(): number {
+				return 0;
+			}
+			set size(value: string) {
+			}
+		}`
+		)
 	);
 });

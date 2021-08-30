@@ -1,5 +1,5 @@
 import type * as TS from "typescript";
-import {ensureNodeFactory} from "../../src/index";
+import {ensureNodeFactory} from "../../src";
 import {formatCode} from "./format-code";
 import {MaybeArray} from "helpertypes";
 
