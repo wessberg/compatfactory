@@ -1,3 +1,12 @@
+## [0.0.10](https://github.com/wessberg/compatfactory/compare/v0.0.9...v0.0.10) (2021-11-17)
+
+
+### Features
+
+* add TypeScript v4.5 support ([2d33062](https://github.com/wessberg/compatfactory/commit/2d33062a4a840644aae884b258d4a8e0ffa38a43))
+
+
+
 ## [0.0.9](https://github.com/wessberg/compatfactory/compare/v0.0.8...v0.0.9) (2021-08-30)
 
 
