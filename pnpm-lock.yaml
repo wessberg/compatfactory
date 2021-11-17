@@ -18,7 +18,7 @@ specifiers:
   prettier: ^2.4.1
   pretty-quick: ^3.1.2
   rimraf: ^3.0.2
-  sandhog: ^1.0.42
+  sandhog: ^1.0.43
   semver: ^7.3.5
   standard-changelog: ^2.0.27
   ts-node: ^10.4.0
@@ -59,7 +59,7 @@ devDependencies:
   prettier: 2.4.1
   pretty-quick: 3.1.2_prettier@2.4.1
   rimraf: 3.0.2
-  sandhog: 1.0.42
+  sandhog: 1.0.43
   semver: 7.3.5
   standard-changelog: 2.0.27
   ts-node: 10.4.0_typescript@4.5.2
@@ -4697,8 +4697,8 @@ packages:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
     dev: true
 
-  /sandhog/1.0.42:
-    resolution: {integrity: sha512-VqQSpgv2ony7ePJ5Tt9b1qTiSHFaDA/bNDN5jqBg8u1bXT+c78RMJwnFbE/mLfZHABBSsI9J/lEdoqUQY4A/Cw==}
+  /sandhog/1.0.43:
+    resolution: {integrity: sha512-K5/t6MiDcwilCHb4wtXnOUckJgfXeO1rzqXYVCOEfH6Aco3R4l+M1oS3qQm2Ou3VMtaCVHCycTA7NtHjzDHTlQ==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     dependencies:
