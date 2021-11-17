@@ -1,3 +1,12 @@
+## [0.0.12](https://github.com/wessberg/compatfactory/compare/v0.0.11...v0.0.12) (2021-11-17)
+
+
+### Bug Fixes
+
+* ensure that createExportSpecifier can be called with three arguments across all TypeScript versions ([aad253d](https://github.com/wessberg/compatfactory/commit/aad253ddd5a2d7442a792a66d9e4d7353cabb96a))
+
+
+
 ## [0.0.11](https://github.com/wessberg/compatfactory/compare/v0.0.10...v0.0.11) (2021-11-17)
 
 
