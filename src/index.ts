@@ -22,6 +22,7 @@ export function ensureNodeFactory(factoryLike: TS.NodeFactory | typeof TS): TS.N
 
 function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const badCreateImportEqualsDeclaration = factory.createImportEqualsDeclaration.length === 4;
+	const badCreateImportSpecifier = factory.createImportSpecifier.length === 2;
 	const badCreateMappedTypeNodeA = factory.createMappedTypeNode.length === 4;
 	const badCreateMappedTypeNodeB = factory.createMappedTypeNode.length === 5;
 	const missingCreateClassStaticBlockDeclaration = factory.createClassStaticBlockDeclaration == null;
@@ -31,7 +32,13 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const missingCreateJSDocLinkCode = factory.createJSDocLinkCode == null;
 	const missingCreateJSDocLinkPlain = factory.createJSDocLinkPlain == null;
 	const needsModifications =
-		badCreateImportEqualsDeclaration || badCreateMappedTypeNodeA || badCreateMappedTypeNodeB || missingCreateClassStaticBlockDeclaration || missingCreateAssertClause || missingCreateAssertEntry;
+		badCreateImportEqualsDeclaration ||
+		badCreateImportSpecifier ||
+		badCreateMappedTypeNodeA ||
+		badCreateMappedTypeNodeB ||
+		missingCreateClassStaticBlockDeclaration ||
+		missingCreateAssertClause ||
+		missingCreateAssertEntry;
 
 	if (needsModifications) {
 		/**
@@ -92,6 +99,38 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								name as never,
 								moduleReference as never
 							) as unknown as TS.ImportEqualsDeclaration;
+						},
+
+						updateImportEqualsDeclaration(
+							node: TS.ImportEqualsDeclaration,
+							decorators: readonly TS.Decorator[] | undefined,
+							modifiers: readonly TS.Modifier[] | undefined,
+							isTypeOnly: boolean,
+							name: string | TS.Identifier,
+							moduleReference: TS.ModuleReference
+						): TS.ImportEqualsDeclaration {
+							return (factory as unknown as import("typescript-4-1-2").NodeFactory).updateImportEqualsDeclaration(
+								node as never,
+								decorators as never,
+								modifiers as never,
+								name as never,
+								moduleReference as never
+							) as unknown as TS.ImportEqualsDeclaration;
+						}
+				  }
+				: {}),
+			...(badCreateImportSpecifier
+				? {
+						createImportSpecifier(isTypeOnly: boolean, propertyName: TS.Identifier | undefined, name: TS.Identifier): TS.ImportSpecifier {
+							return (factory as unknown as import("typescript-4-4-3").NodeFactory).createImportSpecifier(propertyName as never, name as never) as unknown as TS.ImportSpecifier;
+						},
+
+						updateImportSpecifier(node: TS.ImportSpecifier, isTypeOnly: boolean, propertyName: TS.Identifier | undefined, name: TS.Identifier): TS.ImportSpecifier {
+							return (factory as unknown as import("typescript-4-4-3").NodeFactory).updateImportSpecifier(
+								node as never,
+								propertyName as never,
+								name as never
+							) as unknown as TS.ImportSpecifier;
 						}
 				  }
 				: {}),
@@ -110,29 +149,65 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								questionToken as never,
 								type as never
 							) as unknown as TS.MappedTypeNode;
+						},
+
+						updateMappedTypeNode(
+							node: TS.MappedTypeNode,
+							readonlyToken: TS.ReadonlyKeyword | TS.PlusToken | TS.MinusToken | undefined,
+							typeParameter: TS.TypeParameterDeclaration,
+							nameType: TS.TypeNode | undefined,
+							questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
+							type: TS.TypeNode | undefined
+						): TS.MappedTypeNode {
+							return (factory as unknown as import("typescript-4-0-3").NodeFactory).updateMappedTypeNode(
+								node as never,
+								readonlyToken as never,
+								typeParameter as never,
+								questionToken as never,
+								type as never
+							) as unknown as TS.MappedTypeNode;
 						}
 				  }
 				: {}),
-				...(badCreateMappedTypeNodeB
-					? {
-							createMappedTypeNode(
-								readonlyToken: TS.ReadonlyKeyword | TS.PlusToken | TS.MinusToken | undefined,
-								typeParameter: TS.TypeParameterDeclaration,
-								nameType: TS.TypeNode | undefined,
-								questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
-								type: TS.TypeNode | undefined,
-								members?: TS.NodeArray<TS.TypeElement> | undefined
-							): TS.MappedTypeNode {
-								return (factory as unknown as import("typescript-4-4-3").NodeFactory).createMappedTypeNode(
-									readonlyToken as never,
-									typeParameter as never,
-									nameType as never,
-									questionToken as never,
-									type as never
-								) as unknown as TS.MappedTypeNode;
-							}
-					  }
-					: {}),
+			...(badCreateMappedTypeNodeB
+				? {
+						createMappedTypeNode(
+							readonlyToken: TS.ReadonlyKeyword | TS.PlusToken | TS.MinusToken | undefined,
+							typeParameter: TS.TypeParameterDeclaration,
+							nameType: TS.TypeNode | undefined,
+							questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
+							type: TS.TypeNode | undefined,
+							members?: TS.NodeArray<TS.TypeElement> | undefined
+						): TS.MappedTypeNode {
+							return (factory as unknown as import("typescript-4-4-3").NodeFactory).createMappedTypeNode(
+								readonlyToken as never,
+								typeParameter as never,
+								nameType as never,
+								questionToken as never,
+								type as never
+							) as unknown as TS.MappedTypeNode;
+						},
+
+						updateMappedTypeNode(
+							node: TS.MappedTypeNode,
+							readonlyToken: TS.ReadonlyKeyword | TS.PlusToken | TS.MinusToken | undefined,
+							typeParameter: TS.TypeParameterDeclaration,
+							nameType: TS.TypeNode | undefined,
+							questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
+							type: TS.TypeNode | undefined,
+							members?: TS.NodeArray<TS.TypeElement> | undefined
+						): TS.MappedTypeNode {
+							return (factory as unknown as import("typescript-4-4-3").NodeFactory).updateMappedTypeNode(
+								node as never,
+								readonlyToken as never,
+								typeParameter as never,
+								nameType as never,
+								questionToken as never,
+								type as never
+							) as unknown as TS.MappedTypeNode;
+						}
+				  }
+				: {}),
 			...(missingCreateClassStaticBlockDeclaration
 				? (() => {
 						function createClassStaticBlockDeclaration(
@@ -1814,17 +1889,29 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			name: string | TS.Identifier,
 			moduleReference: TS.ModuleReference
 		): TS.ImportEqualsDeclaration {
-			// For TypeScript < 4.0
-			if (typescript.createImportEqualsDeclaration.length === 4) {
-				return (typescript as unknown as typeof import("typescript-3-9-2")).createImportEqualsDeclaration(
-					decorators as never,
-					modifiers as never,
-					name as never,
-					moduleReference as never
-				) as unknown as TS.ImportEqualsDeclaration;
-			}
-
-			return typescript.createImportEqualsDeclaration(decorators, modifiers, isTypeOnly, name, moduleReference);
+			return (typescript as unknown as typeof import("typescript-3-9-2")).createImportEqualsDeclaration(
+				decorators as never,
+				modifiers as never,
+				name as never,
+				moduleReference as never
+			) as unknown as TS.ImportEqualsDeclaration;
+		},
+		updateImportEqualsDeclaration(
+			node: TS.ImportEqualsDeclaration,
+			decorators: readonly TS.Decorator[] | undefined,
+			modifiers: readonly TS.Modifier[] | undefined,
+			isTypeOnly: boolean,
+			name: string | TS.Identifier,
+			moduleReference: TS.ModuleReference
+		): TS.ImportEqualsDeclaration {
+			const normalizedName = typeof name === "string" ? typescript.createIdentifier(name) : name; 
+			return (typescript as unknown as typeof import("typescript-3-9-2")).updateImportEqualsDeclaration(
+				node as never,
+				decorators as never,
+				modifiers as never,
+				normalizedName as never,
+				moduleReference as never
+			) as unknown as TS.ImportEqualsDeclaration;
 		},
 		createMappedTypeNode(
 			readonlyToken: TS.ReadonlyKeyword | TS.PlusToken | TS.MinusToken | undefined,
@@ -1834,16 +1921,36 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			type: TS.TypeNode | undefined,
 			members?: TS.NodeArray<TS.TypeElement> | undefined
 		): TS.MappedTypeNode {
-			if (typescript.createMappedTypeNode.length === 4) {
-				return (typescript as unknown as import("typescript-4-0-3").NodeFactory).createMappedTypeNode(
-					readonlyToken as never,
-					typeParameter as never,
-					questionToken as never,
-					type as never
-				) as unknown as TS.MappedTypeNode;
-			}
+			return (typescript as unknown as typeof import("typescript-3-9-2")).createMappedTypeNode(
+				readonlyToken as never,
+				typeParameter as never,
+				questionToken as never,
+				type as never
+			) as unknown as TS.MappedTypeNode;
+		},
+		updateMappedTypeNode(
+			node: TS.MappedTypeNode,
+			readonlyToken: TS.ReadonlyKeyword | TS.PlusToken | TS.MinusToken | undefined,
+			typeParameter: TS.TypeParameterDeclaration,
+			nameType: TS.TypeNode | undefined,
+			questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
+			type: TS.TypeNode | undefined,
+			members?: TS.NodeArray<TS.TypeElement> | undefined
+		): TS.MappedTypeNode {
+			return (typescript as unknown as typeof import("typescript-3-9-2")).updateMappedTypeNode(
+				node as never,
+				readonlyToken as never,
+				typeParameter as never,
+				questionToken as never,
+				type as never
+			) as unknown as TS.MappedTypeNode;
+		},
+		createImportSpecifier(isTypeOnly: boolean, propertyName: TS.Identifier | undefined, name: TS.Identifier): TS.ImportSpecifier {
+			return (typescript as unknown as typeof import("typescript-3-9-2")).createImportSpecifier(propertyName as never, name as never) as unknown as TS.ImportSpecifier;
+		},
 
-			return typescript.createMappedTypeNode(readonlyToken, typeParameter, nameType, questionToken, type, members);
+		updateImportSpecifier(node: TS.ImportSpecifier, isTypeOnly: boolean, propertyName: TS.Identifier | undefined, name: TS.Identifier): TS.ImportSpecifier {
+			return (typescript as unknown as typeof import("typescript-3-9-2")).updateImportSpecifier(node as never, propertyName as never, name as never) as unknown as TS.ImportSpecifier;
 		},
 		createExportDeclaration(
 			decorators: readonly TS.Decorator[] | undefined,

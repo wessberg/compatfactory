@@ -18,6 +18,7 @@ test(
 		t.true(factory.createVariableDeclaration === typescript.factory.createVariableDeclaration);
 
 		t.false(factory.createImportEqualsDeclaration === typescript.factory.createImportEqualsDeclaration);
+		t.false(factory.createImportSpecifier === typescript.factory.createImportSpecifier);
 		t.false(factory.createMappedTypeNode === typescript.factory.createMappedTypeNode);
 	}
 );
@@ -180,6 +181,34 @@ test("It is possible to construct AssertEntries, even for older TypeScript versi
 			  
 		),
 		formatCode(`import obj from "./something.json";`)
+	);
+});
+
+test("It is possible to construct type-only ImportSpecifiers, even for older TypeScript versions. #1", withTypeScriptVersions("<4.5"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createImportDeclaration(
+				undefined,
+				undefined,
+				factory.createImportClause(
+				  false,
+				  undefined,
+				  factory.createNamedImports([factory.createImportSpecifier(
+					true,
+					undefined,
+					factory.createIdentifier("Foo")
+				  )])
+				),
+				factory.createStringLiteral("./bar"),
+				undefined
+			  )
+			  
+			  
+		),
+		formatCode(`import {Foo} from "./bar";`)
 	);
 });
 
