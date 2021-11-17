@@ -4,7 +4,7 @@ import {ensureNodeFactory} from "../src";
 import {formatStatements} from "./util/format-statements";
 import {formatCode} from "./util/format-code";
 
-test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.4"), (t, {typescript}) => {
+test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.5"), (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.true(factory === typescript.factory);
 });
@@ -126,28 +126,67 @@ test("It is possible to construct ClassStaticBlockDeclarations, even for older T
 	t.deepEqual(
 		formatStatements(
 			typescript,
-			factory.createClassDeclaration(
-				undefined,
-				undefined,
-				undefined,
-				undefined,
-				undefined,
-				[factory.createClassStaticBlockDeclaration(undefined, undefined, factory.createBlock([]))]
-			)
+			factory.createClassDeclaration(undefined, undefined, undefined, undefined, undefined, [
+				factory.createClassStaticBlockDeclaration(undefined, undefined, factory.createBlock([]))
+			])
 		),
 		formatCode(`\
-		class {}`
-		)
+		class {}`)
+	);
+});
+
+test("It is possible to construct AssertClauses, even for older TypeScript versions. #1", withTypeScriptVersions("<4.5"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createImportDeclaration(
+				undefined,
+				undefined,
+				factory.createImportClause(
+				  false,
+				  factory.createIdentifier("obj"),
+				  undefined
+				),
+				factory.createStringLiteral("./something.json"),
+				factory.createAssertClause(factory.createNodeArray(), false)
+			  )
+			  
+		),
+		formatCode(`import obj from "./something.json";`)
+	);
+});
+
+test("It is possible to construct AssertEntries, even for older TypeScript versions. #1", withTypeScriptVersions("<4.5"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createImportDeclaration(
+				undefined,
+				undefined,
+				factory.createImportClause(
+				  false,
+				  factory.createIdentifier("obj"),
+				  undefined
+				),
+				factory.createStringLiteral("./something.json"),
+				factory.createAssertClause(factory.createNodeArray([
+					factory.createAssertEntry(factory.createIdentifier("type"), factory.createStringLiteral("json"))
+				]), false)
+			  )
+			  
+		),
+		formatCode(`import obj from "./something.json";`)
 	);
 });
 
 test("It is possible to pass a number as argument to factory.createNumericLiteral. #1", withTypeScript, (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
-	t.deepEqual(
-		formatStatements(typescript, factory.createExpressionStatement(factory.createNumericLiteral(0))),
-		formatCode(`0`)
-	);
+	t.deepEqual(formatStatements(typescript, factory.createExpressionStatement(factory.createNumericLiteral(0))), formatCode(`0`));
 });
 
 test("It is possible to have separate write types on properties, even for older TypeScript versions. #1", withTypeScriptVersions("<4.3"), (t, {typescript}) => {
@@ -156,43 +195,23 @@ test("It is possible to have separate write types on properties, even for older 
 	t.deepEqual(
 		formatStatements(
 			typescript,
-			factory.createClassDeclaration(
-				undefined,
-				undefined,
-				undefined,
-				undefined,
-				undefined,
-				[
-					factory.createGetAccessorDeclaration(
-						undefined,
-						undefined,
-						"size",
-						[],
-						factory.createKeywordTypeNode(typescript.SyntaxKind.NumberKeyword),
-						factory.createBlock([
-							factory.createReturnStatement(factory.createNumericLiteral(0))
-						])
-					),
-					factory.createSetAccessorDeclaration(
-						undefined,
-						undefined,
-						"size",
-						[
-							factory.createParameterDeclaration(
-								undefined,
-								undefined,
-								undefined,
-								"value",
-								undefined,
-								factory.createKeywordTypeNode(typescript.SyntaxKind.StringKeyword),
-								undefined
-							)
-						],
-						factory.createBlock([
-						])
-					)
-				]
-			)
+			factory.createClassDeclaration(undefined, undefined, undefined, undefined, undefined, [
+				factory.createGetAccessorDeclaration(
+					undefined,
+					undefined,
+					"size",
+					[],
+					factory.createKeywordTypeNode(typescript.SyntaxKind.NumberKeyword),
+					factory.createBlock([factory.createReturnStatement(factory.createNumericLiteral(0))])
+				),
+				factory.createSetAccessorDeclaration(
+					undefined,
+					undefined,
+					"size",
+					[factory.createParameterDeclaration(undefined, undefined, undefined, "value", undefined, factory.createKeywordTypeNode(typescript.SyntaxKind.StringKeyword), undefined)],
+					factory.createBlock([])
+				)
+			])
 		),
 		formatCode(`\
 		class {
@@ -201,7 +220,6 @@ test("It is possible to have separate write types on properties, even for older 
 			}
 			set size(value: string) {
 			}
-		}`
-		)
+		}`)
 	);
 });
