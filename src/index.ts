@@ -23,6 +23,7 @@ export function ensureNodeFactory(factoryLike: TS.NodeFactory | typeof TS): TS.N
 function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const badCreateImportEqualsDeclaration = factory.createImportEqualsDeclaration.length === 4;
 	const badCreateImportSpecifier = factory.createImportSpecifier.length === 2;
+	const badCreateExportSpecifier = factory.createExportSpecifier.length === 2;
 	const badCreateMappedTypeNodeA = factory.createMappedTypeNode.length === 4;
 	const badCreateMappedTypeNodeB = factory.createMappedTypeNode.length === 5;
 	const missingCreateClassStaticBlockDeclaration = factory.createClassStaticBlockDeclaration == null;
@@ -34,6 +35,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const needsModifications =
 		badCreateImportEqualsDeclaration ||
 		badCreateImportSpecifier ||
+		badCreateExportSpecifier ||
 		badCreateMappedTypeNodeA ||
 		badCreateMappedTypeNodeB ||
 		missingCreateClassStaticBlockDeclaration ||
@@ -131,6 +133,21 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								propertyName as never,
 								name as never
 							) as unknown as TS.ImportSpecifier;
+						}
+				  }
+				: {}),
+			...(badCreateExportSpecifier
+				? {
+						createExportSpecifier(isTypeOnly: boolean, propertyName: string | TS.Identifier | undefined, name: string | TS.Identifier): TS.ExportSpecifier {
+							return (factory as unknown as import("typescript-4-4-3").NodeFactory).createExportSpecifier(propertyName as never, name as never) as unknown as TS.ExportSpecifier;
+						},
+
+						updateExportSpecifier(node: TS.ExportSpecifier, isTypeOnly: boolean, propertyName: TS.Identifier | undefined, name: TS.Identifier): TS.ExportSpecifier {
+							return (factory as unknown as import("typescript-4-4-3").NodeFactory).updateExportSpecifier(
+								node as never,
+								propertyName as never,
+								name as never
+							) as unknown as TS.ExportSpecifier;
 						}
 				  }
 				: {}),
@@ -1904,7 +1921,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			name: string | TS.Identifier,
 			moduleReference: TS.ModuleReference
 		): TS.ImportEqualsDeclaration {
-			const normalizedName = typeof name === "string" ? typescript.createIdentifier(name) : name; 
+			const normalizedName = typeof name === "string" ? typescript.createIdentifier(name) : name;
 			return (typescript as unknown as typeof import("typescript-3-9-2")).updateImportEqualsDeclaration(
 				node as never,
 				decorators as never,
@@ -1950,7 +1967,22 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		},
 
 		updateImportSpecifier(node: TS.ImportSpecifier, isTypeOnly: boolean, propertyName: TS.Identifier | undefined, name: TS.Identifier): TS.ImportSpecifier {
-			return (typescript as unknown as typeof import("typescript-3-9-2")).updateImportSpecifier(node as never, propertyName as never, name as never) as unknown as TS.ImportSpecifier;
+			return (typescript as unknown as typeof import("typescript-3-9-2")).updateImportSpecifier(
+				node as never,
+				propertyName as never,
+				name as never
+			) as unknown as TS.ImportSpecifier;
+		},
+		createExportSpecifier(isTypeOnly: boolean, propertyName: string | TS.Identifier | undefined, name: string | TS.Identifier): TS.ExportSpecifier {
+			return (typescript as unknown as typeof import("typescript-3-9-2")).createExportSpecifier(propertyName as never, name as never) as unknown as TS.ExportSpecifier;
+		},
+
+		updateExportSpecifier(node: TS.ExportSpecifier, isTypeOnly: boolean, propertyName: TS.Identifier | undefined, name: TS.Identifier): TS.ExportSpecifier {
+			return (typescript as unknown as typeof import("typescript-3-9-2")).updateExportSpecifier(
+				node as never,
+				propertyName as never,
+				name as never
+			) as unknown as TS.ExportSpecifier;
 		},
 		createExportDeclaration(
 			decorators: readonly TS.Decorator[] | undefined,

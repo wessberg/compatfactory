@@ -212,6 +212,29 @@ test("It is possible to construct type-only ImportSpecifiers, even for older Typ
 	);
 });
 
+test("It is possible to construct type-only ExportSpecifiers, even for older TypeScript versions. #1", withTypeScriptVersions("<4.5"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createExportDeclaration(
+				undefined,
+				undefined,
+				false,
+				factory.createNamedExports([factory.createExportSpecifier(
+				  true,
+				  undefined,
+				  factory.createIdentifier("Foo")
+				)]),
+				factory.createStringLiteral("./bar"),
+				undefined
+			  )
+		),
+		formatCode(`export {Foo} from "./bar";`)
+	);
+});
+
 test("It is possible to pass a number as argument to factory.createNumericLiteral. #1", withTypeScript, (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
