@@ -1,3 +1,7 @@
+## [0.0.13](https://github.com/wessberg/compatfactory/compare/v0.0.12...v0.0.13) (2022-04-12)
+
+
+
 ## [0.0.12](https://github.com/wessberg/compatfactory/compare/v0.0.11...v0.0.12) (2021-11-17)
 
 
