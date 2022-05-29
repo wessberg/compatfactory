@@ -29,6 +29,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const missingCreateClassStaticBlockDeclaration = factory.createClassStaticBlockDeclaration == null;
 	const missingCreateAssertClause = factory.createAssertClause == null;
 	const missingCreateAssertEntry = factory.createAssertEntry == null;
+	const missingCreateImportTypeAssertionContainer = factory.createImportTypeAssertionContainer == null;
 	const missingCreateJSDocMemberName = factory.createJSDocMemberName == null;
 	const missingCreateJSDocLinkCode = factory.createJSDocLinkCode == null;
 	const missingCreateJSDocLinkPlain = factory.createJSDocLinkPlain == null;
@@ -40,7 +41,8 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		badCreateMappedTypeNodeB ||
 		missingCreateClassStaticBlockDeclaration ||
 		missingCreateAssertClause ||
-		missingCreateAssertEntry;
+		missingCreateAssertEntry ||
+		missingCreateImportTypeAssertionContainer;
 
 	if (needsModifications) {
 		/**
@@ -301,6 +303,25 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						return {
 							createAssertEntry,
 							updateAssertEntry
+						};
+				  })()
+				: {}),
+			...(missingCreateImportTypeAssertionContainer
+				? (() => {
+						function createImportTypeAssertionContainer(clause: TS.AssertClause, multiLine?: boolean): TS.ImportTypeAssertionContainer {
+							const node = factory.createEmptyStatement() as unknown as Mutable<TS.ImportTypeAssertionContainer>;
+							node.assertClause = clause;
+							node.multiLine = multiLine;
+							return node;
+						}
+
+						function updateImportTypeAssertionContainer(node: TS.ImportTypeAssertionContainer, clause: TS.AssertClause, multiLine?: boolean): TS.ImportTypeAssertionContainer {
+							return node.assertClause !== clause || node.multiLine !== multiLine ? update(createImportTypeAssertionContainer(clause, multiLine), node) : node;
+						}
+
+						return {
+							createImportTypeAssertionContainer,
+							updateImportTypeAssertionContainer
 						};
 				  })()
 				: {}),
@@ -973,6 +994,12 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return node;
 	}
 
+	function createImportTypeAssertionContainer(clause: TS.AssertClause, multiLine?: boolean): TS.ImportTypeAssertionContainer {
+		const node = typescript.createEmptyStatement() as unknown as Mutable<TS.ImportTypeAssertionContainer>;
+		node.assertClause = clause;
+		node.multiLine = multiLine;
+		return node;
+	}
 	const {updateSourceFileNode, ...common} = typescript;
 
 	return {
@@ -1025,6 +1052,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		createClassStaticBlockDeclaration,
 		createAssertClause,
 		createAssertEntry,
+		createImportTypeAssertionContainer,
 
 		createComma(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
 			return typescript.createComma(left, right) as TS.BinaryExpression;
@@ -1763,6 +1791,9 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		},
 		updateAssertEntry(node: TS.AssertEntry, name: TS.AssertionKey, value: TS.StringLiteral): TS.AssertEntry {
 			return node.name !== name || node.value !== value ? typescript.setTextRange(createAssertEntry(name, value), node) : node;
+		},
+		updateImportTypeAssertionContainer(node: TS.ImportTypeAssertionContainer, clause: TS.AssertClause, multiLine?: boolean): TS.ImportTypeAssertionContainer {
+			return node.assertClause !== clause || node.multiLine !== multiLine ? typescript.setTextRange(createImportTypeAssertionContainer(clause, multiLine), node) : node;
 		},
 		updateThrowStatement(node: TS.ThrowStatement, expression: TS.Expression): TS.ThrowStatement {
 			return typescript.updateThrow(node, expression);

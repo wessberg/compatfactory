@@ -1,10 +1,10 @@
 import test from "ava";
-import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
-import {ensureNodeFactory} from "../src";
-import {formatStatements} from "./util/format-statements";
-import {formatCode} from "./util/format-code";
+import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
+import {formatStatements} from "./util/format-statements.js";
+import {formatCode} from "./util/format-code.js";
+import {ensureNodeFactory} from "../src/index.js";
 
-test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.5"), (t, {typescript}) => {
+test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.7"), (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.true(factory === typescript.factory);
 });
@@ -145,15 +145,10 @@ test("It is possible to construct AssertClauses, even for older TypeScript versi
 			factory.createImportDeclaration(
 				undefined,
 				undefined,
-				factory.createImportClause(
-				  false,
-				  factory.createIdentifier("obj"),
-				  undefined
-				),
+				factory.createImportClause(false, factory.createIdentifier("obj"), undefined),
 				factory.createStringLiteral("./something.json"),
 				factory.createAssertClause(factory.createNodeArray(), false)
-			  )
-			  
+			)
 		),
 		formatCode(`import obj from "./something.json";`)
 	);
@@ -168,17 +163,10 @@ test("It is possible to construct AssertEntries, even for older TypeScript versi
 			factory.createImportDeclaration(
 				undefined,
 				undefined,
-				factory.createImportClause(
-				  false,
-				  factory.createIdentifier("obj"),
-				  undefined
-				),
+				factory.createImportClause(false, factory.createIdentifier("obj"), undefined),
 				factory.createStringLiteral("./something.json"),
-				factory.createAssertClause(factory.createNodeArray([
-					factory.createAssertEntry(factory.createIdentifier("type"), factory.createStringLiteral("json"))
-				]), false)
-			  )
-			  
+				factory.createAssertClause(factory.createNodeArray([factory.createAssertEntry(factory.createIdentifier("type"), factory.createStringLiteral("json"))]), false)
+			)
 		),
 		formatCode(`import obj from "./something.json";`)
 	);
@@ -193,20 +181,10 @@ test("It is possible to construct type-only ImportSpecifiers, even for older Typ
 			factory.createImportDeclaration(
 				undefined,
 				undefined,
-				factory.createImportClause(
-				  false,
-				  undefined,
-				  factory.createNamedImports([factory.createImportSpecifier(
-					true,
-					undefined,
-					factory.createIdentifier("Foo")
-				  )])
-				),
+				factory.createImportClause(false, undefined, factory.createNamedImports([factory.createImportSpecifier(true, undefined, factory.createIdentifier("Foo"))])),
 				factory.createStringLiteral("./bar"),
 				undefined
-			  )
-			  
-			  
+			)
 		),
 		formatCode(`import {Foo} from "./bar";`)
 	);
@@ -222,14 +200,10 @@ test("It is possible to construct type-only ExportSpecifiers, even for older Typ
 				undefined,
 				undefined,
 				false,
-				factory.createNamedExports([factory.createExportSpecifier(
-				  true,
-				  undefined,
-				  factory.createIdentifier("Foo")
-				)]),
+				factory.createNamedExports([factory.createExportSpecifier(true, undefined, factory.createIdentifier("Foo"))]),
 				factory.createStringLiteral("./bar"),
 				undefined
-			  )
+			)
 		),
 		formatCode(`export {Foo} from "./bar";`)
 	);

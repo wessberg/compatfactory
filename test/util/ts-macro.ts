@@ -1,5 +1,5 @@
-import {satisfies} from "semver";
-import pkg from "../../package.json";
+import pkg from "../../package.json" assert {type: "json"};
+import semver from "semver";
 import type {ExecutionContext, OneOrMoreMacros, Macro} from "ava";
 import type * as TS from "typescript";
 
@@ -12,7 +12,7 @@ export type ExtendedImplementation = (t: ExecutionContext, options: ExtendedImpl
 function makeTypeScriptMacro(version: string, specifier: string) {
 	const macro: Macro<[ExtendedImplementation]> = async (t, impl) =>
 		impl(t, {
-			typescript: await import(specifier),
+			typescript: (await import(specifier)).default,
 			typescriptModuleSpecifier: specifier
 		});
 	macro.title = (provided = "") => `${provided} (TypeScript v${version})`;
@@ -40,7 +40,7 @@ for (const [specifier, range] of Object.entries(devDependencies)) {
 		const [, context, version] = match;
 		if (context === "npm:typescript@" || specifier === "typescript") {
 			availableTsVersions.add(version);
-			if (filter === undefined || (filter.toUpperCase() === "CURRENT" && specifier === "typescript") || satisfies(version, filter, {includePrerelease: true})) {
+			if (filter === undefined || (filter.toUpperCase() === "CURRENT" && specifier === "typescript") || semver.satisfies(version, filter, {includePrerelease: true})) {
 				macros.set(version, makeTypeScriptMacro(version, specifier));
 			}
 		}
@@ -54,7 +54,7 @@ Available TypeScript versions: ${[...availableTsVersions].join(", ")}`);
 }
 
 export function withTypeScriptVersions(extraFilter: string): OneOrMoreMacros<[ExtendedImplementation], unknown> {
-	const filteredMacros = [...macros.entries()].filter(([version]) => satisfies(version, extraFilter, {includePrerelease: true})).map(([, macro]) => macro);
+	const filteredMacros = [...macros.entries()].filter(([version]) => semver.satisfies(version, extraFilter, {includePrerelease: true})).map(([, macro]) => macro);
 
 	if (filteredMacros.length === 0) {
 		filteredMacros.push(noMatchingVersionMacro);
