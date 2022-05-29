@@ -56,6 +56,7 @@
     "@wessberg/ts-config": "^2.0.2",
     "@wessberg/prettier-config": "1.0.0",
     "sandhog": "^2.0.1",
+    "crosspath": "1.0.0",
     "dotcjs": "1.0.0",
     "ava": "3.15.0",
     "eslint": "^8.16.0",
