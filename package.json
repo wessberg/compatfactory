@@ -1,6 +1,6 @@
 {
   "name": "compatfactory",
-  "version": "0.0.13",
+  "version": "1.0.0",
   "description": "A library that unifies the TypeScript Compiler API factory functions across all versions of TypeScript and makes them conform with the Node Factory API",
   "scripts": {
     "generate:sandhog": "sandhog all --yes",
@@ -95,13 +95,13 @@
     "typescript": ">=3.x || >= 4.x"
   },
   "exports": {
-		"import": "./dist/esm/index.js",
-		"require": "./dist/cjs/index.cjs"
-	},
-	"type": "module",
-	"types": "./dist/esm/index.d.ts",
-	"main": "./dist/cjs/index.cjs",
-	"module": "./dist/esm/index.js",
+    "import": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.cjs"
+  },
+  "type": "module",
+  "types": "./dist/esm/index.d.ts",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/wessberg/compatfactory.git"
@@ -110,26 +110,26 @@
     "url": "https://github.com/wessberg/compatfactory/issues"
   },
   "engines": {
-		"node": ">=14.9.0"
-	},
-	"prettier": "@wessberg/prettier-config",
-	"ava": {
-		"files": [
-			"test/**.test.ts"
-		],
-		"verbose": true,
-		"timeout": "400s",
-		"nonSemVerExperiments": {
-			"configurableModuleFormat": true
-		},
-		"extensions": {
-			"ts": "module"
-		},
-		"nodeArguments": [
-			"--loader=ts-node/esm"
-		],
-		"environmentVariables": {
-			"FORCE_COLOR": "3"
-		}
-	}
+    "node": ">=14.9.0"
+  },
+  "prettier": "@wessberg/prettier-config",
+  "ava": {
+    "files": [
+      "test/**.test.ts"
+    ],
+    "verbose": true,
+    "timeout": "400s",
+    "nonSemVerExperiments": {
+      "configurableModuleFormat": true
+    },
+    "extensions": {
+      "ts": "module"
+    },
+    "nodeArguments": [
+      "--loader=ts-node/esm"
+    ],
+    "environmentVariables": {
+      "FORCE_COLOR": "3"
+    }
+  }
 }
