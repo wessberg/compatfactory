@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/wessberg/compatfactory/compare/v1.0.0...v1.0.1) (2022-05-30)
+
+
+### Features
+
+* add support for passing in 5 arguments to creatImportTypeNode on all versions of TypeScript ([9ae49d6](https://github.com/wessberg/compatfactory/commit/9ae49d6c11cfd2093c8de3bb8878f75ed07b92ca))
+
+
+
 # [1.0.0](https://github.com/wessberg/compatfactory/compare/v0.0.13...v1.0.0) (2022-05-29)
 
 
