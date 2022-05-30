@@ -24,6 +24,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const badCreateImportEqualsDeclaration = factory.createImportEqualsDeclaration.length === 4;
 	const badCreateImportSpecifier = factory.createImportSpecifier.length === 2;
 	const badCreateExportSpecifier = factory.createExportSpecifier.length === 2;
+	const badCreateImportTypeNode = factory.createImportTypeNode.length < 5;
 	const badCreateMappedTypeNodeA = factory.createMappedTypeNode.length === 4;
 	const badCreateMappedTypeNodeB = factory.createMappedTypeNode.length === 5;
 	const missingCreateClassStaticBlockDeclaration = factory.createClassStaticBlockDeclaration == null;
@@ -37,6 +38,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		badCreateImportEqualsDeclaration ||
 		badCreateImportSpecifier ||
 		badCreateExportSpecifier ||
+		badCreateImportTypeNode ||
 		badCreateMappedTypeNodeA ||
 		badCreateMappedTypeNodeB ||
 		missingCreateClassStaticBlockDeclaration ||
@@ -152,6 +154,85 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							) as unknown as TS.ExportSpecifier;
 						}
 				  }
+				: {}),
+			...(badCreateImportTypeNode
+				? (() => {
+						function createImportTypeNode(argument: TS.TypeNode, qualifier?: TS.EntityName, typeArguments?: readonly TS.TypeNode[], isTypeOf?: boolean): TS.ImportTypeNode;
+						function createImportTypeNode(
+							argument: TS.TypeNode,
+							assertions?: TS.ImportTypeAssertionContainer,
+							qualifier?: TS.EntityName,
+							typeArguments?: readonly TS.TypeNode[],
+							isTypeOf?: boolean
+						): TS.ImportTypeNode;
+						function createImportTypeNode(
+							argument: TS.TypeNode,
+							assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
+							qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
+							typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
+							isTypeOfOrUndefined?: boolean | undefined
+						): TS.ImportTypeNode {
+							if (arguments.length < 5) {
+								return (factory as unknown as import("typescript-4-6-4").NodeFactory).createImportTypeNode(
+									argument as never,
+									assertionsOrQualifier as never,
+									qualifierOrTypeArguments as never,
+									typeArgumentsOrIsTypeOf as never
+								) as unknown as TS.ImportTypeNode;
+							} else {
+								return (factory as unknown as import("typescript-4-6-4").NodeFactory).createImportTypeNode(
+									argument as never,
+									qualifierOrTypeArguments as never,
+									typeArgumentsOrIsTypeOf as never,
+									isTypeOfOrUndefined as never
+								) as unknown as TS.ImportTypeNode;
+							}
+						}
+
+						function updateImportTypeNode(
+							node: TS.ImportTypeNode,
+							argument: TS.TypeNode,
+							qualifier?: TS.EntityName,
+							typeArguments?: readonly TS.TypeNode[],
+							isTypeOf?: boolean
+						): TS.ImportTypeNode;
+						function updateImportTypeNode(
+							node: TS.ImportTypeNode,
+							argument: TS.TypeNode,
+							assertions?: TS.ImportTypeAssertionContainer,
+							qualifier?: TS.EntityName,
+							typeArguments?: readonly TS.TypeNode[],
+							isTypeOf?: boolean
+						): TS.ImportTypeNode;
+						function updateImportTypeNode(
+							node: TS.ImportTypeNode,
+							argument: TS.TypeNode,
+							assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
+							qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
+							typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
+							isTypeOfOrUndefined?: boolean | undefined
+						): TS.ImportTypeNode {
+							if (arguments.length < 6) {
+								return (factory as unknown as import("typescript-4-6-4").NodeFactory).updateImportTypeNode(
+									node as never,
+									argument as never,
+									assertionsOrQualifier as never,
+									qualifierOrTypeArguments as never,
+									typeArgumentsOrIsTypeOf as never
+								) as unknown as TS.ImportTypeNode;
+							} else {
+								return (factory as unknown as import("typescript-4-6-4").NodeFactory).updateImportTypeNode(
+									node as never,
+									argument as never,
+									qualifierOrTypeArguments as never,
+									typeArgumentsOrIsTypeOf as never,
+									isTypeOfOrUndefined as never
+								) as unknown as TS.ImportTypeNode;
+							}
+						}
+
+						return {createImportTypeNode, updateImportTypeNode};
+				  })()
 				: {}),
 			...(badCreateMappedTypeNodeA
 				? {
@@ -1000,6 +1081,104 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		node.multiLine = multiLine;
 		return node;
 	}
+
+	function createImportTypeNode(argument: TS.TypeNode, qualifier?: TS.EntityName, typeArguments?: readonly TS.TypeNode[], isTypeOf?: boolean): TS.ImportTypeNode;
+	function createImportTypeNode(
+		argument: TS.TypeNode,
+		assertions?: TS.ImportTypeAssertionContainer,
+		qualifier?: TS.EntityName,
+		typeArguments?: readonly TS.TypeNode[],
+		isTypeOf?: boolean
+	): TS.ImportTypeNode;
+	function createImportTypeNode(
+		argument: TS.TypeNode,
+		assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
+		qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
+		typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
+		isTypeOfOrUndefined?: boolean | undefined
+	): TS.ImportTypeNode {
+		if ("createImportTypeNode" in typescript) {
+			if (arguments.length < 5) {
+				return typescript.createImportTypeNode(argument, assertionsOrQualifier as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never);
+			} else {
+				return typescript.createImportTypeNode(argument, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never);
+			}
+		} else {
+			const assertion = assertionsOrQualifier && assertionsOrQualifier.kind === 295 /* SyntaxKind.ImportTypeAssertionContainer */ ? assertionsOrQualifier : undefined;
+			const qualifier = (
+				assertionsOrQualifier && typescript.isEntityName(assertionsOrQualifier)
+					? assertionsOrQualifier
+					: qualifierOrTypeArguments && !Array.isArray(qualifierOrTypeArguments)
+					? qualifierOrTypeArguments
+					: undefined
+			) as TS.EntityName | undefined;
+			const typeArguments = (Array.isArray(qualifierOrTypeArguments) ? qualifierOrTypeArguments : Array.isArray(typeArgumentsOrIsTypeOf) ? typeArgumentsOrIsTypeOf : undefined) as
+				| undefined
+				| readonly TS.TypeNode[];
+			isTypeOfOrUndefined = typeof typeArgumentsOrIsTypeOf === "boolean" ? typeArgumentsOrIsTypeOf : typeof isTypeOfOrUndefined === "boolean" ? isTypeOfOrUndefined : false;
+			const node = typescript.createNode(200) as Mutable<TS.ImportTypeNode>;
+			node.argument = argument;
+			node.assertions = assertion;
+			node.qualifier = qualifier;
+			node.typeArguments = typeArguments == null ? undefined : typescript.createNodeArray(typeArguments);
+			node.isTypeOf = isTypeOfOrUndefined;
+			(node as NodeWithInternalFlags).transformFlags = 1 /* TransformFlags.ContainsTypeScript */;
+			return node;
+		}
+	}
+
+	function updateImportTypeNode(
+		node: TS.ImportTypeNode,
+		argument: TS.TypeNode,
+		qualifier?: TS.EntityName,
+		typeArguments?: readonly TS.TypeNode[],
+		isTypeOf?: boolean
+	): TS.ImportTypeNode;
+	function updateImportTypeNode(
+		node: TS.ImportTypeNode,
+		argument: TS.TypeNode,
+		assertions?: TS.ImportTypeAssertionContainer,
+		qualifier?: TS.EntityName,
+		typeArguments?: readonly TS.TypeNode[],
+		isTypeOf?: boolean
+	): TS.ImportTypeNode;
+	function updateImportTypeNode(
+		node: TS.ImportTypeNode,
+		argument: TS.TypeNode,
+		assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
+		qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
+		typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
+		isTypeOfOrUndefined?: boolean | undefined
+	): TS.ImportTypeNode {
+		if ("updateImportTypeNode" in typescript) {
+			if (arguments.length < 6) {
+				return typescript.updateImportTypeNode(node, argument, assertionsOrQualifier as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never);
+			} else {
+				return typescript.updateImportTypeNode(node, argument, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never);
+			}
+		} else {
+			const assertion = assertionsOrQualifier && assertionsOrQualifier.kind === 295 /* SyntaxKind.ImportTypeAssertionContainer */ ? assertionsOrQualifier : undefined;
+			const qualifier =
+				assertionsOrQualifier && typescript.isEntityName(assertionsOrQualifier)
+					? assertionsOrQualifier
+					: qualifierOrTypeArguments && !Array.isArray(qualifierOrTypeArguments)
+					? qualifierOrTypeArguments
+					: undefined;
+			const typeArguments = Array.isArray(qualifierOrTypeArguments) ? qualifierOrTypeArguments : Array.isArray(typeArgumentsOrIsTypeOf) ? typeArgumentsOrIsTypeOf : undefined;
+			isTypeOfOrUndefined = typeof typeArgumentsOrIsTypeOf === "boolean" ? typeArgumentsOrIsTypeOf : typeof isTypeOfOrUndefined === "boolean" ? isTypeOfOrUndefined : node.isTypeOf;
+			return node.argument !== argument ||
+				node.assertions !== assertion ||
+				node.qualifier !== qualifier ||
+				node.typeArguments !== typeArguments ||
+				node.isTypeOf !== isTypeOfOrUndefined
+				? typescript.setTextRange(
+						createImportTypeNode(argument, assertionsOrQualifier as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never),
+						node
+				  )
+				: node;
+		}
+	}
+
 	const {updateSourceFileNode, ...common} = typescript;
 
 	return {
@@ -1008,6 +1187,8 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		createToken,
 		createConstructorTypeNode,
 		updateConstructorTypeNode,
+		createImportTypeNode,
+		updateImportTypeNode,
 		createJSDocComment,
 		createJSDocParameterTag,
 		createJSDocPrivateTag,

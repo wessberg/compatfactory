@@ -249,3 +249,55 @@ test("It is possible to have separate write types on properties, even for older 
 		}`)
 	);
 });
+
+test("It is possible to pass assertions when creating ImportTypeNodes, even on older TypeScript versions. #1", withTypeScriptVersions("<4.7"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createTypeAliasDeclaration(
+				undefined,
+				undefined,
+				"foo",
+				undefined,
+				factory.createImportTypeNode(
+					factory.createLiteralTypeNode(factory.createStringLiteral("./foo")),
+					factory.createImportTypeAssertionContainer(
+						factory.createAssertClause(factory.createNodeArray([factory.createAssertEntry(factory.createIdentifier("type"), factory.createStringLiteral("json"))]), false)
+					),
+					undefined,
+					undefined,
+					false
+				)
+			)
+		),
+		formatCode(`type foo = import("./foo");\n`)
+	);
+});
+
+test("It is possible to pass assertions when creating ImportTypeNodes, even on older TypeScript versions. #2", withTypeScriptVersions("4.7"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createTypeAliasDeclaration(
+				undefined,
+				undefined,
+				"foo",
+				undefined,
+				factory.createImportTypeNode(
+					factory.createLiteralTypeNode(factory.createStringLiteral("./foo")),
+					factory.createImportTypeAssertionContainer(
+						factory.createAssertClause(factory.createNodeArray([factory.createAssertEntry(factory.createIdentifier("type"), factory.createStringLiteral("json"))]), false)
+					),
+					undefined,
+					undefined,
+					false
+				)
+			)
+		),
+		formatCode(`type foo = import("./foo", { assert: { type: "json" } });\n`)
+	);
+});
