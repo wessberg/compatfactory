@@ -1,3 +1,18 @@
+# [2.0.0](https://github.com/wessberg/compatfactory/compare/v1.0.1...v2.0.0) (2023-01-09)
+
+
+### Bug Fixes
+
+* fix lint ([3408a0d](https://github.com/wessberg/compatfactory/commit/3408a0dd93719ade333f08fb83926b151c0103a3))
+
+
+### Features
+
+* add support for TypeScript v4.8 ([05020b8](https://github.com/wessberg/compatfactory/commit/05020b85fd72dc5c305463bf68804fde26a0d74a))
+* add support for TypeScript v4.9 ([4d157b3](https://github.com/wessberg/compatfactory/commit/4d157b31f29048ebbb81724eda414c1298f6aebe))
+
+
+
 ## [1.0.1](https://github.com/wessberg/compatfactory/compare/v1.0.0...v1.0.1) (2022-05-30)
 
 
