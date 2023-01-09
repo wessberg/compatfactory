@@ -1,3 +1,12 @@
+## [2.0.5](https://github.com/wessberg/compatfactory/compare/v2.0.4...v2.0.5) (2023-01-09)
+
+
+### Bug Fixes
+
+* add missing overloaded signatures ([95a6eee](https://github.com/wessberg/compatfactory/commit/95a6eee5fc0fe21b8541cc96eae63919a5fb0372))
+
+
+
 ## [2.0.4](https://github.com/wessberg/compatfactory/compare/v2.0.3...v2.0.4) (2023-01-09)
 
 
