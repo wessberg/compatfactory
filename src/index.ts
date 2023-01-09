@@ -29,11 +29,10 @@ export function ensureNodeFactory(factoryLike: TS.NodeFactory | typeof TS): TS.N
 	return createNodeFactory(factoryLike);
 }
 
-function splitDecoratorsAndModifiers(modifiers: readonly TS.ModifierLike[] | undefined): [readonly TS.Decorator[], readonly TS.Modifier[]] {
-	return [
-		(modifiers?.filter(modifier => "expression" in modifier) ?? []) as readonly TS.Decorator[],
-		(modifiers?.filter(modifier => !("expression" in modifier)) ?? []) as readonly TS.Modifier[]
-	];
+function splitDecoratorsAndModifiers(modifierLikes: readonly TS.ModifierLike[] | undefined): [readonly TS.Decorator[] | undefined, readonly TS.Modifier[] | undefined] {
+	const decorators = (modifierLikes?.filter(modifier => "expression" in modifier) ?? []) as readonly TS.Decorator[];
+	const modifiers = (modifierLikes?.filter(modifier => !("expression" in modifier)) ?? []) as readonly TS.Modifier[];
+	return [decorators == null || decorators.length < 1 ? undefined : decorators, modifiers == null || modifiers.length < 1 ? undefined : modifiers];
 }
 
 function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
