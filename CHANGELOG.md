@@ -1,3 +1,12 @@
+## [2.0.6](https://github.com/wessberg/compatfactory/compare/v2.0.5...v2.0.6) (2023-01-09)
+
+
+### Bug Fixes
+
+* fix issues with overloads ([acc70eb](https://github.com/wessberg/compatfactory/commit/acc70eb4bc894b88f72c87093992962a29d69574))
+
+
+
 ## [2.0.5](https://github.com/wessberg/compatfactory/compare/v2.0.4...v2.0.5) (2023-01-09)
 
 
