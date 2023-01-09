@@ -203,7 +203,6 @@ test("It is possible to construct type-only ImportSpecifiers, even for older Typ
 			typescript,
 			factory.createImportDeclaration(
 				undefined,
-				undefined,
 				factory.createImportClause(false, undefined, factory.createNamedImports([factory.createImportSpecifier(true, undefined, factory.createIdentifier("Foo"))])),
 				factory.createStringLiteral("./bar"),
 				undefined

@@ -131,6 +131,31 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 					})()
 			: factory.createPrivateIdentifier;
 
+		const _createClassStaticBlockDeclaration = missingCreateClassStaticBlockDeclaration
+			? (() => {
+					function createClassStaticBlockDeclaration(body: TS.Block): TS.ClassStaticBlockDeclaration;
+					function createClassStaticBlockDeclaration(
+						decorators: readonly TS.Decorator[] | undefined,
+						modifiers: readonly TS.Modifier[] | undefined,
+						body: TS.Block
+					): TS.ClassStaticBlockDeclaration;
+					function createClassStaticBlockDeclaration(
+						decoratorsOrBlock: readonly TS.Decorator[] | TS.Block | undefined,
+						modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
+						bodyOrUndefined?: TS.Block
+					): TS.ClassStaticBlockDeclaration {
+						const node = factory.createEmptyStatement() as unknown as Mutable<TS.ClassStaticBlockDeclaration>;
+						const body = arguments.length >= 3 ? (bodyOrUndefined as TS.Block) : (decoratorsOrBlock as TS.Block);
+
+						node.body = body;
+						(node as NodeWithInternalFlags).transformFlags = 8388608 /* ContainsClassFields */;
+						return node;
+					}
+
+					return createClassStaticBlockDeclaration;
+			  })()
+			: factory.createClassStaticBlockDeclaration;
+
 		return {
 			["__compatUpgraded" as never]: true,
 			...factory,
@@ -456,25 +481,6 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 
 			...(missingCreateClassStaticBlockDeclaration
 				? (() => {
-						function createClassStaticBlockDeclaration(body: TS.Block): TS.ClassStaticBlockDeclaration;
-						function createClassStaticBlockDeclaration(
-							decorators: readonly TS.Decorator[] | undefined,
-							modifiers: readonly TS.Modifier[] | undefined,
-							body: TS.Block
-						): TS.ClassStaticBlockDeclaration;
-						function createClassStaticBlockDeclaration(
-							decoratorsOrBlock: readonly TS.Decorator[] | TS.Block | undefined,
-							modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
-							bodyOrUndefined?: TS.Block
-						): TS.ClassStaticBlockDeclaration {
-							const node = factory.createEmptyStatement() as unknown as Mutable<TS.ClassStaticBlockDeclaration>;
-							const body = arguments.length >= 3 ? (bodyOrUndefined as TS.Block) : (decoratorsOrBlock as TS.Block);
-
-							node.body = body;
-							(node as NodeWithInternalFlags).transformFlags = 8388608 /* ContainsClassFields */;
-							return node;
-						}
-
 						function updateClassStaticBlockDeclaration(node: TS.ClassStaticBlockDeclaration, body: TS.Block): TS.ClassStaticBlockDeclaration;
 						function updateClassStaticBlockDeclaration(
 							node: TS.ClassStaticBlockDeclaration,
@@ -489,11 +495,11 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							bodyOrUndefined?: TS.Block
 						): TS.ClassStaticBlockDeclaration {
 							const body = arguments.length >= 4 ? (bodyOrUndefined as TS.Block) : (decoratorsOrBlock as TS.Block);
-							return body === node.body ? node : update(createClassStaticBlockDeclaration(body), node);
+							return body === node.body ? node : update(_createClassStaticBlockDeclaration(body), node);
 						}
 
 						return {
-							createClassStaticBlockDeclaration,
+							createClassStaticBlockDeclaration: _createClassStaticBlockDeclaration,
 							updateClassStaticBlockDeclaration
 						};
 				  })()
@@ -638,7 +644,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 				  })()
 				: {}),
 			...(badDecoratorsAsFirstArgument
-				? () => {
+				? (() => {
 						function createParameterDeclaration(
 							modifiers: readonly TS.ModifierLike[] | undefined,
 							dotDotDotToken: TS.DotDotDotToken | undefined,
@@ -1253,11 +1259,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							const isShort = arguments.length <= 1;
 							const body = (isShort ? decoratorsOrBody : bodyOrUndefined) as TS.Block;
 
-							return (factory as unknown as import("typescript-4-7-2").NodeFactory).createClassStaticBlockDeclaration(
-								undefined,
-								undefined,
-								body as never
-							) as unknown as TS.ClassStaticBlockDeclaration;
+							return _createClassStaticBlockDeclaration(undefined, undefined, body as never) as unknown as TS.ClassStaticBlockDeclaration;
 						}
 
 						function updateClassStaticBlockDeclaration(node: TS.ClassStaticBlockDeclaration, body: TS.Block): TS.ClassStaticBlockDeclaration;
@@ -1974,7 +1976,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							moduleSpecifierOrAssertClause: TS.Expression | TS.AssertClause | undefined,
 							assertClauseOrUndefined?: TS.AssertClause
 						): TS.ImportDeclaration {
-							const isShort = importClauseOrModuleSpecifier != null && importClauseOrModuleSpecifier.kind !== 267; /* ImportClause */
+							const isShort = modifiersOrImportClause != null && !Array.isArray(modifiersOrImportClause);
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
 							const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
@@ -2211,7 +2213,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createExportDeclaration,
 							updateExportDeclaration
 						};
-				  }
+				  })()
 				: {})
 		};
 	}
@@ -3652,6 +3654,83 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return typescript.updateIndexSignature(node, decorators, modifiers, parameters, type);
 	}
 
+	function createImportDeclaration(
+		modifiers: readonly TS.Modifier[] | undefined,
+		importClause: TS.ImportClause | undefined,
+		moduleSpecifier: TS.Expression,
+		assertClause?: TS.AssertClause
+	): TS.ImportDeclaration;
+	function createImportDeclaration(
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		importClause: TS.ImportClause | undefined,
+		moduleSpecifier: TS.Expression,
+		assertClause?: TS.AssertClause
+	): TS.ImportDeclaration;
+	function createImportDeclaration(
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrImportClause: readonly TS.Modifier[] | TS.ImportClause | undefined,
+		importClauseOrModuleSpecifier: TS.ImportClause | TS.Expression | undefined,
+		moduleSpecifierOrAssertClause: TS.Expression | TS.AssertClause | undefined,
+		assertClauseOrUndefined?: TS.AssertClause
+	): TS.ImportDeclaration {
+		const isShort = modifiersOrImportClause != null && !Array.isArray(modifiersOrImportClause);
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
+		const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
+		const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression;
+		const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
+
+		return typescript.createImportDeclaration(
+			decorators as never,
+			modifiers as never,
+			importClause as never,
+			moduleSpecifier as never,
+			assertClause as never
+		) as unknown as TS.ImportDeclaration;
+	}
+
+	function updateImportDeclaration(
+		node: TS.ImportDeclaration,
+		modifiers: readonly TS.Modifier[] | undefined,
+		importClause: TS.ImportClause | undefined,
+		moduleSpecifier: TS.Expression,
+		assertClause?: TS.AssertClause
+	): TS.ImportDeclaration;
+	function updateImportDeclaration(
+		node: TS.ImportDeclaration,
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		importClause: TS.ImportClause | undefined,
+		moduleSpecifier: TS.Expression,
+		assertClause?: TS.AssertClause
+	): TS.ImportDeclaration;
+	function updateImportDeclaration(
+		node: TS.ImportDeclaration,
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrImportClause: readonly TS.Modifier[] | TS.ImportClause | undefined,
+		importClauseOrModuleSpecifier: TS.ImportClause | TS.Expression | undefined,
+		moduleSpecifierOrAssertClause: TS.Expression | TS.AssertClause | undefined,
+		assertClauseOrUndefined?: TS.AssertClause
+	): TS.ImportDeclaration {
+		const isShort = importClauseOrModuleSpecifier != null && importClauseOrModuleSpecifier.kind !== 267; /* ImportClause */
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
+		const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
+		const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression;
+		const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
+
+		return typescript.updateImportDeclaration(
+			node as never,
+			decorators as never,
+			modifiers as never,
+			importClause as never,
+			moduleSpecifier as never,
+			assertClause as never
+		) as unknown as TS.ImportDeclaration;
+	}
+
+
 	const createPrivateIdentifier =
 		typescript.createPrivateIdentifier ??
 		(() =>
@@ -3733,6 +3812,8 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		updateIndexSignature,
 		createSatisfiesExpression,
 		updateSatisfiesExpression,
+		createImportDeclaration,
+		updateImportDeclaration,
 		createUniquePrivateName,
 		createPrivateIdentifier,
 		getGeneratedPrivateNameForNode,
