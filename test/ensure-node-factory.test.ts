@@ -4,7 +4,7 @@ import {formatStatements} from "./util/format-statements.js";
 import {formatCode} from "./util/format-code.js";
 import {ensureNodeFactory} from "../src/index.js";
 
-test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.8"), (t, {typescript}) => {
+test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.9"), (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.true(factory === typescript.factory);
 });
@@ -133,6 +133,29 @@ test("It is possible to construct ClassStaticBlockDeclarations, even for older T
 		),
 		formatCode(`\
 		class {}`)
+	);
+});
+
+test("It is possible to construct SatisfiesExpressions, even for older TypeScript versions. #1", withTypeScriptVersions("<4.9"), (t, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	t.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createExpressionStatement(
+				factory.createSatisfiesExpression(
+					factory.createObjectLiteralExpression([factory.createPropertyAssignment(factory.createIdentifier("foo"), factory.createStringLiteral("bar"))], true),
+					factory.createTypeReferenceNode(factory.createIdentifier("Record"), [
+						factory.createKeywordTypeNode(typescript.SyntaxKind.StringKeyword),
+						factory.createLiteralTypeNode(factory.createStringLiteral("bar"))
+					])
+				)
+			)
+		),
+		formatCode(`\
+({
+	foo: "bar",
+});`)
 	);
 });
 

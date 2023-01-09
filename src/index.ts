@@ -3,7 +3,15 @@
 import * as TS from "typescript";
 import {Mutable, RequiredExcept} from "helpertypes";
 
-type PartialNodeFactory = RequiredExcept<TS.NodeFactory, "createClassStaticBlockDeclaration" | "updateClassStaticBlockDeclaration">;
+type PartialNodeFactory = RequiredExcept<
+	TS.NodeFactory,
+	| "createClassStaticBlockDeclaration"
+	| "updateClassStaticBlockDeclaration"
+	| "createSatisfiesExpression"
+	| "updateSatisfiesExpression"
+	| "createUniquePrivateName"
+	| "getGeneratedPrivateNameForNode"
+>;
 type NodeWithInternalFlags = TS.Node & {
 	modifierFlagsCache?: number;
 	transformFlags?: number;
@@ -23,8 +31,8 @@ export function ensureNodeFactory(factoryLike: TS.NodeFactory | typeof TS): TS.N
 
 function splitDecoratorsAndModifiers(modifiers: readonly TS.ModifierLike[] | undefined): [readonly TS.Decorator[], readonly TS.Modifier[]] {
 	return [
-		(modifiers?.find(modifier => modifier.kind === 165) ?? []) as readonly TS.Decorator[],
-		(modifiers?.find(modifier => modifier.kind !== 165) ?? []) as readonly TS.Modifier[]
+		(modifiers?.find(modifier => "expression" in modifier) ?? []) as readonly TS.Decorator[],
+		(modifiers?.find(modifier => !("expression" in modifier)) ?? []) as readonly TS.Modifier[]
 	];
 }
 
@@ -44,7 +52,11 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const badCreateMappedTypeNodeA = badDecoratorsAsFirstArgument && factory.createMappedTypeNode.length === 4;
 	const badCreateMappedTypeNodeB = badDecoratorsAsFirstArgument && factory.createMappedTypeNode.length === 5;
 
+	const missingCreateSatisfiesExpression = factory.createSatisfiesExpression == null;
 	const missingCreateClassStaticBlockDeclaration = factory.createClassStaticBlockDeclaration == null;
+	const missingCreateUniquePrivateName = factory.createUniquePrivateName == null;
+	const missingGetGeneratedPrivateNameForNode = factory.getGeneratedPrivateNameForNode == null;
+	const missingCreatePrivateIdentifier = factory.createPrivateIdentifier == null;
 	const missingCreateAssertClause = factory.createAssertClause == null;
 	const missingCreateAssertEntry = factory.createAssertEntry == null;
 	const missingCreateImportTypeAssertionContainer = factory.createImportTypeAssertionContainer == null;
@@ -59,7 +71,11 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		badCreateImportTypeNode ||
 		badCreateMappedTypeNodeA ||
 		badCreateMappedTypeNodeB ||
+		missingCreateSatisfiesExpression ||
 		missingCreateClassStaticBlockDeclaration ||
+		missingCreateUniquePrivateName ||
+		missingGetGeneratedPrivateNameForNode ||
+		missingCreatePrivateIdentifier ||
 		missingCreateAssertClause ||
 		missingCreateAssertEntry ||
 		missingCreateImportTypeAssertionContainer ||
@@ -107,9 +123,20 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 
 		const update = withOriginal ? updateWithOriginal : updateWithoutOriginal;
 
+		const createPrivateIdentifier = missingCreatePrivateIdentifier
+			? (() => {
+					function createPrivateIdentifier(text: string): TS.PrivateIdentifier {
+						const node = factory.createIdentifier(text) as unknown as Mutable<TS.PrivateIdentifier>;
+						return node;
+					}
+					return createPrivateIdentifier;
+			  })()
+			: factory.createPrivateIdentifier;
+
 		return {
 			["__compatUpgraded" as never]: true,
 			...factory,
+			createPrivateIdentifier,
 			...(badCreateImportEqualsDeclaration
 				? (() => {
 						function createImportEqualsDeclaration(
@@ -382,6 +409,51 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							) as unknown as TS.MappedTypeNode;
 						}
 				  }
+				: {}),
+			...(missingCreateSatisfiesExpression
+				? (() => {
+						function createSatisfiesExpression(expression: TS.Expression, type: TS.TypeNode): TS.SatisfiesExpression {
+							return {...expression} as TS.SatisfiesExpression;
+						}
+
+						function updateSatisfiesExpression(node: TS.SatisfiesExpression, expression: TS.Expression, type: TS.TypeNode): TS.SatisfiesExpression {
+							return expression === node.expression && type === node.type ? node : update(createSatisfiesExpression(expression, type), node);
+						}
+
+						return {
+							createSatisfiesExpression,
+							updateSatisfiesExpression
+						};
+				  })()
+				: {}),
+
+			...(missingCreateUniquePrivateName
+				? (() => {
+						function createUniquePrivateName(text?: string): TS.PrivateIdentifier {
+							if (text != null && !text.startsWith("#")) {
+								throw new TypeError("First character of private identifier must be #: " + text);
+							}
+
+							const node = createPrivateIdentifier(text ?? "");
+							return node;
+						}
+
+						return {
+							createUniquePrivateName
+						};
+				  })()
+				: {}),
+
+			...(missingGetGeneratedPrivateNameForNode
+				? (() => {
+						function getGeneratedPrivateNameForNode(node: TS.Node): TS.PrivateIdentifier {
+							return createPrivateIdentifier("");
+						}
+
+						return {
+							getGeneratedPrivateNameForNode
+						};
+				  })()
 				: {}),
 
 			...(missingCreateClassStaticBlockDeclaration
@@ -1237,8 +1309,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							membersOrUndefined?: readonly TS.ClassElement[]
 						): TS.ClassExpression {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
@@ -1283,8 +1354,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							membersOrUndefined?: readonly TS.ClassElement[]
 						): TS.ClassExpression {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
@@ -1332,7 +1402,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrBody: TS.TypeNode | TS.Block | undefined,
 							bodyOrUndefined?: TS.Block | undefined
 						): TS.FunctionDeclaration {
-							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && asteriskTokenOrName.kind === 79); /* Identifier */
+							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && "escapedText" in asteriskTokenOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort
 								? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1]
@@ -1388,7 +1458,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrBody: TS.TypeNode | TS.Block | undefined,
 							bodyOrUndefined?: TS.Block | undefined
 						): TS.FunctionDeclaration {
-							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && asteriskTokenOrName.kind === 79); /* Identifier */
+							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && "escapedText" in asteriskTokenOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort
 								? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1]
@@ -1437,8 +1507,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							membersOrUndefined?: readonly TS.ClassElement[]
 						): TS.ClassDeclaration {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
@@ -1483,8 +1552,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							membersOrUndefined?: readonly TS.ClassElement[]
 						): TS.ClassDeclaration {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
@@ -1527,8 +1595,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							membersOrUndefined?: readonly TS.TypeElement[]
 						): TS.InterfaceDeclaration {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
@@ -1573,8 +1640,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							membersOrUndefined?: readonly TS.TypeElement[]
 						): TS.InterfaceDeclaration {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
@@ -1614,8 +1680,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrUndefined?: TS.TypeNode
 						): TS.TypeAliasDeclaration {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
@@ -1655,8 +1720,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrUndefined?: TS.TypeNode
 						): TS.TypeAliasDeclaration {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
@@ -1687,8 +1751,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							membersOrUndefined?: readonly TS.EnumMember[]
 						): TS.EnumDeclaration {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrMembers) as string | TS.Identifier;
@@ -1723,8 +1786,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							membersOrUndefined?: readonly TS.EnumMember[]
 						): TS.EnumDeclaration {
 							const isShort =
-								typeof modifiersOrName === "string" ||
-								(modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrMembers) as string | TS.Identifier;
@@ -1763,7 +1825,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								typeof modifiersOrName === "string" ||
 								(modifiersOrName != null &&
 									!Array.isArray(modifiersOrName) &&
-									((modifiersOrName as TS.ModuleName).kind === 79 /* Identifier */ || (modifiersOrName as TS.ModuleName).kind === 10)); /* StringLiteral */
+									("escapedText" in modifiersOrName /* Identifier */ || "_literalExpressionBrand" in modifiersOrName)); /* StringLiteral */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrBody) as TS.ModuleName;
@@ -1803,7 +1865,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								typeof modifiersOrName === "string" ||
 								(modifiersOrName != null &&
 									!Array.isArray(modifiersOrName) &&
-									((modifiersOrName as TS.ModuleName).kind === 79 /* Identifier */ || (modifiersOrName as TS.ModuleName).kind === 10)); /* StringLiteral */
+									("escapedText" in modifiersOrName /* Identifier */ || "_literalExpressionBrand" in modifiersOrName)); /* StringLiteral */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrBody) as TS.ModuleName;
@@ -2752,6 +2814,14 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return body === node.body ? node : typescript.setTextRange(createClassStaticBlockDeclaration(body), node);
 	}
 
+	function createSatisfiesExpression(expression: TS.Expression, type: TS.TypeNode): TS.SatisfiesExpression {
+		return {...expression} as TS.SatisfiesExpression;
+	}
+
+	function updateSatisfiesExpression(node: TS.SatisfiesExpression, expression: TS.Expression, type: TS.TypeNode): TS.SatisfiesExpression {
+		return expression === node.expression && type === node.type ? node : typescript.setTextRange(createSatisfiesExpression(expression, type), node);
+	}
+
 	function createAssertClause(elements: TS.NodeArray<TS.AssertEntry>, multiLine?: boolean): TS.AssertClause {
 		const node = typescript.createEmptyStatement() as unknown as Mutable<TS.AssertClause>;
 
@@ -2799,7 +2869,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				return typescript.createImportTypeNode(argument, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never);
 			}
 		} else {
-			const assertion = assertionsOrQualifier && assertionsOrQualifier.kind === 295 /* SyntaxKind.ImportTypeAssertionContainer */ ? assertionsOrQualifier : undefined;
+			const assertion = assertionsOrQualifier && "assertClause" in assertionsOrQualifier ? assertionsOrQualifier : undefined;
 			const qualifier = (
 				assertionsOrQualifier && typescript.isEntityName(assertionsOrQualifier)
 					? assertionsOrQualifier
@@ -2852,7 +2922,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				return typescript.updateImportTypeNode(node, argument, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never);
 			}
 		} else {
-			const assertion = assertionsOrQualifier && assertionsOrQualifier.kind === 295 /* SyntaxKind.ImportTypeAssertionContainer */ ? assertionsOrQualifier : undefined;
+			const assertion = assertionsOrQualifier && "assertClause" in assertionsOrQualifier /* SyntaxKind.ImportTypeAssertionContainer */ ? assertionsOrQualifier : undefined;
 			const qualifier =
 				assertionsOrQualifier && typescript.isEntityName(assertionsOrQualifier)
 					? assertionsOrQualifier
@@ -2897,8 +2967,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		heritageClausesOrMembers: readonly TS.HeritageClause[] | readonly TS.ClassElement[] | undefined,
 		membersOrUndefined?: readonly TS.ClassElement[]
 	): TS.ClassExpression {
-		const isShort =
-			typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 		const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
 		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrHeritageClauses) as readonly TS.TypeParameterDeclaration[];
@@ -2934,8 +3003,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		heritageClausesOrMembers: readonly TS.HeritageClause[] | readonly TS.ClassElement[] | undefined,
 		membersOrUndefined?: readonly TS.ClassElement[]
 	): TS.ClassExpression {
-		const isShort =
-			typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && (modifiersOrName as TS.Identifier).kind === 79); /* Identifier */
+		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 		const name = (isShort ? modifiersOrName : nameOrTypeParameters) as TS.Identifier;
 		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrHeritageClauses) as readonly TS.TypeParameterDeclaration[];
@@ -3586,6 +3654,29 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return typescript.updateIndexSignature(node, decorators, modifiers, parameters, type);
 	}
 
+	const createPrivateIdentifier =
+		typescript.createPrivateIdentifier ??
+		(() => {
+			function createPrivateIdentifier(text: string): TS.PrivateIdentifier {
+				const node = typescript.createIdentifier(text) as unknown as Mutable<TS.PrivateIdentifier>;
+				return node;
+			}
+			return createPrivateIdentifier;
+		})();
+
+	function createUniquePrivateName(text?: string): TS.PrivateIdentifier {
+		if (text != null && !text.startsWith("#")) {
+			throw new TypeError("First character of private identifier must be #: " + text);
+		}
+
+		const node = createPrivateIdentifier(text ?? "");
+		return node;
+	}
+
+	function getGeneratedPrivateNameForNode(node: TS.Node): TS.PrivateIdentifier {
+		return createPrivateIdentifier("");
+	}
+
 	const {updateSourceFileNode, ...common} = typescript;
 
 	return {
@@ -3644,6 +3735,11 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		createImportTypeAssertionContainer,
 		createIndexSignature,
 		updateIndexSignature,
+		createSatisfiesExpression,
+		updateSatisfiesExpression,
+		createUniquePrivateName,
+		createPrivateIdentifier,
+		getGeneratedPrivateNameForNode,
 
 		createComma(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
 			return typescript.createComma(left, right) as TS.BinaryExpression;
