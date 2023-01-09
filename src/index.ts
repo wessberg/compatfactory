@@ -1403,7 +1403,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrBody: TS.TypeNode | TS.Block | undefined,
 							bodyOrUndefined?: TS.Block | undefined
 						): TS.FunctionDeclaration {
-							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && "escapedText" in asteriskTokenOrName); /* Identifier */
+							const isShort = arguments.length <= 7;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort
 								? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1]
@@ -1459,7 +1459,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrBody: TS.TypeNode | TS.Block | undefined,
 							bodyOrUndefined?: TS.Block | undefined
 						): TS.FunctionDeclaration {
-							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && "escapedText" in asteriskTokenOrName); /* Identifier */
+							const isShort = arguments.length <= 8;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort
 								? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1]
@@ -1507,8 +1507,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							heritageClausesOrMembers: readonly TS.HeritageClause[] | readonly TS.ClassElement[] | undefined,
 							membersOrUndefined?: readonly TS.ClassElement[]
 						): TS.ClassDeclaration {
-							const isShort =
-								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+							const isShort = arguments.length <= 5;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
@@ -1552,8 +1551,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							heritageClausesOrMembers: readonly TS.HeritageClause[] | readonly TS.ClassElement[] | undefined,
 							membersOrUndefined?: readonly TS.ClassElement[]
 						): TS.ClassDeclaration {
-							const isShort =
-								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+							const isShort = arguments.length <= 6;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
 							const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
