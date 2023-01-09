@@ -3675,7 +3675,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		nameOrModuleReference: string | TS.Identifier | TS.ModuleReference,
 		moduleReferenceOrUndefined?: TS.ModuleReference
 	): TS.ImportEqualsDeclaration {
-		const isShort = arguments.length <= 4;
+		const isShort = arguments.length <= 5;
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.Modifier[])[1] : (modifiersOrIsTypeOnly as readonly TS.Modifier[]);
 		const isTypeOnly = (isShort ? modifiersOrIsTypeOnly : isTypeOnlyOrName) as boolean;
