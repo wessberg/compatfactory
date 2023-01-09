@@ -124,13 +124,11 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		const update = withOriginal ? updateWithOriginal : updateWithoutOriginal;
 
 		const createPrivateIdentifier = missingCreatePrivateIdentifier
-			? (() => {
-					function createPrivateIdentifier(text: string): TS.PrivateIdentifier {
+			? (() =>
+					function (text: string): TS.PrivateIdentifier {
 						const node = factory.createIdentifier(text) as unknown as Mutable<TS.PrivateIdentifier>;
 						return node;
-					}
-					return createPrivateIdentifier;
-			  })()
+					})()
 			: factory.createPrivateIdentifier;
 
 		return {
@@ -3656,13 +3654,11 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	const createPrivateIdentifier =
 		typescript.createPrivateIdentifier ??
-		(() => {
-			function createPrivateIdentifier(text: string): TS.PrivateIdentifier {
+		(() =>
+			function (text: string): TS.PrivateIdentifier {
 				const node = typescript.createIdentifier(text) as unknown as Mutable<TS.PrivateIdentifier>;
 				return node;
-			}
-			return createPrivateIdentifier;
-		})();
+			})();
 
 	function createUniquePrivateName(text?: string): TS.PrivateIdentifier {
 		if (text != null && !text.startsWith("#")) {
