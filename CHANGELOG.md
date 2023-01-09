@@ -1,3 +1,12 @@
+## [2.0.3](https://github.com/wessberg/compatfactory/compare/v2.0.2...v2.0.3) (2023-01-09)
+
+
+### Bug Fixes
+
+* fix issue with constructing ClassStaticDeclarations ([4370bfd](https://github.com/wessberg/compatfactory/commit/4370bfdae6ed1588dd452a60dd3d0710da7638cd))
+
+
+
 ## [2.0.2](https://github.com/wessberg/compatfactory/compare/v2.0.1...v2.0.2) (2023-01-09)
 
 
