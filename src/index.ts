@@ -131,31 +131,6 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 					})()
 			: factory.createPrivateIdentifier;
 
-		const _createClassStaticBlockDeclaration = missingCreateClassStaticBlockDeclaration
-			? (() => {
-					function createClassStaticBlockDeclaration(body: TS.Block): TS.ClassStaticBlockDeclaration;
-					function createClassStaticBlockDeclaration(
-						decorators: readonly TS.Decorator[] | undefined,
-						modifiers: readonly TS.Modifier[] | undefined,
-						body: TS.Block
-					): TS.ClassStaticBlockDeclaration;
-					function createClassStaticBlockDeclaration(
-						decoratorsOrBlock: readonly TS.Decorator[] | TS.Block | undefined,
-						modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
-						bodyOrUndefined?: TS.Block
-					): TS.ClassStaticBlockDeclaration {
-						const node = factory.createEmptyStatement() as unknown as Mutable<TS.ClassStaticBlockDeclaration>;
-						const body = arguments.length >= 3 ? (bodyOrUndefined as TS.Block) : (decoratorsOrBlock as TS.Block);
-
-						node.body = body;
-						(node as NodeWithInternalFlags).transformFlags = 8388608 /* ContainsClassFields */;
-						return node;
-					}
-
-					return createClassStaticBlockDeclaration;
-			  })()
-			: factory.createClassStaticBlockDeclaration;
-
 		return {
 			["__compatUpgraded" as never]: true,
 			...factory,
@@ -481,6 +456,25 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 
 			...(missingCreateClassStaticBlockDeclaration
 				? (() => {
+						function createClassStaticBlockDeclaration(body: TS.Block): TS.ClassStaticBlockDeclaration;
+						function createClassStaticBlockDeclaration(
+							decorators: readonly TS.Decorator[] | undefined,
+							modifiers: readonly TS.Modifier[] | undefined,
+							body: TS.Block
+						): TS.ClassStaticBlockDeclaration;
+						function createClassStaticBlockDeclaration(
+							decoratorsOrBlock: readonly TS.Decorator[] | TS.Block | undefined,
+							modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
+							bodyOrUndefined?: TS.Block
+						): TS.ClassStaticBlockDeclaration {
+							const body = arguments.length >= 3 ? (bodyOrUndefined as TS.Block) : (decoratorsOrBlock as TS.Block);
+
+							const node = factory.createEmptyStatement() as unknown as Mutable<TS.ClassStaticBlockDeclaration>;
+							node.body = body;
+							(node as NodeWithInternalFlags).transformFlags = 8388608 /* ContainsClassFields */;
+							return node;
+						}
+
 						function updateClassStaticBlockDeclaration(node: TS.ClassStaticBlockDeclaration, body: TS.Block): TS.ClassStaticBlockDeclaration;
 						function updateClassStaticBlockDeclaration(
 							node: TS.ClassStaticBlockDeclaration,
@@ -495,11 +489,11 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							bodyOrUndefined?: TS.Block
 						): TS.ClassStaticBlockDeclaration {
 							const body = arguments.length >= 4 ? (bodyOrUndefined as TS.Block) : (decoratorsOrBlock as TS.Block);
-							return body === node.body ? node : update(_createClassStaticBlockDeclaration(body), node);
+							return body === node.body ? node : update(createClassStaticBlockDeclaration(body), node);
 						}
 
 						return {
-							createClassStaticBlockDeclaration: _createClassStaticBlockDeclaration,
+							createClassStaticBlockDeclaration,
 							updateClassStaticBlockDeclaration
 						};
 				  })()
@@ -1259,7 +1253,14 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							const isShort = arguments.length <= 1;
 							const body = (isShort ? decoratorsOrBody : bodyOrUndefined) as TS.Block;
 
-							return _createClassStaticBlockDeclaration(undefined, undefined, body as never) as unknown as TS.ClassStaticBlockDeclaration;
+							if (missingCreateClassStaticBlockDeclaration) {
+								const node = factory.createEmptyStatement() as unknown as Mutable<TS.ClassStaticBlockDeclaration>;
+								node.body = body;
+								(node as NodeWithInternalFlags).transformFlags = 8388608 /* ContainsClassFields */;
+								return node;
+							} else {
+								return factory.createClassStaticBlockDeclaration(undefined, undefined, body);
+							}
 						}
 
 						function updateClassStaticBlockDeclaration(node: TS.ClassStaticBlockDeclaration, body: TS.Block): TS.ClassStaticBlockDeclaration;
@@ -1277,12 +1278,12 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						): TS.ClassStaticBlockDeclaration {
 							const isShort = arguments.length <= 2;
 							const body = (isShort ? decoratorsOrBody : bodyOrUndefined) as TS.Block;
-							return (factory as unknown as import("typescript-4-7-2").NodeFactory).updateClassStaticBlockDeclaration(
-								node as never,
-								undefined,
-								undefined,
-								body as never
-							) as unknown as TS.ClassStaticBlockDeclaration;
+
+							if (missingCreateClassStaticBlockDeclaration) {
+								return body === node.body ? node : update(createClassStaticBlockDeclaration(body), node);
+							} else {
+								return factory.updateClassStaticBlockDeclaration(node, undefined, undefined, body);
+							}
 						}
 
 						function createClassExpression(
@@ -3729,7 +3730,6 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			assertClause as never
 		) as unknown as TS.ImportDeclaration;
 	}
-
 
 	const createPrivateIdentifier =
 		typescript.createPrivateIdentifier ??
