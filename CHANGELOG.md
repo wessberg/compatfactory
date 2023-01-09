@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/wessberg/compatfactory/compare/v2.0.0...v2.0.1) (2023-01-09)
+
+
+### Bug Fixes
+
+* resolve issues with import declarations ([6efb703](https://github.com/wessberg/compatfactory/commit/6efb703bd2aff6e8e8fc1c297afcff825ae64a83))
+
+
+
 # [2.0.0](https://github.com/wessberg/compatfactory/compare/v1.0.1...v2.0.0) (2023-01-09)
 
 
