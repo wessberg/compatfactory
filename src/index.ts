@@ -43,7 +43,14 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 
 	// When this is true, this represents a TypeScript version where the the first argument to many of the factory functions is a list of decorators, which
 	// has since been merged with modifiers
-	const badDecoratorsAsFirstArgument = factory.createImportEqualsDeclaration([], [], false, "", factory.createIdentifier("")).decorators != null;
+	let badDecoratorsAsFirstArgument = false;
+
+	try {
+		// This will throw on older TypeScript versions that always expect receiving decorators as the first argument
+		badDecoratorsAsFirstArgument = factory.createImportEqualsDeclaration([], false, "", factory.createIdentifier("")).decorators != null;
+	} catch {
+		badDecoratorsAsFirstArgument = factory.createImportEqualsDeclaration([], [], false, "", factory.createIdentifier("")).decorators != null;
+	}
 
 	const badCreateImportEqualsDeclaration = badDecoratorsAsFirstArgument && factory.createImportEqualsDeclaration.length === 4;
 	const badCreateImportSpecifier = badDecoratorsAsFirstArgument && factory.createImportSpecifier.length === 2;
@@ -51,6 +58,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const badCreateImportTypeNode = badDecoratorsAsFirstArgument && factory.createImportTypeNode.length < 5;
 	const badCreateMappedTypeNodeA = badDecoratorsAsFirstArgument && factory.createMappedTypeNode.length === 4;
 	const badCreateMappedTypeNodeB = badDecoratorsAsFirstArgument && factory.createMappedTypeNode.length === 5;
+	const badCreateTypeParameterDeclaration = badDecoratorsAsFirstArgument && factory.createTypeParameterDeclaration.length === 3;
 
 	const missingCreateSatisfiesExpression = factory.createSatisfiesExpression == null;
 	const missingCreateClassStaticBlockDeclaration = factory.createClassStaticBlockDeclaration == null;
@@ -71,6 +79,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		badCreateImportTypeNode ||
 		badCreateMappedTypeNodeA ||
 		badCreateMappedTypeNodeB ||
+		badCreateTypeParameterDeclaration ||
 		missingCreateSatisfiesExpression ||
 		missingCreateClassStaticBlockDeclaration ||
 		missingCreateUniquePrivateName ||
@@ -397,6 +406,85 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							) as unknown as TS.MappedTypeNode;
 						}
 				  }
+				: {}),
+			...(badCreateTypeParameterDeclaration
+				? (() => {
+						function createTypeParameterDeclaration(name: string | TS.Identifier, constraint?: TS.TypeNode, defaultType?: TS.TypeNode): TS.TypeParameterDeclaration;
+						function createTypeParameterDeclaration(
+							modifiers: readonly TS.Modifier[] | undefined,
+							name: string | TS.Identifier,
+							constraint?: TS.TypeNode,
+							defaultType?: TS.TypeNode
+						): TS.TypeParameterDeclaration;
+						function createTypeParameterDeclaration(
+							modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+							nameOrConstraint?: string | TS.Identifier | TS.TypeNode,
+							constraintOrDefaultType?: TS.TypeNode | TS.TypeNode,
+							defaultTypeOrUndefined?: TS.TypeNode
+						): TS.TypeParameterDeclaration {
+							const isShort =
+								typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+							const modifiers = (isShort ? undefined : modifiersOrName) as TS.Modifier[] | undefined;
+							const name = (isShort ? modifiersOrName : nameOrConstraint) as string | TS.Identifier;
+							const constraint = (isShort ? nameOrConstraint : constraintOrDefaultType) as TS.TypeNode | undefined;
+							const defaultType = (isShort ? constraintOrDefaultType : defaultTypeOrUndefined) as TS.TypeNode | undefined;
+
+							const typeParameterDeclaration = (factory as unknown as import("typescript-4-6-4").NodeFactory).createTypeParameterDeclaration(
+								name as never,
+								constraint as never,
+								defaultType as never
+							) as unknown as TS.TypeParameterDeclaration;
+							if (modifiers != null) {
+								(typeParameterDeclaration as Mutable<TS.TypeParameterDeclaration>).modifiers = factory.createNodeArray(modifiers);
+							}
+
+							return typeParameterDeclaration;
+						}
+
+						function updateTypeParameterDeclaration(
+							node: TS.TypeParameterDeclaration,
+							name: TS.Identifier,
+							constraint?: TS.TypeNode,
+							defaultType?: TS.TypeNode
+						): TS.TypeParameterDeclaration;
+						function updateTypeParameterDeclaration(
+							node: TS.TypeParameterDeclaration,
+							modifiers: readonly TS.Modifier[] | undefined,
+							name: TS.Identifier,
+							constraint?: TS.TypeNode,
+							defaultType?: TS.TypeNode
+						): TS.TypeParameterDeclaration;
+						function updateTypeParameterDeclaration(
+							node: TS.TypeParameterDeclaration,
+							modifiersOrName: readonly TS.Modifier[] | TS.Identifier | undefined,
+							nameOrConstraint?: string | TS.Identifier | TS.TypeNode,
+							constraintOrDefaultType?: TS.TypeNode | TS.TypeNode,
+							defaultTypeOrUndefined?: TS.TypeNode
+						): TS.TypeParameterDeclaration {
+							const isShort = modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName; /* Identifier */
+							const modifiers = (isShort ? undefined : modifiersOrName) as TS.Modifier[] | undefined;
+							const name = (isShort ? modifiersOrName : nameOrConstraint) as TS.Identifier;
+							const constraint = (isShort ? nameOrConstraint : constraintOrDefaultType) as TS.TypeNode | undefined;
+							const defaultType = (isShort ? constraintOrDefaultType : defaultTypeOrUndefined) as TS.TypeNode | undefined;
+
+							const typeParameterDeclaration = (factory as unknown as import("typescript-4-6-4").NodeFactory).updateTypeParameterDeclaration(
+								node as never,
+								name as never,
+								constraint as never,
+								defaultType as never
+							) as unknown as TS.TypeParameterDeclaration;
+							if (modifiers != null) {
+								(typeParameterDeclaration as Mutable<TS.TypeParameterDeclaration>).modifiers = factory.createNodeArray(modifiers);
+							}
+
+							return typeParameterDeclaration;
+						}
+
+						return {
+							createTypeParameterDeclaration,
+							updateTypeParameterDeclaration
+						};
+				  })()
 				: {}),
 			...(missingCreateSatisfiesExpression
 				? (() => {
@@ -4260,6 +4348,62 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return typescript.updateExportAssignment(node as never, decorators as never, modifiers as never, expression as never) as unknown as TS.ExportAssignment;
 	}
 
+	function createTypeParameterDeclaration(name: string | TS.Identifier, constraint?: TS.TypeNode, defaultType?: TS.TypeNode): TS.TypeParameterDeclaration;
+	function createTypeParameterDeclaration(
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		constraint?: TS.TypeNode,
+		defaultType?: TS.TypeNode
+	): TS.TypeParameterDeclaration;
+	function createTypeParameterDeclaration(
+		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+		nameOrConstraint?: string | TS.Identifier | TS.TypeNode,
+		constraintOrDefaultType?: TS.TypeNode | TS.TypeNode,
+		defaultTypeOrUndefined?: TS.TypeNode
+	): TS.TypeParameterDeclaration {
+		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+		const modifiers = (isShort ? undefined : modifiersOrName) as TS.Modifier[] | undefined;
+		const name = (isShort ? modifiersOrName : nameOrConstraint) as string | TS.Identifier;
+		const constraint = (isShort ? nameOrConstraint : constraintOrDefaultType) as TS.TypeNode | undefined;
+		const defaultType = (isShort ? constraintOrDefaultType : defaultTypeOrUndefined) as TS.TypeNode | undefined;
+
+		const typeParameterDeclaration = typescript.createTypeParameterDeclaration(name, constraint, defaultType) as unknown as TS.TypeParameterDeclaration;
+		if (modifiers != null) {
+			(typeParameterDeclaration as Mutable<TS.TypeParameterDeclaration>).modifiers = typescript.createNodeArray(modifiers);
+		}
+
+		return typeParameterDeclaration;
+	}
+
+	function updateTypeParameterDeclaration(node: TS.TypeParameterDeclaration, name: TS.Identifier, constraint?: TS.TypeNode, defaultType?: TS.TypeNode): TS.TypeParameterDeclaration;
+	function updateTypeParameterDeclaration(
+		node: TS.TypeParameterDeclaration,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: TS.Identifier,
+		constraint?: TS.TypeNode,
+		defaultType?: TS.TypeNode
+	): TS.TypeParameterDeclaration;
+	function updateTypeParameterDeclaration(
+		node: TS.TypeParameterDeclaration,
+		modifiersOrName: readonly TS.Modifier[] | TS.Identifier | undefined,
+		nameOrConstraint?: TS.Identifier | TS.TypeNode,
+		constraintOrDefaultType?: TS.TypeNode | TS.TypeNode,
+		defaultTypeOrUndefined?: TS.TypeNode
+	): TS.TypeParameterDeclaration {
+		const isShort = modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName; /* Identifier */
+		const modifiers = (isShort ? undefined : modifiersOrName) as TS.Modifier[] | undefined;
+		const name = (isShort ? modifiersOrName : nameOrConstraint) as TS.Identifier;
+		const constraint = (isShort ? nameOrConstraint : constraintOrDefaultType) as TS.TypeNode | undefined;
+		const defaultType = (isShort ? constraintOrDefaultType : defaultTypeOrUndefined) as TS.TypeNode | undefined;
+
+		const typeParameterDeclaration = typescript.updateTypeParameterDeclaration(node, name, constraint, defaultType) as unknown as TS.TypeParameterDeclaration;
+		if (modifiers != null) {
+			(typeParameterDeclaration as Mutable<TS.TypeParameterDeclaration>).modifiers = typescript.createNodeArray(modifiers);
+		}
+
+		return typeParameterDeclaration;
+	}
+
 	const {updateSourceFileNode, ...common} = typescript;
 
 	return {
@@ -4339,6 +4483,8 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		updateModuleDeclaration,
 		createExportAssignment,
 		updateExportAssignment,
+		createTypeParameterDeclaration,
+		updateTypeParameterDeclaration,
 
 		createComma(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
 			return typescript.createComma(left, right) as TS.BinaryExpression;
