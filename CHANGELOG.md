@@ -1,3 +1,12 @@
+## [2.0.2](https://github.com/wessberg/compatfactory/compare/v2.0.1...v2.0.2) (2023-01-09)
+
+
+### Bug Fixes
+
+* correctly split decorators and modifiers ([5cb9b93](https://github.com/wessberg/compatfactory/commit/5cb9b9301b050f85a4d8a604cf2ecf353d01f35c))
+
+
+
 ## [2.0.1](https://github.com/wessberg/compatfactory/compare/v2.0.0...v2.0.1) (2023-01-09)
 
 
