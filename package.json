@@ -1,6 +1,6 @@
 {
   "name": "compatfactory",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "A library that unifies the TypeScript Compiler API factory functions across all versions of TypeScript and makes them conform with the Node Factory API",
   "scripts": {
     "generate:sandhog": "sandhog all --yes",

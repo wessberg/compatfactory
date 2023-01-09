@@ -1,3 +1,12 @@
+## [2.0.8](https://github.com/wessberg/compatfactory/compare/v2.0.7...v2.0.8) (2023-01-09)
+
+
+### Bug Fixes
+
+* fix issue with updateImportEqualsDeclaration on TypeScript 3.x ([c5a67b8](https://github.com/wessberg/compatfactory/commit/c5a67b879bf5cac7f0f1d76f99626852afa1f157))
+
+
+
 ## [2.0.7](https://github.com/wessberg/compatfactory/compare/v2.0.6...v2.0.7) (2023-01-09)
 
 
