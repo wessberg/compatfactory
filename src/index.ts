@@ -31,8 +31,8 @@ export function ensureNodeFactory(factoryLike: TS.NodeFactory | typeof TS): TS.N
 
 function splitDecoratorsAndModifiers(modifiers: readonly TS.ModifierLike[] | undefined): [readonly TS.Decorator[], readonly TS.Modifier[]] {
 	return [
-		(modifiers?.find(modifier => "expression" in modifier) ?? []) as readonly TS.Decorator[],
-		(modifiers?.find(modifier => !("expression" in modifier)) ?? []) as readonly TS.Modifier[]
+		(modifiers?.filter(modifier => "expression" in modifier) ?? []) as readonly TS.Decorator[],
+		(modifiers?.filter(modifier => !("expression" in modifier)) ?? []) as readonly TS.Modifier[]
 	];
 }
 
