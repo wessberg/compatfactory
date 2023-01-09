@@ -1,3 +1,12 @@
+## [2.0.4](https://github.com/wessberg/compatfactory/compare/v2.0.3...v2.0.4) (2023-01-09)
+
+
+### Bug Fixes
+
+* fix issue with overloaded arguments ([45a7456](https://github.com/wessberg/compatfactory/commit/45a7456f2c455ce2f8dffee66632bb8a23e3dca6))
+
+
+
 ## [2.0.3](https://github.com/wessberg/compatfactory/compare/v2.0.2...v2.0.3) (2023-01-09)
 
 
