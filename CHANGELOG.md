@@ -1,3 +1,12 @@
+## [2.0.9](https://github.com/wessberg/compatfactory/compare/v2.0.8...v2.0.9) (2023-01-09)
+
+
+### Bug Fixes
+
+* set undefined instead of empty array as decorators for all TS versions ([905175e](https://github.com/wessberg/compatfactory/commit/905175e43b803dd1cb948f63e025478036a79c81))
+
+
+
 ## [2.0.8](https://github.com/wessberg/compatfactory/compare/v2.0.7...v2.0.8) (2023-01-09)
 
 
