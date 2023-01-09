@@ -1,3 +1,12 @@
+## [2.0.7](https://github.com/wessberg/compatfactory/compare/v2.0.6...v2.0.7) (2023-01-09)
+
+
+### Bug Fixes
+
+* implement compat handling for createTypeParameterDeclaration with or without modifiers as first argument ([d87f910](https://github.com/wessberg/compatfactory/commit/d87f910223e2a45e730b8a2b58f25b61ea464ce9))
+
+
+
 ## [2.0.6](https://github.com/wessberg/compatfactory/compare/v2.0.5...v2.0.6) (2023-01-09)
 
 
