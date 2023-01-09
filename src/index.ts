@@ -3750,6 +3750,503 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return createPrivateIdentifier("");
 	}
 
+	function createTypeAliasDeclaration(
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		type: TS.TypeNode
+	): TS.TypeAliasDeclaration;
+	function createTypeAliasDeclaration(
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		type: TS.TypeNode
+	): TS.TypeAliasDeclaration;
+	function createTypeAliasDeclaration(
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+		nameOrTypeParameters: string | TS.Identifier | readonly TS.TypeParameterDeclaration[] | undefined,
+		typeParametersOrType: readonly TS.TypeParameterDeclaration[] | TS.TypeNode | undefined,
+		typeOrUndefined?: TS.TypeNode
+	): TS.TypeAliasDeclaration {
+		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
+		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrType) as readonly TS.TypeParameterDeclaration[];
+		const type = (isShort ? typeParametersOrType : typeOrUndefined) as TS.TypeNode[] | undefined;
+
+		return typescript.createTypeAliasDeclaration(decorators as never, modifiers as never, name as never, typeParameters as never, type as never);
+	}
+
+	function updateTypeAliasDeclaration(
+		node: TS.TypeAliasDeclaration,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		type: TS.TypeNode
+	): TS.TypeAliasDeclaration;
+	function updateTypeAliasDeclaration(
+		node: TS.TypeAliasDeclaration,
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		type: TS.TypeNode
+	): TS.TypeAliasDeclaration;
+	function updateTypeAliasDeclaration(
+		node: TS.TypeAliasDeclaration,
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+		nameOrTypeParameters: string | TS.Identifier | readonly TS.TypeParameterDeclaration[] | undefined,
+		typeParametersOrType: readonly TS.TypeParameterDeclaration[] | TS.TypeNode | undefined,
+		typeOrUndefined?: TS.TypeNode
+	): TS.TypeAliasDeclaration {
+		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
+		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrType) as readonly TS.TypeParameterDeclaration[];
+		const type = (isShort ? typeParametersOrType : typeOrUndefined) as TS.TypeNode[] | undefined;
+
+		return typescript.updateTypeAliasDeclaration(node, decorators as never, modifiers as never, name as never, typeParameters as never, type as never);
+	}
+
+	function createFunctionDeclaration(
+		modifiers: readonly TS.ModifierLike[] | undefined,
+		asteriskToken: TS.AsteriskToken | undefined,
+		name: string | TS.Identifier | undefined,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		parameters: readonly TS.ParameterDeclaration[],
+		type: TS.TypeNode | undefined,
+		body: TS.Block | undefined
+	): TS.FunctionDeclaration;
+	function createFunctionDeclaration(
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		asteriskToken: TS.AsteriskToken | undefined,
+		name: string | TS.Identifier | undefined,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		parameters: readonly TS.ParameterDeclaration[],
+		type: TS.TypeNode | undefined,
+		body: TS.Block | undefined
+	): TS.FunctionDeclaration;
+	function createFunctionDeclaration(
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.ModifierLike[] | undefined,
+		modifiersOrAsteriskToken: readonly TS.Modifier[] | TS.AsteriskToken | undefined,
+		asteriskTokenOrName: TS.AsteriskToken | string | TS.Identifier | undefined,
+		nameOrTypeParameters: string | TS.Identifier | readonly TS.TypeParameterDeclaration[] | undefined,
+		typeParametersOrParameters: readonly TS.TypeParameterDeclaration[] | readonly TS.ParameterDeclaration[] | undefined,
+		parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
+		typeOrBody: TS.TypeNode | TS.Block | undefined,
+		bodyOrUndefined?: TS.Block | undefined
+	): TS.FunctionDeclaration {
+		const isShort = arguments.length <= 7;
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrAsteriskToken as readonly TS.Modifier[]);
+		const asteriskToken = (isShort ? modifiersOrAsteriskToken : asteriskTokenOrName) as TS.AsteriskToken | undefined;
+		const name = (isShort ? asteriskTokenOrName : nameOrTypeParameters) as string | TS.Identifier;
+		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrParameters) as readonly TS.TypeParameterDeclaration[];
+		const parameters = (isShort ? typeParametersOrParameters : parametersOrType) as readonly TS.ParameterDeclaration[] | undefined;
+		const type = (isShort ? parametersOrType : typeOrBody) as TS.TypeNode;
+		const body = (isShort ? typeOrBody : bodyOrUndefined) as TS.Block | undefined;
+
+		return typescript.createFunctionDeclaration(
+			decorators as never,
+			modifiers as never,
+			asteriskToken as never,
+			name as never,
+			typeParameters as never,
+			parameters as never,
+			type as never,
+			body as never
+		) as unknown as TS.FunctionDeclaration;
+	}
+
+	function updateFunctionDeclaration(
+		node: TS.FunctionDeclaration,
+		modifiers: readonly TS.ModifierLike[] | undefined,
+		asteriskToken: TS.AsteriskToken | undefined,
+		name: string | TS.Identifier | undefined,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		parameters: readonly TS.ParameterDeclaration[],
+		type: TS.TypeNode | undefined,
+		body: TS.Block | undefined
+	): TS.FunctionDeclaration;
+	function updateFunctionDeclaration(
+		node: TS.FunctionDeclaration,
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		asteriskToken: TS.AsteriskToken | undefined,
+		name: string | TS.Identifier | undefined,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		parameters: readonly TS.ParameterDeclaration[],
+		type: TS.TypeNode | undefined,
+		body: TS.Block | undefined
+	): TS.FunctionDeclaration;
+	function updateFunctionDeclaration(
+		node: TS.FunctionDeclaration,
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.ModifierLike[] | undefined,
+		modifiersOrAsteriskToken: readonly TS.Modifier[] | TS.AsteriskToken | undefined,
+		asteriskTokenOrName: TS.AsteriskToken | string | TS.Identifier | undefined,
+		nameOrTypeParameters: string | TS.Identifier | readonly TS.TypeParameterDeclaration[] | undefined,
+		typeParametersOrParameters: readonly TS.TypeParameterDeclaration[] | readonly TS.ParameterDeclaration[] | undefined,
+		parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
+		typeOrBody: TS.TypeNode | TS.Block | undefined,
+		bodyOrUndefined?: TS.Block | undefined
+	): TS.FunctionDeclaration {
+		const isShort = arguments.length <= 8;
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrAsteriskToken as readonly TS.Modifier[]);
+		const asteriskToken = (isShort ? modifiersOrAsteriskToken : asteriskTokenOrName) as TS.AsteriskToken | undefined;
+		const name = (isShort ? asteriskTokenOrName : nameOrTypeParameters) as string | TS.Identifier;
+		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrParameters) as readonly TS.TypeParameterDeclaration[];
+		const parameters = (isShort ? typeParametersOrParameters : parametersOrType) as readonly TS.ParameterDeclaration[] | undefined;
+		const type = (isShort ? parametersOrType : typeOrBody) as TS.TypeNode;
+		const body = (isShort ? typeOrBody : bodyOrUndefined) as TS.Block | undefined;
+
+		return typescript.updateFunctionDeclaration(
+			node as never,
+			decorators as never,
+			modifiers as never,
+			asteriskToken as never,
+			name as never,
+			typeParameters as never,
+			parameters as never,
+			type as never,
+			body as never
+		) as unknown as TS.FunctionDeclaration;
+	}
+
+	function createClassDeclaration(
+		modifiers: readonly TS.ModifierLike[] | undefined,
+		name: string | TS.Identifier | undefined,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		heritageClauses: readonly TS.HeritageClause[] | undefined,
+		members: readonly TS.ClassElement[]
+	): TS.ClassDeclaration;
+	function createClassDeclaration(
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier | undefined,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		heritageClauses: readonly TS.HeritageClause[] | undefined,
+		members: readonly TS.ClassElement[]
+	): TS.ClassDeclaration;
+	function createClassDeclaration(
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.ModifierLike[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+		nameOrTypeParameters: string | TS.Identifier | readonly TS.TypeParameterDeclaration[] | undefined,
+		typeParametersOrHeritageClauses: readonly TS.TypeParameterDeclaration[] | readonly TS.HeritageClause[] | undefined,
+		heritageClausesOrMembers: readonly TS.HeritageClause[] | readonly TS.ClassElement[] | undefined,
+		membersOrUndefined?: readonly TS.ClassElement[]
+	): TS.ClassDeclaration {
+		const isShort = arguments.length <= 5;
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
+		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrHeritageClauses) as readonly TS.TypeParameterDeclaration[];
+		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
+		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.ClassElement[];
+
+		return typescript.createClassDeclaration(
+			decorators as never,
+			modifiers as never,
+			name as never,
+			typeParameters as never,
+			heritageClauses as never,
+			members as never
+		) as unknown as TS.ClassDeclaration;
+	}
+
+	function updateClassDeclaration(
+		node: TS.ClassDeclaration,
+		modifiers: readonly TS.ModifierLike[] | undefined,
+		name: string | TS.Identifier | undefined,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		heritageClauses: readonly TS.HeritageClause[] | undefined,
+		members: readonly TS.ClassElement[]
+	): TS.ClassDeclaration;
+	function updateClassDeclaration(
+		node: TS.ClassDeclaration,
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier | undefined,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		heritageClauses: readonly TS.HeritageClause[] | undefined,
+		members: readonly TS.ClassElement[]
+	): TS.ClassDeclaration;
+	function updateClassDeclaration(
+		node: TS.ClassDeclaration,
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.ModifierLike[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+		nameOrTypeParameters: string | TS.Identifier | readonly TS.TypeParameterDeclaration[] | undefined,
+		typeParametersOrHeritageClauses: readonly TS.TypeParameterDeclaration[] | readonly TS.HeritageClause[] | undefined,
+		heritageClausesOrMembers: readonly TS.HeritageClause[] | readonly TS.ClassElement[] | undefined,
+		membersOrUndefined?: readonly TS.ClassElement[]
+	): TS.ClassDeclaration {
+		const isShort = arguments.length <= 6;
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
+		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrHeritageClauses) as readonly TS.TypeParameterDeclaration[];
+		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
+		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.ClassElement[];
+
+		return typescript.updateClassDeclaration(
+			node as never,
+			decorators as never,
+			modifiers as never,
+			name as never,
+			typeParameters as never,
+			heritageClauses as never,
+			members as never
+		) as unknown as TS.ClassDeclaration;
+	}
+
+	function createInterfaceDeclaration(
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		heritageClauses: readonly TS.HeritageClause[] | undefined,
+		members: readonly TS.TypeElement[]
+	): TS.InterfaceDeclaration;
+	function createInterfaceDeclaration(
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		heritageClauses: readonly TS.HeritageClause[] | undefined,
+		members: readonly TS.TypeElement[]
+	): TS.InterfaceDeclaration;
+	function createInterfaceDeclaration(
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+		nameOrTypeParameters: string | TS.Identifier | readonly TS.TypeParameterDeclaration[] | undefined,
+		typeParametersOrHeritageClauses: readonly TS.TypeParameterDeclaration[] | readonly TS.HeritageClause[] | undefined,
+		heritageClausesOrMembers: readonly TS.HeritageClause[] | readonly TS.TypeElement[] | undefined,
+		membersOrUndefined?: readonly TS.TypeElement[]
+	): TS.InterfaceDeclaration {
+		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
+		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrHeritageClauses) as readonly TS.TypeParameterDeclaration[];
+		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
+		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.TypeElement[];
+
+		return typescript.createInterfaceDeclaration(
+			decorators as never,
+			modifiers as never,
+			name as never,
+			typeParameters as never,
+			heritageClauses as never,
+			members as never
+		) as unknown as TS.InterfaceDeclaration;
+	}
+
+	function updateInterfaceDeclaration(
+		node: TS.InterfaceDeclaration,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		heritageClauses: readonly TS.HeritageClause[] | undefined,
+		members: readonly TS.TypeElement[]
+	): TS.InterfaceDeclaration;
+	function updateInterfaceDeclaration(
+		node: TS.InterfaceDeclaration,
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		typeParameters: readonly TS.TypeParameterDeclaration[] | undefined,
+		heritageClauses: readonly TS.HeritageClause[] | undefined,
+		members: readonly TS.TypeElement[]
+	): TS.InterfaceDeclaration;
+	function updateInterfaceDeclaration(
+		node: TS.InterfaceDeclaration,
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+		nameOrTypeParameters: string | TS.Identifier | readonly TS.TypeParameterDeclaration[] | undefined,
+		typeParametersOrHeritageClauses: readonly TS.TypeParameterDeclaration[] | readonly TS.HeritageClause[] | undefined,
+		heritageClausesOrMembers: readonly TS.HeritageClause[] | readonly TS.TypeElement[] | undefined,
+		membersOrUndefined?: readonly TS.TypeElement[]
+	): TS.InterfaceDeclaration {
+		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrTypeParameters) as string | TS.Identifier;
+		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrHeritageClauses) as readonly TS.TypeParameterDeclaration[];
+		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
+		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.TypeElement[];
+
+		return typescript.updateInterfaceDeclaration(
+			node as never,
+			decorators as never,
+			modifiers as never,
+			name as never,
+			typeParameters as never,
+			heritageClauses as never,
+			members as never
+		) as unknown as TS.InterfaceDeclaration;
+	}
+
+	function createEnumDeclaration(modifiers: readonly TS.Modifier[] | undefined, name: string | TS.Identifier, members: readonly TS.EnumMember[]): TS.EnumDeclaration;
+	function createEnumDeclaration(
+		decorators: readonly TS.Decorator[],
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		members: readonly TS.EnumMember[]
+	): TS.EnumDeclaration;
+	function createEnumDeclaration(
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+		nameOrMembers: string | TS.Identifier | readonly TS.EnumMember[],
+		membersOrUndefined?: readonly TS.EnumMember[]
+	): TS.EnumDeclaration {
+		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrMembers) as string | TS.Identifier;
+		const members = (isShort ? nameOrMembers : membersOrUndefined) as readonly TS.EnumMember[];
+
+		return typescript.createEnumDeclaration(decorators as never, modifiers as never, name as never, members as never) as unknown as TS.EnumDeclaration;
+	}
+
+	function updateEnumDeclaration(
+		node: TS.EnumDeclaration,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		members: readonly TS.EnumMember[]
+	): TS.EnumDeclaration;
+	function updateEnumDeclaration(
+		node: TS.EnumDeclaration,
+		decorators: readonly TS.Decorator[],
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: string | TS.Identifier,
+		members: readonly TS.EnumMember[]
+	): TS.EnumDeclaration;
+	function updateEnumDeclaration(
+		node: TS.EnumDeclaration,
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
+		nameOrMembers: string | TS.Identifier | readonly TS.EnumMember[],
+		membersOrUndefined?: readonly TS.EnumMember[]
+	): TS.EnumDeclaration {
+		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrMembers) as string | TS.Identifier;
+		const members = (isShort ? nameOrMembers : membersOrUndefined) as readonly TS.EnumMember[];
+
+		return typescript.updateEnumDeclaration(node as never, decorators as never, modifiers as never, name as never, members as never) as unknown as TS.EnumDeclaration;
+	}
+
+	function createModuleDeclaration(modifiers: readonly TS.Modifier[] | undefined, name: TS.ModuleName, body: TS.ModuleBody | undefined, flags?: TS.NodeFlags): TS.ModuleDeclaration;
+	function createModuleDeclaration(
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: TS.ModuleName,
+		body: TS.ModuleBody | undefined,
+		flags?: TS.NodeFlags
+	): TS.ModuleDeclaration;
+	function createModuleDeclaration(
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | TS.ModuleName | undefined,
+		nameOrBody: TS.ModuleName | TS.ModuleBody | undefined,
+		bodyOrFlags: TS.ModuleBody | TS.NodeFlags | undefined,
+		flagsOrUndefined?: TS.NodeFlags
+	): TS.ModuleDeclaration {
+		const isShort =
+			typeof modifiersOrName === "string" ||
+			(modifiersOrName != null &&
+				!Array.isArray(modifiersOrName) &&
+				("escapedText" in modifiersOrName /* Identifier */ || "_literalExpressionBrand" in modifiersOrName)); /* StringLiteral */
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrBody) as TS.ModuleName;
+		const body = (isShort ? nameOrBody : bodyOrFlags) as TS.ModuleBody | undefined;
+		const flags = (isShort ? bodyOrFlags : flagsOrUndefined) as TS.NodeFlags | undefined;
+
+		return typescript.createModuleDeclaration(decorators as never, modifiers as never, name as never, body as never, flags as never) as unknown as TS.ModuleDeclaration;
+	}
+
+	function updateModuleDeclaration(
+		node: TS.ModuleDeclaration,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: TS.ModuleName,
+		body: TS.ModuleBody | undefined
+	): TS.ModuleDeclaration;
+	function updateModuleDeclaration(
+		node: TS.ModuleDeclaration,
+		decorators: readonly TS.Decorator[] | undefined,
+		modifiers: readonly TS.Modifier[] | undefined,
+		name: TS.ModuleName,
+		body: TS.ModuleBody | undefined
+	): TS.ModuleDeclaration;
+	function updateModuleDeclaration(
+		node: TS.ModuleDeclaration,
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrName: readonly TS.Modifier[] | TS.ModuleName | undefined,
+		nameOrBody: TS.ModuleName | TS.ModuleBody | undefined,
+		bodyOrUndefined?: TS.ModuleBody | undefined
+	): TS.ModuleDeclaration {
+		const isShort =
+			typeof modifiersOrName === "string" ||
+			(modifiersOrName != null &&
+				!Array.isArray(modifiersOrName) &&
+				("escapedText" in modifiersOrName /* Identifier */ || "_literalExpressionBrand" in modifiersOrName)); /* StringLiteral */
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrName as readonly TS.Modifier[]);
+		const name = (isShort ? modifiersOrName : nameOrBody) as TS.ModuleName;
+		const body = (isShort ? nameOrBody : bodyOrUndefined) as TS.ModuleBody | undefined;
+
+		return typescript.updateModuleDeclaration(node as never, decorators as never, modifiers as never, name as never, body as never) as unknown as TS.ModuleDeclaration;
+	}
+
+	function createExportAssignment(modifiers: readonly TS.Modifier[] | undefined, isExportEquals: boolean | undefined, expression: TS.Expression): TS.ExportAssignment;
+	function createExportAssignment(
+		decorators: readonly TS.Decorator[],
+		modifiers: readonly TS.Modifier[] | undefined,
+		isExportEquals: boolean | undefined,
+		expression: TS.Expression
+	): TS.ExportAssignment;
+	function createExportAssignment(
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrIsExportEquals: readonly TS.Modifier[] | boolean | undefined,
+		isExportEqualsOrExpression: boolean | TS.Expression | undefined,
+		expressionOrUndefined?: TS.Expression | undefined
+	): TS.ExportAssignment {
+		const isShort = typeof modifiersOrIsExportEquals === "boolean";
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrIsExportEquals as readonly TS.Modifier[]);
+		const isExportEquals = (isShort ? modifiersOrIsExportEquals : isExportEqualsOrExpression) as boolean;
+		const expression = (isShort ? isExportEqualsOrExpression : expressionOrUndefined) as TS.Expression;
+
+		return typescript.createExportAssignment(decorators as never, modifiers as never, isExportEquals as never, expression as never) as unknown as TS.ExportAssignment;
+	}
+
+	function updateExportAssignment(node: TS.ExportAssignment, modifiers: readonly TS.Modifier[] | undefined, expression: TS.Expression): TS.ExportAssignment;
+	function updateExportAssignment(
+		node: TS.ExportAssignment,
+		decorators: readonly TS.Decorator[],
+		modifiers: readonly TS.Modifier[] | undefined,
+		expression: TS.Expression
+	): TS.ExportAssignment;
+	function updateExportAssignment(
+		node: TS.ExportAssignment,
+		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
+		modifiersOrExpression: readonly TS.Modifier[] | TS.Expression | undefined,
+		expressionOrUndefined?: TS.Expression | undefined
+	): TS.ExportAssignment {
+		const isShort = arguments.length <= 3;
+		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
+		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrExpression as readonly TS.Modifier[]);
+		const expression = (isShort ? modifiersOrExpression : expressionOrUndefined) as TS.Expression;
+
+		return typescript.updateExportAssignment(node as never, decorators as never, modifiers as never, expression as never) as unknown as TS.ExportAssignment;
+	}
+
 	const {updateSourceFileNode, ...common} = typescript;
 
 	return {
@@ -3815,6 +4312,20 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		createUniquePrivateName,
 		createPrivateIdentifier,
 		getGeneratedPrivateNameForNode,
+		createTypeAliasDeclaration,
+		updateTypeAliasDeclaration,
+		createFunctionDeclaration,
+		updateFunctionDeclaration,
+		createClassDeclaration,
+		updateClassDeclaration,
+		createInterfaceDeclaration,
+		updateInterfaceDeclaration,
+		createEnumDeclaration,
+		updateEnumDeclaration,
+		createModuleDeclaration,
+		updateModuleDeclaration,
+		createExportAssignment,
+		updateExportAssignment,
 
 		createComma(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
 			return typescript.createComma(left, right) as TS.BinaryExpression;
