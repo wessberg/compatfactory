@@ -4,7 +4,7 @@ import {formatStatements} from "./util/format-statements.js";
 import {formatCode} from "./util/format-code.js";
 import {ensureNodeFactory} from "../src/index.js";
 
-test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.7"), (t, {typescript}) => {
+test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.8"), (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.true(factory === typescript.factory);
 });
