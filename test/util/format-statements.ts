@@ -1,5 +1,5 @@
 import type * as TS from "typescript";
-import {MaybeArray} from "helpertypes";
+import type {MaybeArray} from "helpertypes";
 import {ensureNodeFactory} from "../../src/index.js";
 import {formatCode} from "./format-code.js";
 
@@ -9,6 +9,8 @@ export function formatStatements(typescript: typeof TS, statements: MaybeArray<T
 		newLine: typescript.NewLineKind.LineFeed
 	});
 
-	const sourceFile = factory.createSourceFile(Array.isArray(statements) ? statements : [statements], typescript.createToken(typescript.SyntaxKind.EndOfFileToken), 0);
+	const createToken = "factory" in typescript ? typescript.factory.createToken : (typescript as {createToken: never}).createToken;
+
+	const sourceFile = factory.createSourceFile(Array.isArray(statements) ? statements : [statements], createToken(typescript.SyntaxKind.EndOfFileToken), 0);
 	return formatCode(printer.printFile(sourceFile));
 }

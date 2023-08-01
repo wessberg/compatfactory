@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 /* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unused-vars */
-import * as TS from "typescript";
-import {Mutable, RequiredExcept} from "helpertypes";
+import type * as TS from "typescript";
+import type * as TS4 from "typescript-4-9-4";
+import type {Mutable, RequiredExcept} from "helpertypes";
 
 type PartialNodeFactory = RequiredExcept<
 	TS.NodeFactory,
@@ -23,10 +25,10 @@ export function ensureNodeFactory(factoryLike: TS.NodeFactory | typeof TS): TS.N
 	if ("factory" in factoryLike && factoryLike.factory != null) {
 		return normalizeNodeFactory(factoryLike.factory);
 	} else if (!("updateSourceFileNode" in factoryLike)) {
-		return normalizeNodeFactory(factoryLike);
+		return normalizeNodeFactory(factoryLike as PartialNodeFactory);
 	}
 
-	return createNodeFactory(factoryLike);
+	return createNodeFactory(factoryLike as typeof TS);
 }
 
 function splitDecoratorsAndModifiers(modifierLikes: readonly TS.ModifierLike[] | undefined): [readonly TS.Decorator[] | undefined, readonly TS.Modifier[] | undefined] {
@@ -36,6 +38,9 @@ function splitDecoratorsAndModifiers(modifierLikes: readonly TS.ModifierLike[] |
 }
 
 function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
+	// By casting the factory to TypeScript 4.9.4, we're assuming to be on the last possible version where the decorators argument can still be separate from modifiers in the type definitions
+	const ts4CastFactory = factory as unknown as import("typescript-4-9-4").NodeFactory;
+
 	if (Boolean((factory as {__compatUpgraded?: boolean}).__compatUpgraded)) {
 		return factory;
 	}
@@ -46,9 +51,9 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 
 	try {
 		// This will throw on older TypeScript versions that always expect receiving decorators as the first argument
-		badDecoratorsAsFirstArgument = factory.createImportEqualsDeclaration([], false, "", factory.createIdentifier("")).decorators != null;
+		badDecoratorsAsFirstArgument = ts4CastFactory.createImportEqualsDeclaration([], false, "", ts4CastFactory.createIdentifier("")).decorators != null;
 	} catch {
-		badDecoratorsAsFirstArgument = factory.createImportEqualsDeclaration([], [], false, "", factory.createIdentifier("")).decorators != null;
+		badDecoratorsAsFirstArgument = ts4CastFactory.createImportEqualsDeclaration([], [], false, "", ts4CastFactory.createIdentifier("")).decorators != null;
 	}
 
 	const badCreateImportEqualsDeclaration = badDecoratorsAsFirstArgument && factory.createImportEqualsDeclaration.length === 4;
@@ -70,6 +75,10 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const missingCreateJSDocMemberName = factory.createJSDocMemberName == null;
 	const missingCreateJSDocLinkCode = factory.createJSDocLinkCode == null;
 	const missingCreateJSDocLinkPlain = factory.createJSDocLinkPlain == null;
+	const missingCreateJSDocOverloadTag = factory.createJSDocOverloadTag == null;
+	const missingCreateJSDocThrowsTag = factory.createJSDocThrowsTag == null;
+	const missingCreateJSDocSatisfiesTag = factory.createJSDocSatisfiesTag == null;
+	const missingCreateJsxNamespacedName = factory.createJsxNamespacedName == null;
 
 	const needsModifications =
 		badCreateImportEqualsDeclaration ||
@@ -87,6 +96,13 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		missingCreateAssertClause ||
 		missingCreateAssertEntry ||
 		missingCreateImportTypeAssertionContainer ||
+		missingCreateJSDocMemberName ||
+		missingCreateJSDocLinkCode ||
+		missingCreateJSDocLinkPlain ||
+		missingCreateJSDocOverloadTag ||
+		missingCreateJSDocThrowsTag ||
+		missingCreateJSDocSatisfiesTag ||
+		missingCreateJsxNamespacedName ||
 		badDecoratorsAsFirstArgument;
 
 	if (needsModifications) {
@@ -434,7 +450,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								defaultType as never
 							) as unknown as TS.TypeParameterDeclaration;
 							if (modifiers != null) {
-								(typeParameterDeclaration as Mutable<TS.TypeParameterDeclaration>).modifiers = factory.createNodeArray(modifiers);
+								(typeParameterDeclaration as unknown as Mutable<TS.TypeParameterDeclaration>).modifiers = factory.createNodeArray(modifiers);
 							}
 
 							return typeParameterDeclaration;
@@ -473,7 +489,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								defaultType as never
 							) as unknown as TS.TypeParameterDeclaration;
 							if (modifiers != null) {
-								(typeParameterDeclaration as Mutable<TS.TypeParameterDeclaration>).modifiers = factory.createNodeArray(modifiers);
+								(typeParameterDeclaration as unknown as Mutable<TS.TypeParameterDeclaration>).modifiers = factory.createNodeArray(modifiers);
 							}
 
 							return typeParameterDeclaration;
@@ -642,7 +658,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 			...(missingCreateJSDocMemberName
 				? (() => {
 						function createJSDocMemberName(left: TS.EntityName | TS.JSDocMemberName, right: TS.Identifier): TS.JSDocMemberName {
-							const base = factory.createJSDocComment(undefined, undefined) as Mutable<TS.JSDoc>;
+							const base = factory.createJSDocComment(undefined, undefined) as unknown as Mutable<TS.JSDoc>;
 							delete base.comment;
 							delete base.tags;
 
@@ -667,7 +683,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 			...(missingCreateJSDocLinkCode
 				? (() => {
 						function createJSDocLinkCode(name: TS.EntityName | TS.JSDocMemberName | undefined, text: string): TS.JSDocLinkCode {
-							const base = factory.createJSDocComment(undefined, undefined) as Mutable<TS.JSDoc>;
+							const base = factory.createJSDocComment(undefined, undefined) as unknown as Mutable<TS.JSDoc>;
 							delete base.comment;
 							delete base.tags;
 
@@ -692,7 +708,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 			...(missingCreateJSDocLinkPlain
 				? (() => {
 						function createJSDocLinkPlain(name: TS.EntityName | TS.JSDocMemberName | undefined, text: string): TS.JSDocLinkPlain {
-							const base = factory.createJSDocComment(undefined, undefined) as Mutable<TS.JSDoc>;
+							const base = factory.createJSDocComment(undefined, undefined) as unknown as Mutable<TS.JSDoc>;
 							delete base.comment;
 							delete base.tags;
 
@@ -711,6 +727,137 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						return {
 							createJSDocLinkPlain,
 							updateJSDocLinkPlain
+						};
+				  })()
+				: {}),
+			...(missingCreateJSDocOverloadTag
+				? (() => {
+						function createJSDocOverloadTag(
+							tagName: TS.Identifier | undefined,
+							typeExpression: TS.JSDocSignature,
+							comment?: string | TS.NodeArray<TS.JSDocComment>
+						): TS.JSDocOverloadTag {
+							const base = factory.createJSDocComment(undefined, undefined) as unknown as Mutable<TS.JSDoc>;
+							delete base.comment;
+							delete base.tags;
+
+							const node = base as unknown as Mutable<TS.JSDocOverloadTag>;
+
+							if (tagName != null) node.tagName = tagName;
+							node.typeExpression = typeExpression;
+							node.comment = comment;
+
+							return node;
+						}
+
+						function updateJSDocOverloadTag(
+							node: TS.JSDocOverloadTag,
+							tagName: TS.Identifier | undefined,
+							typeExpression: TS.JSDocSignature,
+							comment?: string | TS.NodeArray<TS.JSDocComment>
+						): TS.JSDocOverloadTag {
+							return tagName === node.tagName && typeExpression === node.typeExpression && comment === node.comment
+								? node
+								: update(createJSDocOverloadTag(tagName, typeExpression, comment), node);
+						}
+
+						return {
+							createJSDocOverloadTag,
+							updateJSDocOverloadTag
+						};
+				  })()
+				: {}),
+			...(missingCreateJSDocThrowsTag
+				? (() => {
+						function createJSDocThrowsTag(
+							tagName: TS.Identifier,
+							typeExpression: TS.JSDocTypeExpression | undefined,
+							comment?: string | TS.NodeArray<TS.JSDocComment>
+						): TS.JSDocThrowsTag {
+							const base = factory.createJSDocComment(undefined, undefined) as unknown as Mutable<TS.JSDoc>;
+							delete base.comment;
+							delete base.tags;
+
+							const node = base as unknown as Mutable<TS.JSDocThrowsTag>;
+
+							if (tagName != null) node.tagName = tagName;
+							node.typeExpression = typeExpression;
+							node.comment = comment;
+
+							return node;
+						}
+
+						function updateJSDocThrowsTag(
+							node: TS.JSDocThrowsTag,
+							tagName: TS.Identifier | undefined,
+							typeExpression: TS.JSDocTypeExpression,
+							comment?: string | TS.NodeArray<TS.JSDocComment>
+						): TS.JSDocThrowsTag {
+							return tagName === node.tagName && typeExpression === node.typeExpression && comment === node.comment
+								? node
+								: update(createJSDocThrowsTag(tagName ?? node.tagName, typeExpression, comment), node);
+						}
+
+						return {
+							createJSDocThrowsTag,
+							updateJSDocThrowsTag
+						};
+				  })()
+				: {}),
+			...(missingCreateJSDocSatisfiesTag
+				? (() => {
+						function createJSDocSatisfiesTag(
+							tagName: TS.Identifier | undefined,
+							typeExpression: TS.JSDocTypeExpression,
+							comment?: string | TS.NodeArray<TS.JSDocComment>
+						): TS.JSDocSatisfiesTag {
+							const base = factory.createJSDocComment(undefined, undefined) as unknown as Mutable<TS.JSDoc>;
+							delete base.comment;
+							delete base.tags;
+
+							const node = base as unknown as Mutable<TS.JSDocSatisfiesTag>;
+
+							if (tagName != null) node.tagName = tagName;
+							node.typeExpression = typeExpression;
+							node.comment = comment;
+
+							return node;
+						}
+
+						function updateJSDocSatisfiesTag(
+							node: TS.JSDocSatisfiesTag,
+							tagName: TS.Identifier | undefined,
+							typeExpression: TS.JSDocTypeExpression,
+							comment: string | TS.NodeArray<TS.JSDocComment> | undefined
+						): TS.JSDocSatisfiesTag {
+							return tagName === node.tagName && typeExpression === node.typeExpression && comment === node.comment
+								? node
+								: update(createJSDocSatisfiesTag(tagName, typeExpression, comment), node);
+						}
+
+						return {
+							createJSDocSatisfiesTag,
+							updateJSDocSatisfiesTag
+						};
+				  })()
+				: {}),
+			...(missingCreateJsxNamespacedName
+				? (() => {
+						function createJsxNamespacedName(namespace: TS.Identifier, name: TS.Identifier): TS.JsxNamespacedName {
+							const node = factory.createEmptyStatement() as unknown as Mutable<TS.JsxNamespacedName>;
+							node.namespace = namespace;
+							node.name = name;
+
+							return node;
+						}
+
+						function updateJsxNamespacedName(node: TS.JsxNamespacedName, namespace: TS.Identifier, name: TS.Identifier): TS.JsxNamespacedName {
+							return node.namespace !== namespace || node.name !== name ? update(createJsxNamespacedName(namespace, name), node) : node;
+						}
+
+						return {
+							createJsxNamespacedName,
+							updateJsxNamespacedName
 						};
 				  })()
 				: {}),
@@ -742,7 +889,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrInitializer?: TS.TypeNode | TS.Expression,
 							initializerOrUndefined?: TS.Expression
 						): TS.ParameterDeclaration {
-							const isShort = typeof dotDotDotTokenOrName === "string" || (dotDotDotTokenOrName != null && dotDotDotTokenOrName.kind !== 25); /* DotDotDotToken */
+							const isShort = typeof dotDotDotTokenOrName === "string" || (dotDotDotTokenOrName != null && dotDotDotTokenOrName.kind !== (25 as number)); /* DotDotDotToken */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort
 								? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1]
@@ -793,7 +940,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrInitializer?: TS.TypeNode | TS.Expression,
 							initializerOrUndefined?: TS.Expression
 						): TS.ParameterDeclaration {
-							const isShort = typeof dotDotDotTokenOrName === "string" || (dotDotDotTokenOrName != null && dotDotDotTokenOrName.kind !== 25); /* DotDotDotToken */
+							const isShort = typeof dotDotDotTokenOrName === "string" || (dotDotDotTokenOrName != null && dotDotDotTokenOrName.kind !== (25 as number)); /* DotDotDotToken */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort
 								? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1]
@@ -939,7 +1086,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrBody: TS.TypeNode | TS.Block | undefined,
 							bodyOrUndefined?: TS.Block
 						): TS.MethodDeclaration {
-							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && asteriskTokenOrName.kind !== 41); /* AsteriskToken */
+							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && asteriskTokenOrName.kind !== (41 as number)); /* AsteriskToken */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort
 								? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1]
@@ -1000,7 +1147,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeOrBody: TS.TypeNode | TS.Block | undefined,
 							bodyOrUndefined?: TS.Block
 						): TS.MethodDeclaration {
-							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && asteriskTokenOrName.kind !== 41); /* AsteriskToken */
+							const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && asteriskTokenOrName.kind !== (41 as number)); /* AsteriskToken */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort
 								? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1]
@@ -1336,7 +1483,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								(node as NodeWithInternalFlags).transformFlags = 8388608 /* ContainsClassFields */;
 								return node;
 							} else {
-								return factory.createClassStaticBlockDeclaration(undefined, undefined, body);
+								return ts4CastFactory.createClassStaticBlockDeclaration(undefined, undefined, body as never) as never;
 							}
 						}
 
@@ -1359,7 +1506,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							if (missingCreateClassStaticBlockDeclaration) {
 								return body === node.body ? node : update(createClassStaticBlockDeclaration(body), node);
 							} else {
-								return factory.updateClassStaticBlockDeclaration(node, undefined, undefined, body);
+								return ts4CastFactory.updateClassStaticBlockDeclaration(node as never, undefined, undefined, body as never) as never;
 							}
 						}
 
@@ -2318,6 +2465,8 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 }
 
 function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
+	const typescript4Cast = typescript as unknown as typeof import("typescript-4-9-4");
+
 	function createToken(token: TS.SyntaxKind.SuperKeyword): TS.SuperExpression;
 	function createToken(token: TS.SyntaxKind.ThisKeyword): TS.ThisExpression;
 	function createToken(token: TS.SyntaxKind.NullKeyword): TS.NullLiteral;
@@ -2328,7 +2477,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	function createToken<TKind extends TS.ModifierSyntaxKind>(token: TKind): TS.ModifierToken<TKind>;
 	function createToken<TKind extends TS.KeywordSyntaxKind>(token: TKind): TS.KeywordToken<TKind>;
 	function createToken<TKind extends TS.SyntaxKind.Unknown | TS.SyntaxKind.EndOfFileToken>(token: TKind): TS.Token<TKind> {
-		return typescript.createToken(token);
+		return typescript4Cast.createToken(token as unknown as TS4.SyntaxKind.Unknown) as unknown as TS.Token<TKind>;
 	}
 
 	function createConstructorTypeNode(
@@ -2349,18 +2498,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeOrUndefined?: TS.TypeNode
 	): TS.ConstructorTypeNode {
 		if (arguments.length >= 4) {
-			return typescript.createConstructorTypeNode(
-				typeParametersOrParameters as readonly TS.TypeParameterDeclaration[],
-				parametersOrType as readonly TS.ParameterDeclaration[],
-				typeOrUndefined as TS.TypeNode
-			);
+			return typescript4Cast.createConstructorTypeNode(typeParametersOrParameters as never, parametersOrType as never, typeOrUndefined as never) as never;
 		}
 
-		return typescript.createConstructorTypeNode(
-			modifiersOrTypeParameters as readonly TS.TypeParameterDeclaration[],
-			typeParametersOrParameters as readonly TS.ParameterDeclaration[],
-			parametersOrType as TS.TypeNode
-		);
+		return typescript4Cast.createConstructorTypeNode(modifiersOrTypeParameters as never, typeParametersOrParameters as never, parametersOrType as never) as never;
 	}
 
 	function updateConstructorTypeNode(
@@ -2384,20 +2525,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeOrUndefined?: TS.TypeNode
 	): TS.ConstructorTypeNode {
 		if (arguments.length >= 5) {
-			return typescript.updateConstructorTypeNode(
-				node,
-				typeParametersOrParameters as TS.NodeArray<TS.TypeParameterDeclaration> | undefined,
-				parametersOrType as TS.NodeArray<TS.ParameterDeclaration>,
-				typeOrUndefined as TS.TypeNode
-			);
+			return typescript4Cast.updateConstructorTypeNode(node as never, typeParametersOrParameters as never, parametersOrType as never, typeOrUndefined as never) as never;
 		}
 
-		return typescript.updateConstructorTypeNode(
-			node,
-			modifiersOrTypeParameters as TS.NodeArray<TS.TypeParameterDeclaration> | undefined,
-			typeParametersOrParameters as TS.NodeArray<TS.ParameterDeclaration>,
-			parametersOrType as TS.TypeNode
-		);
+		return typescript4Cast.updateConstructorTypeNode(node as never, modifiersOrTypeParameters as never, typeParametersOrParameters as never, parametersOrType as never) as never;
 	}
 
 	function createNamedTupleMember(
@@ -2406,7 +2537,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		questionToken: TS.QuestionToken | undefined,
 		type: TS.TypeNode
 	): TS.NamedTupleMember {
-		const node = typescript.createNode(typescript.SyntaxKind.NamedTupleMember ?? typescript.SyntaxKind.TupleType) as Mutable<TS.NamedTupleMember>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.NamedTupleMember ?? typescript.SyntaxKind.TupleType) as never) as unknown as Mutable<TS.NamedTupleMember>;
 		node.dotDotDotToken = dotDotDotToken;
 		node.name = name;
 		node.questionToken = questionToken;
@@ -2417,12 +2548,12 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	function createJSDocComment(comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined, tags?: readonly TS.JSDocTag[] | undefined): TS.JSDoc {
 		if ("createJSDocComment" in (typescript as typeof TS)) {
-			return typescript.createJSDocComment(comment, tags);
+			return typescript4Cast.createJSDocComment(comment as never, tags as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDoc>;
+		const node = typescript4Cast.createNode(typescript.SyntaxKind.JSDocComment as never) as unknown as Mutable<TS.JSDoc>;
 		node.comment = comment;
-		node.tags = typescript.createNodeArray(tags);
+		node.tags = typescript4Cast.createNodeArray(tags as never) as never;
 		return node;
 	}
 
@@ -2435,10 +2566,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocParameterTag {
 		if ("createJSDocParameterTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocParameterTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment);
+			return typescript4Cast.createJSDocParameterTag(tagName as never, name as never, isBracketed, typeExpression as never, isNameFirst, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocParameterTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocParameterTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocParameterTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocParameterTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.name = name;
 		node.isBracketed = isBracketed;
@@ -2450,10 +2581,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	function createJSDocPrivateTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocPrivateTag {
 		if ("createJSDocPrivateTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocPrivateTag(tagName, comment);
+			return typescript4Cast.createJSDocPrivateTag(tagName as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocPrivateTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocPrivateTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocPrivateTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocPrivateTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.comment = comment;
 		return node;
@@ -2465,10 +2596,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocAugmentsTag {
 		if ("createJSDocAugmentsTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocAugmentsTag(tagName, className, comment);
+			return typescript4Cast.createJSDocAugmentsTag(tagName as never, className as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocAugmentsTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocAugmentsTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocAugmentsTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocAugmentsTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.class = className;
 		node.comment = comment;
@@ -2476,58 +2607,60 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function createJSDocDeprecatedTag(tagName: TS.Identifier, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocDeprecatedTag {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocDeprecatedTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocDeprecatedTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocDeprecatedTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocDeprecatedTag>;
 		node.tagName = tagName;
 		node.comment = comment;
 		return node;
 	}
 
 	function createJSDocFunctionType(parameters: readonly TS.ParameterDeclaration[], type: TS.TypeNode | undefined): TS.JSDocFunctionType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocFunctionType ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocFunctionType>;
-		node.parameters = typescript.createNodeArray(parameters);
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocFunctionType ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocFunctionType>;
+		node.parameters = typescript4Cast.createNodeArray(parameters as never) as never;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocLink(name: TS.EntityName | undefined, text: string): TS.JSDocLink {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocLink ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocLink>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocLink ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocLink>;
 		node.name = name;
 		node.text = text;
 		return node;
 	}
 
 	function createJSDocNameReference(name: TS.EntityName): TS.JSDocNameReference {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocNameReference ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocNameReference>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocNameReference ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocNameReference>;
 		node.name = name;
 		return node;
 	}
 
 	function createJSDocNamepathType(type: TS.TypeNode): TS.JSDocNamepathType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocNamepathType ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocNamepathType>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocNamepathType ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocNamepathType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocNonNullableType(type: TS.TypeNode): TS.JSDocNonNullableType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocNonNullableType ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocNonNullableType>;
+		const node = typescript4Cast.createNode(
+			(typescript.SyntaxKind.JSDocNonNullableType ?? typescript.SyntaxKind.JSDocComment) as never
+		) as unknown as Mutable<TS.JSDocNonNullableType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocNullableType(type: TS.TypeNode): TS.JSDocNullableType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocNullableType ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocNullableType>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocNullableType ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocNullableType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocOptionalType(type: TS.TypeNode): TS.JSDocOptionalType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocOptionalType ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocOptionalType>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocOptionalType ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocOptionalType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocOverrideTag(tagName: TS.Identifier, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocOverrideTag {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocOverrideTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocOverrideTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocOverrideTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocOverrideTag>;
 		node.tagName = tagName;
 		node.comment = comment;
 		return node;
@@ -2538,7 +2671,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		nameExpression: TS.JSDocNameReference | undefined,
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocSeeTag {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocSeeTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocSeeTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocSeeTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocSeeTag>;
 		if (tagName != null) {
 			node.tagName = tagName;
 		}
@@ -2548,42 +2681,46 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function createJSDocText(text: string): TS.JSDocText {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocText ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocText>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocText ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocText>;
 		node.text = text;
 		return node;
 	}
 
 	function createJSDocUnknownTag(tagName: TS.Identifier, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocUnknownTag {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocUnknownTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocUnknownTag>;
 		node.tagName = tagName;
 		node.comment = comment;
 		return node;
 	}
 
 	function createJSDocUnknownType(): TS.JSDocUnknownType {
-		return typescript.createNode(typescript.SyntaxKind.JSDocUnknownType ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocUnknownType>;
+		return typescript4Cast.createNode((typescript.SyntaxKind.JSDocUnknownType ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocUnknownType>;
 	}
 
 	function createJSDocVariadicType(type: TS.TypeNode): TS.JSDocVariadicType {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocVariadicType ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocVariadicType>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocVariadicType ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocVariadicType>;
 		node.type = type;
 		return node;
 	}
 
 	function createJSDocAllType(): TS.JSDocAllType {
-		return typescript.createNode(typescript.SyntaxKind.JSDocAllType ?? typescript.SyntaxKind.JSDocComment) as TS.JSDocAllType;
+		return typescript4Cast.createNode((typescript.SyntaxKind.JSDocAllType ?? typescript.SyntaxKind.JSDocComment) as never) as never;
 	}
 
 	function createTemplateLiteralType(head: TS.TemplateHead, templateSpans: readonly TS.TemplateLiteralTypeSpan[]): TS.TemplateLiteralTypeNode {
-		const node = typescript.createNode(typescript.SyntaxKind.TemplateLiteralType ?? typescript.SyntaxKind.StringLiteral) as Mutable<TS.TemplateLiteralTypeNode>;
+		const node = typescript4Cast.createNode(
+			(typescript.SyntaxKind.TemplateLiteralType ?? typescript.SyntaxKind.StringLiteral) as never
+		) as unknown as Mutable<TS.TemplateLiteralTypeNode>;
 		node.head = head;
-		node.templateSpans = typescript.createNodeArray(templateSpans);
+		node.templateSpans = typescript4Cast.createNodeArray(templateSpans as never) as never;
 		(node as NodeWithInternalFlags).transformFlags = 1 /* ContainsTypeScript */;
 		return node;
 	}
 
 	function createTemplateLiteralTypeSpan(type: TS.TypeNode, literal: TS.TemplateMiddle | TS.TemplateTail): TS.TemplateLiteralTypeSpan {
-		const node = typescript.createNode(typescript.SyntaxKind.TemplateLiteralTypeSpan ?? typescript.SyntaxKind.StringLiteral) as Mutable<TS.TemplateLiteralTypeSpan>;
+		const node = typescript4Cast.createNode(
+			(typescript.SyntaxKind.TemplateLiteralTypeSpan ?? typescript.SyntaxKind.StringLiteral) as never
+		) as unknown as Mutable<TS.TemplateLiteralTypeSpan>;
 		node.type = type;
 		node.literal = literal;
 		(node as NodeWithInternalFlags).transformFlags = 1 /* ContainsTypeScript */;
@@ -2592,10 +2729,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	function createJSDocAuthorTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocAuthorTag {
 		if ("createJSDocAuthorTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocAuthorTag(tagName, comment);
+			return typescript4Cast.createJSDocAuthorTag(tagName as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocAuthorTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocAuthorTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocAuthorTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocAuthorTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.comment = comment;
 		return node;
@@ -2608,10 +2745,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocCallbackTag {
 		if ("createJSDocCallbackTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocCallbackTag(tagName, typeExpression, fullName, comment);
+			return typescript4Cast.createJSDocCallbackTag(tagName as never, typeExpression as never, fullName as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocCallbackTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocCallbackTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocCallbackTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocCallbackTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.typeExpression = typeExpression;
 		node.fullName = fullName;
@@ -2621,10 +2758,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	function createJSDocClassTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocClassTag {
 		if ("createJSDocClassTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocClassTag(tagName, comment);
+			return typescript4Cast.createJSDocClassTag(tagName as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocClassTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocClassTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocClassTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocClassTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.comment = comment;
 		return node;
@@ -2636,10 +2773,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocEnumTag {
 		if ("createJSDocEnumTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocEnumTag(tagName, typeExpression, comment);
+			return typescript4Cast.createJSDocEnumTag(tagName as never, typeExpression as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocEnumTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocEnumTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocEnumTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocEnumTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.typeExpression = typeExpression;
 		node.comment = comment;
@@ -2652,10 +2789,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocImplementsTag {
 		if ("createJSDocImplementsTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocImplementsTag(tagName, className, comment);
+			return typescript4Cast.createJSDocImplementsTag(tagName as never, className as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocImplementsTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocImplementsTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocImplementsTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocImplementsTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.class = className;
 		node.comment = comment;
@@ -2671,10 +2808,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocPropertyTag {
 		if ("createJSDocPropertyTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment);
+			return typescript4Cast.createJSDocPropertyTag(tagName as never, name as never, isBracketed, typeExpression as never, isNameFirst, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocPropertyTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocPropertyTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocPropertyTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocPropertyTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.name = name;
 		node.isBracketed = isBracketed;
@@ -2686,10 +2823,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	function createJSDocProtectedTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocProtectedTag {
 		if ("createJSDocProtectedTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocProtectedTag(tagName, comment);
+			return typescript4Cast.createJSDocProtectedTag(tagName as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocProtectedTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocProtectedTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocProtectedTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocProtectedTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.comment = comment;
 		return node;
@@ -2697,10 +2834,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	function createJSDocPublicTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocPublicTag {
 		if ("createJSDocPublicTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocPublicTag(tagName, comment);
+			return typescript4Cast.createJSDocPublicTag(tagName as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocPublicTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocPublicTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocPublicTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocPublicTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.comment = comment;
 		return node;
@@ -2708,10 +2845,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	function createJSDocReadonlyTag(tagName: TS.Identifier | undefined, comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>): TS.JSDocReadonlyTag {
 		if ("createJSDocReadonlyTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocReadonlyTag(tagName, comment);
+			return typescript4Cast.createJSDocReadonlyTag(tagName as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocReadonlyTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocReadonlyTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocReadonlyTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocReadonlyTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.comment = comment;
 		return node;
@@ -2723,10 +2860,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocReturnTag {
 		if ("createJSDocReturnTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocReturnTag(tagName, typeExpression, comment);
+			return typescript4Cast.createJSDocReturnTag(tagName as never, typeExpression as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocReturnTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocReturnTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocReturnTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocReturnTag>;
 		if (tagName != null) node.tagName = tagName;
 		node.typeExpression = typeExpression;
 		node.comment = comment;
@@ -2739,10 +2876,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		type?: TS.JSDocReturnTag
 	): TS.JSDocSignature {
 		if ("createJSDocSignature" in (typescript as typeof TS)) {
-			return typescript.createJSDocSignature(typeParameters, parameters, type);
+			return typescript4Cast.createJSDocSignature(typeParameters as never, parameters as never, type as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocSignature ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocSignature>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocSignature ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocSignature>;
 
 		node.typeParameters = typeParameters;
 		node.parameters = parameters;
@@ -2757,14 +2894,14 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocTemplateTag {
 		if ("createJSDocTemplateTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocTemplateTag(tagName, constraint, typeParameters, comment);
+			return typescript4Cast.createJSDocTemplateTag(tagName as never, constraint as never, typeParameters as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocTemplateTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocTemplateTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocTemplateTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocTemplateTag>;
 
 		if (tagName != null) node.tagName = tagName;
 		node.constraint = constraint;
-		node.typeParameters = typescript.createNodeArray(typeParameters);
+		node.typeParameters = typescript4Cast.createNodeArray(typeParameters as never) as never;
 		node.comment = comment;
 		return node;
 	}
@@ -2775,10 +2912,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocThisTag {
 		if ("createJSDocThisTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocThisTag(tagName, typeExpression, comment);
+			return typescript4Cast.createJSDocThisTag(tagName as never, typeExpression as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocThisTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocThisTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocThisTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocThisTag>;
 
 		if (tagName != null) node.tagName = tagName;
 		node.typeExpression = typeExpression;
@@ -2788,10 +2925,12 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	function createJSDocTypeExpression(type: TS.TypeNode): TS.JSDocTypeExpression {
 		if ("createJSDocTypeExpression" in (typescript as typeof TS)) {
-			return typescript.createJSDocTypeExpression(type);
+			return typescript4Cast.createJSDocTypeExpression(type as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocTypeExpression ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocTypeExpression>;
+		const node = typescript4Cast.createNode(
+			(typescript.SyntaxKind.JSDocTypeExpression ?? typescript.SyntaxKind.JSDocComment) as never
+		) as unknown as Mutable<TS.JSDocTypeExpression>;
 
 		node.type = type;
 		return node;
@@ -2799,10 +2938,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 
 	function createJSDocTypeLiteral(jsDocPropertyTags?: readonly TS.JSDocPropertyLikeTag[], isArrayType?: boolean): TS.JSDocTypeLiteral {
 		if ("createJSDocTypeLiteral" in (typescript as typeof TS)) {
-			return typescript.createJSDocTypeLiteral(jsDocPropertyTags, isArrayType);
+			return typescript4Cast.createJSDocTypeLiteral(jsDocPropertyTags as never, isArrayType) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocTypeLiteral ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocTypeLiteral>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocTypeLiteral ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocTypeLiteral>;
 
 		node.jsDocPropertyTags = jsDocPropertyTags;
 		if (isArrayType != null) node.isArrayType = isArrayType;
@@ -2815,10 +2954,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocTypeTag {
 		if ("createJSDocTypeTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocTypeTag(tagName, typeExpression, comment);
+			return typescript4Cast.createJSDocTypeTag(tagName as never, typeExpression as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocTypeTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocTypeTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocTypeTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocTypeTag>;
 
 		if (tagName != null) node.tagName = tagName;
 		node.typeExpression = typeExpression;
@@ -2833,10 +2972,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>
 	): TS.JSDocTypedefTag {
 		if ("createJSDocTypedefTag" in (typescript as typeof TS)) {
-			return typescript.createJSDocTypedefTag(tagName, typeExpression, fullName, comment);
+			return typescript4Cast.createJSDocTypedefTag(tagName as never, typeExpression as never, fullName as never, comment as never) as never;
 		}
 
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocTypedefTag ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocTypedefTag>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocTypedefTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocTypedefTag>;
 
 		if (tagName != null) node.tagName = tagName;
 		node.typeExpression = typeExpression;
@@ -2846,7 +2985,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function createJSDocMemberName(left: TS.EntityName | TS.JSDocMemberName, right: TS.Identifier): TS.JSDocMemberName {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocMemberName ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocMemberName>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocMemberName ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocMemberName>;
 
 		node.left = left;
 		node.right = right;
@@ -2855,7 +2994,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function createJSDocLinkCode(name: TS.EntityName | TS.JSDocMemberName | undefined, text: string): TS.JSDocLinkCode {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocLinkCode ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocLinkCode>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocLinkCode ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocLinkCode>;
 
 		node.name = name;
 		node.text = text;
@@ -2864,10 +3003,44 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function createJSDocLinkPlain(name: TS.EntityName | TS.JSDocMemberName | undefined, text: string): TS.JSDocLinkPlain {
-		const node = typescript.createNode(typescript.SyntaxKind.JSDocLinkPlain ?? typescript.SyntaxKind.JSDocComment) as Mutable<TS.JSDocLinkPlain>;
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocLinkPlain ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocLinkPlain>;
 
 		node.name = name;
 		node.text = text;
+
+		return node;
+	}
+
+	function createJSDocOverloadTag(tagName: TS.Identifier | undefined, typeExpression: TS.JSDocSignature, comment?: string | TS.NodeArray<TS.JSDocComment>): TS.JSDocOverloadTag {
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocOverloadTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocOverloadTag>;
+
+		if (tagName != null) node.tagName = tagName;
+		node.typeExpression = typeExpression;
+		node.comment = comment;
+
+		return node;
+	}
+
+	function createJSDocThrowsTag(tagName: TS.Identifier, typeExpression: TS.JSDocTypeExpression | undefined, comment?: string | TS.NodeArray<TS.JSDocComment>): TS.JSDocThrowsTag {
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocThrowsTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocThrowsTag>;
+
+		if (tagName != null) node.tagName = tagName;
+		node.typeExpression = typeExpression;
+		node.comment = comment;
+
+		return node;
+	}
+
+	function createJSDocSatisfiesTag(
+		tagName: TS.Identifier | undefined,
+		typeExpression: TS.JSDocTypeExpression,
+		comment?: string | TS.NodeArray<TS.JSDocComment>
+	): TS.JSDocSatisfiesTag {
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocSatisfiesTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocSatisfiesTag>;
+
+		if (tagName != null) node.tagName = tagName;
+		node.typeExpression = typeExpression;
+		node.comment = comment;
 
 		return node;
 	}
@@ -2886,7 +3059,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const isShort = arguments.length <= 1;
 		const body = (isShort ? decoratorsOrBody : bodyOrUndefined) as TS.Block;
 
-		const node = typescript.createEmptyStatement() as unknown as Mutable<TS.ClassStaticBlockDeclaration>;
+		const node = typescript4Cast.createEmptyStatement() as unknown as Mutable<TS.ClassStaticBlockDeclaration>;
 		node.body = body;
 
 		(node as NodeWithInternalFlags).transformFlags = 8388608 /* ContainsClassFields */;
@@ -2920,7 +3093,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function createAssertClause(elements: TS.NodeArray<TS.AssertEntry>, multiLine?: boolean): TS.AssertClause {
-		const node = typescript.createEmptyStatement() as unknown as Mutable<TS.AssertClause>;
+		const node = typescript4Cast.createEmptyStatement() as unknown as Mutable<TS.AssertClause>;
 
 		node.elements = elements;
 		node.multiLine = multiLine;
@@ -2929,7 +3102,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function createAssertEntry(name: TS.AssertionKey, value: TS.StringLiteral): TS.AssertEntry {
-		const node = typescript.createEmptyStatement() as unknown as Mutable<TS.AssertEntry>;
+		const node = typescript4Cast.createEmptyStatement() as unknown as Mutable<TS.AssertEntry>;
 
 		node.name = name;
 		node.value = value;
@@ -2938,9 +3111,16 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function createImportTypeAssertionContainer(clause: TS.AssertClause, multiLine?: boolean): TS.ImportTypeAssertionContainer {
-		const node = typescript.createEmptyStatement() as unknown as Mutable<TS.ImportTypeAssertionContainer>;
+		const node = typescript4Cast.createEmptyStatement() as unknown as Mutable<TS.ImportTypeAssertionContainer>;
 		node.assertClause = clause;
 		node.multiLine = multiLine;
+		return node;
+	}
+
+	function createJsxNamespacedName(namespace: TS.Identifier, name: TS.Identifier): TS.JsxNamespacedName {
+		const node = typescript4Cast.createEmptyStatement() as unknown as Mutable<TS.JsxNamespacedName>;
+		node.namespace = namespace;
+		node.name = name;
 		return node;
 	}
 
@@ -2961,9 +3141,14 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	): TS.ImportTypeNode {
 		if ("createImportTypeNode" in (typescript as typeof TS)) {
 			if (arguments.length < 5) {
-				return typescript.createImportTypeNode(argument, assertionsOrQualifier as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never);
+				return typescript4Cast.createImportTypeNode(
+					argument as never,
+					assertionsOrQualifier as never,
+					qualifierOrTypeArguments as never,
+					typeArgumentsOrIsTypeOf as never
+				) as never;
 			} else {
-				return typescript.createImportTypeNode(argument, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never);
+				return typescript4Cast.createImportTypeNode(argument as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never) as never;
 			}
 		} else {
 			const assertion = assertionsOrQualifier && "assertClause" in assertionsOrQualifier ? assertionsOrQualifier : undefined;
@@ -2978,11 +3163,11 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				| undefined
 				| readonly TS.TypeNode[];
 			isTypeOfOrUndefined = typeof typeArgumentsOrIsTypeOf === "boolean" ? typeArgumentsOrIsTypeOf : typeof isTypeOfOrUndefined === "boolean" ? isTypeOfOrUndefined : false;
-			const node = typescript.createNode(200) as Mutable<TS.ImportTypeNode>;
+			const node = typescript4Cast.createNode(200) as unknown as Mutable<TS.ImportTypeNode>;
 			node.argument = argument;
 			node.assertions = assertion;
 			node.qualifier = qualifier;
-			node.typeArguments = typeArguments == null ? undefined : typescript.createNodeArray(typeArguments);
+			node.typeArguments = typeArguments == null ? undefined : (typescript4Cast.createNodeArray(typeArguments as never) as never);
 			node.isTypeOf = isTypeOfOrUndefined;
 			(node as NodeWithInternalFlags).transformFlags = 1 /* TransformFlags.ContainsTypeScript */;
 			return node;
@@ -3014,9 +3199,21 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	): TS.ImportTypeNode {
 		if ("updateImportTypeNode" in (typescript as typeof TS)) {
 			if (arguments.length < 6) {
-				return typescript.updateImportTypeNode(node, argument, assertionsOrQualifier as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never);
+				return typescript4Cast.updateImportTypeNode(
+					node as never,
+					argument as never,
+					assertionsOrQualifier as never,
+					qualifierOrTypeArguments as never,
+					typeArgumentsOrIsTypeOf as never
+				) as never;
 			} else {
-				return typescript.updateImportTypeNode(node, argument, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never);
+				return typescript4Cast.updateImportTypeNode(
+					node as never,
+					argument as never,
+					qualifierOrTypeArguments as never,
+					typeArgumentsOrIsTypeOf as never,
+					isTypeOfOrUndefined as never
+				) as never;
 			}
 		} else {
 			const assertion = assertionsOrQualifier && "assertClause" in assertionsOrQualifier /* SyntaxKind.ImportTypeAssertionContainer */ ? assertionsOrQualifier : undefined;
@@ -3071,7 +3268,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
 		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.ClassElement[];
 
-		return typescript.createClassExpression(modifiers as readonly TS.Modifier[], name, typeParameters, heritageClauses, members);
+		return typescript4Cast.createClassExpression(modifiers as never, name as never, typeParameters as never, heritageClauses as never, members as never) as never;
 	}
 
 	function updateClassExpression(
@@ -3107,7 +3304,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
 		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.ClassElement[];
 
-		return typescript.updateClassExpression(node, modifiers as readonly TS.Modifier[], name, typeParameters, heritageClauses, members);
+		return typescript4Cast.updateClassExpression(node as never, modifiers as never, name as never, typeParameters as never, heritageClauses as never, members as never) as never;
 	}
 
 	function createExportDeclaration(
@@ -3137,7 +3334,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const isTypeOnly = (isShort ? modifiersOrIsTypeOnly : isTypeOnlyOrExportClause) as boolean;
 		const exportClause = (isShort ? isTypeOnlyOrExportClause : exportClauseOrModuleSpecifier) as TS.NamedExportBindings;
 		const moduleSpecifier = (isShort ? exportClauseOrModuleSpecifier : moduleSpecifierOrUndefined) as TS.Expression | undefined;
-		return typescript.createExportDeclaration(decorators, modifiers, exportClause, moduleSpecifier, isTypeOnly);
+		return typescript4Cast.createExportDeclaration(decorators as never, modifiers as never, exportClause as never, moduleSpecifier as never, isTypeOnly) as never;
 	}
 
 	function updateExportDeclaration(
@@ -3170,7 +3367,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const isTypeOnly = (isShort ? modifiersOrIsTypeOnly : isTypeOnlyOrExportClause) as boolean;
 		const exportClause = (isShort ? isTypeOnlyOrExportClause : exportClauseOrModuleSpecifier) as TS.NamedExportBindings;
 		const moduleSpecifier = (isShort ? exportClauseOrModuleSpecifier : moduleSpecifierOrUndefined) as TS.Expression | undefined;
-		return typescript.updateExportDeclaration(node, decorators, modifiers, exportClause, moduleSpecifier, isTypeOnly);
+		return typescript4Cast.updateExportDeclaration(node as never, decorators as never, modifiers as never, exportClause as never, moduleSpecifier as never, isTypeOnly) as never;
 	}
 
 	function createConstructorDeclaration(
@@ -3195,7 +3392,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.Modifier[])[1] : (modifiersOrParameters as readonly TS.Modifier[]);
 		const parameters = (isShort ? modifiersOrParameters : parametersOrBody) as readonly TS.ParameterDeclaration[];
 		const body = (isShort ? parametersOrBody : bodyOrUndefined) as TS.Block | undefined;
-		return typescript.createConstructor(decorators, modifiers, parameters, body);
+		return typescript4Cast.createConstructor(decorators as never, modifiers as never, parameters as never, body as never) as never;
 	}
 
 	function updateConstructorDeclaration(
@@ -3223,7 +3420,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.Modifier[])[1] : (modifiersOrParameters as readonly TS.Modifier[]);
 		const parameters = (isShort ? modifiersOrParameters : parametersOrBody) as readonly TS.ParameterDeclaration[];
 		const body = (isShort ? parametersOrBody : bodyOrUndefined) as TS.Block | undefined;
-		return typescript.updateConstructor(node, decorators, modifiers, parameters, body);
+		return typescript4Cast.updateConstructor(node as never, decorators as never, modifiers as never, parameters as never, body as never) as never;
 	}
 
 	function createMethodDeclaration(
@@ -3258,7 +3455,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeOrBody: TS.TypeNode | TS.Block | undefined,
 		bodyOrUndefined?: TS.Block | undefined
 	): TS.MethodDeclaration {
-		const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && asteriskTokenOrName.kind !== 41); /* AsteriskToken */
+		const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && asteriskTokenOrName.kind !== (41 as number)); /* AsteriskToken */
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.Modifier[])[1] : (modifiersOrAsteriskToken as readonly TS.Modifier[]);
 		const asteriskToken = (isShort ? modifiersOrAsteriskToken : asteriskTokenOrName) as TS.AsteriskToken | undefined;
@@ -3269,7 +3466,17 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? parametersOrType : typeOrBody) as TS.TypeNode;
 		const body = (isShort ? typeOrBody : bodyOrUndefined) as TS.Block | undefined;
 
-		return typescript.createMethod(decorators, modifiers, asteriskToken, name, questionToken, typeParameters, parameters, type, body);
+		return typescript4Cast.createMethod(
+			decorators as never,
+			modifiers as never,
+			asteriskToken as never,
+			name as never,
+			questionToken as never,
+			typeParameters as never,
+			parameters as never,
+			type as never,
+			body as never
+		) as never;
 	}
 
 	function updateMethodDeclaration(
@@ -3307,7 +3514,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeOrBody: TS.TypeNode | TS.Block | undefined,
 		bodyOrUndefined?: TS.Block | undefined
 	): TS.MethodDeclaration {
-		const isShort = asteriskTokenOrName?.kind !== 41; /* AsteriskToken */
+		const isShort = asteriskTokenOrName?.kind !== (41 as number); /* AsteriskToken */
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.Modifier[])[1] : (modifiersOrAsteriskToken as readonly TS.Modifier[]);
 		const asteriskToken = (isShort ? modifiersOrAsteriskToken : asteriskTokenOrName) as TS.AsteriskToken | undefined;
@@ -3318,7 +3525,18 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? parametersOrType : typeOrBody) as TS.TypeNode;
 		const body = (isShort ? typeOrBody : bodyOrUndefined) as TS.Block | undefined;
 
-		return typescript.updateMethod(node, decorators, modifiers, asteriskToken, name, questionToken, typeParameters, parameters, type, body);
+		return typescript4Cast.updateMethod(
+			node as never,
+			decorators as never,
+			modifiers as never,
+			asteriskToken as never,
+			name as never,
+			questionToken as never,
+			typeParameters as never,
+			parameters as never,
+			type as never,
+			body as never
+		) as never;
 	}
 
 	function createParameterDeclaration(
@@ -3347,7 +3565,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeOrInitializer?: TS.TypeNode | TS.Expression,
 		initializerOrUndefined?: TS.Expression
 	): TS.ParameterDeclaration {
-		const isShort = typeof dotDotDotTokenOrName === "string" || (dotDotDotTokenOrName != null && dotDotDotTokenOrName.kind !== 25); /* DotDotDotToken */
+		const isShort = typeof dotDotDotTokenOrName === "string" || (dotDotDotTokenOrName != null && dotDotDotTokenOrName.kind !== (25 as number)); /* DotDotDotToken */
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.Modifier[])[1] : (modifiersOrDotDotDotToken as readonly TS.Modifier[]);
 		const dotDotDotToken = (isShort ? modifiersOrDotDotDotToken : dotDotDotTokenOrName) as TS.DotDotDotToken | undefined;
@@ -3356,7 +3574,15 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? questionTokenOrType : typeOrInitializer) as TS.TypeNode | undefined;
 		const initializer = (isShort ? typeOrInitializer : initializerOrUndefined) as TS.Expression | undefined;
 
-		return typescript.createParameter(decorators, modifiers, dotDotDotToken, name, questionToken, type, initializer);
+		return typescript4Cast.createParameter(
+			decorators as never,
+			modifiers as never,
+			dotDotDotToken as never,
+			name as never,
+			questionToken as never,
+			type as never,
+			initializer as never
+		) as never;
 	}
 
 	function updateParameterDeclaration(
@@ -3388,7 +3614,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeOrInitializer?: TS.TypeNode | TS.Expression,
 		initializerOrUndefined?: TS.Expression
 	): TS.ParameterDeclaration {
-		const isShort = typeof dotDotDotTokenOrName === "string" || (dotDotDotTokenOrName != null && dotDotDotTokenOrName.kind !== 25); /* DotDotDotToken */
+		const isShort = typeof dotDotDotTokenOrName === "string" || (dotDotDotTokenOrName != null && dotDotDotTokenOrName.kind !== (25 as number)); /* DotDotDotToken */
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.Modifier[])[1] : (modifiersOrDotDotDotToken as readonly TS.Modifier[]);
 		const dotDotDotToken = (isShort ? modifiersOrDotDotDotToken : dotDotDotTokenOrName) as TS.DotDotDotToken | undefined;
@@ -3397,7 +3623,16 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? questionTokenOrType : typeOrInitializer) as TS.TypeNode | undefined;
 		const initializer = (isShort ? typeOrInitializer : initializerOrUndefined) as TS.Expression | undefined;
 
-		return typescript.updateParameter(node, decorators, modifiers, dotDotDotToken, name, questionToken, type, initializer);
+		return typescript4Cast.updateParameter(
+			node as never,
+			decorators as never,
+			modifiers as never,
+			dotDotDotToken as never,
+			name as never,
+			questionToken as never,
+			type as never,
+			initializer as never
+		) as never;
 	}
 
 	function createPropertyDeclaration(
@@ -3431,7 +3666,14 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? questionOrExclamationTokenOrType : typeOrInitializer) as TS.TypeNode | undefined;
 		const initializer = (isShort ? typeOrInitializer : initializerOrUndefined) as TS.Expression | undefined;
 
-		return typescript.createProperty(decorators, modifiers, name, questionOrExclamationToken, type, initializer);
+		return typescript4Cast.createProperty(
+			decorators as never,
+			modifiers as never,
+			name as never,
+			questionOrExclamationToken as never,
+			type as never,
+			initializer as never
+		) as never;
 	}
 
 	function updatePropertyDeclaration(
@@ -3468,7 +3710,15 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? questionOrExclamationTokenOrType : typeOrInitializer) as TS.TypeNode | undefined;
 		const initializer = (isShort ? typeOrInitializer : initializerOrUndefined) as TS.Expression | undefined;
 
-		return typescript.updateProperty(node, decorators, modifiers, name, questionOrExclamationToken, type, initializer);
+		return typescript4Cast.updateProperty(
+			node as never,
+			decorators as never,
+			modifiers as never,
+			name as never,
+			questionOrExclamationToken as never,
+			type as never,
+			initializer as never
+		) as never;
 	}
 
 	function createSetAccessorDeclaration(
@@ -3498,7 +3748,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const parameters = (isShort ? nameOrParameters : parametersOrBody) as readonly TS.ParameterDeclaration[];
 		const body = (isShort ? parametersOrBody : bodyOrUndefined) as TS.Block | undefined;
 
-		return typescript.createSetAccessor(decorators, modifiers, name, parameters, body);
+		return typescript4Cast.createSetAccessor(decorators as never, modifiers as never, name as never, parameters as never, body as never) as never;
 	}
 
 	function updateSetAccessorDeclaration(
@@ -3531,7 +3781,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const parameters = (isShort ? nameOrParameters : parametersOrBody) as readonly TS.ParameterDeclaration[];
 		const body = (isShort ? parametersOrBody : bodyOrUndefined) as TS.Block | undefined;
 
-		return typescript.updateSetAccessor(node, decorators, modifiers, name, parameters, body);
+		return typescript4Cast.updateSetAccessor(node as never, decorators as never, modifiers as never, name as never, parameters as never, body as never) as never;
 	}
 
 	function createGetAccessorDeclaration(
@@ -3565,7 +3815,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? parametersOrType : typeOrBody) as TS.TypeNode | undefined;
 		const body = (isShort ? typeOrBody : bodyOrUndefined) as TS.Block | undefined;
 
-		return typescript.createGetAccessor(decorators, modifiers, name, parameters, type, body);
+		return typescript4Cast.createGetAccessor(decorators as never, modifiers as never, name as never, parameters as never, type as never, body as never) as never;
 	}
 
 	function updateGetAccessorDeclaration(
@@ -3602,7 +3852,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? parametersOrType : typeOrBody) as TS.TypeNode | undefined;
 		const body = (isShort ? typeOrBody : bodyOrUndefined) as TS.Block | undefined;
 
-		return typescript.updateGetAccessor(node, decorators, modifiers, name, parameters, type, body);
+		return typescript4Cast.updateGetAccessor(node as never, decorators as never, modifiers as never, name as never, parameters as never, type as never, body as never) as never;
 	}
 
 	function createImportEqualsDeclaration(
@@ -3632,7 +3882,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const name = (isShort ? isTypeOnlyOrName : nameOrModuleReference) as string | TS.Identifier;
 		const moduleReference = (isShort ? nameOrModuleReference : moduleReferenceOrUndefined) as TS.ModuleReference;
 
-		if (typescript.createImportEqualsDeclaration.length === 4) {
+		if (typescript4Cast.createImportEqualsDeclaration.length === 4) {
 			return (typescript as unknown as typeof import("typescript-3-9-2")).createImportEqualsDeclaration(
 				decorators as never,
 				modifiers as never,
@@ -3640,8 +3890,8 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				moduleReference as never
 			) as unknown as TS.ImportEqualsDeclaration;
 		} else {
-			const normalizedName = typeof name === "string" ? typescript.createIdentifier(name) : name;
-			return typescript.createImportEqualsDeclaration(
+			const normalizedName = typeof name === "string" ? (typescript4Cast.createIdentifier(name as never) as never) : name;
+			return typescript4Cast.createImportEqualsDeclaration(
 				decorators as never,
 				modifiers as never,
 				isTypeOnly,
@@ -3680,9 +3930,9 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const isTypeOnly = (isShort ? modifiersOrIsTypeOnly : isTypeOnlyOrName) as boolean;
 		const name = (isShort ? isTypeOnlyOrName : nameOrModuleReference) as string | TS.Identifier;
 		const moduleReference = (isShort ? nameOrModuleReference : moduleReferenceOrUndefined) as TS.ModuleReference;
-		const normalizedName = typeof name === "string" ? typescript.createIdentifier(name) : name;
+		const normalizedName = typeof name === "string" ? (typescript4Cast.createIdentifier(name) as never) : name;
 
-		if (typescript.updateImportEqualsDeclaration.length === 5) {
+		if (typescript4Cast.updateImportEqualsDeclaration.length === 5) {
 			return (typescript as unknown as typeof import("typescript-3-9-2")).updateImportEqualsDeclaration(
 				node as never,
 				decorators as never,
@@ -3691,8 +3941,8 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				moduleReference as never
 			) as unknown as TS.ImportEqualsDeclaration;
 		} else {
-			return typescript.updateImportEqualsDeclaration(
-				node,
+			return typescript4Cast.updateImportEqualsDeclaration(
+				node as never,
 				decorators as never,
 				modifiers as never,
 				isTypeOnly,
@@ -3721,7 +3971,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const parameters = (isShort ? modifiersOrParameters : parametersOrType) as readonly TS.ParameterDeclaration[];
 		const type = (isShort ? parametersOrType : typeOrUndefined) as TS.TypeNode;
 
-		return typescript.createIndexSignature(decorators, modifiers, parameters, type);
+		return typescript4Cast.createIndexSignature(decorators as never, modifiers as never, parameters as never, type as never) as never;
 	}
 
 	function updateIndexSignature(
@@ -3750,7 +4000,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const parameters = (isShort ? modifiersOrParameters : parametersOrType) as readonly TS.ParameterDeclaration[];
 		const type = (isShort ? parametersOrType : typeOrUndefined) as TS.TypeNode;
 
-		return typescript.updateIndexSignature(node, decorators, modifiers, parameters, type);
+		return typescript4Cast.updateIndexSignature(node as never, decorators as never, modifiers as never, parameters as never, type as never) as never;
 	}
 
 	function createImportDeclaration(
@@ -3780,7 +4030,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression;
 		const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
 
-		return typescript.createImportDeclaration(
+		return typescript4Cast.createImportDeclaration(
 			decorators as never,
 			modifiers as never,
 			importClause as never,
@@ -3819,7 +4069,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression;
 		const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
 
-		return typescript.updateImportDeclaration(
+		return typescript4Cast.updateImportDeclaration(
 			node as never,
 			decorators as never,
 			modifiers as never,
@@ -3830,10 +4080,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	const createPrivateIdentifier =
-		typescript.createPrivateIdentifier ??
+		(typescript4Cast.createPrivateIdentifier as unknown as TS.NodeFactory["createPrivateIdentifier"]) ??
 		(() =>
 			function (text: string): TS.PrivateIdentifier {
-				const node = typescript.createIdentifier(text) as unknown as Mutable<TS.PrivateIdentifier>;
+				const node = typescript4Cast.createIdentifier(text as never) as unknown as Mutable<TS.PrivateIdentifier>;
 				return node;
 			})();
 
@@ -3847,7 +4097,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	}
 
 	function getGeneratedPrivateNameForNode(node: TS.Node): TS.PrivateIdentifier {
-		return createPrivateIdentifier("");
+		return createPrivateIdentifier("") as never;
 	}
 
 	function createTypeAliasDeclaration(
@@ -3877,7 +4127,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrType) as readonly TS.TypeParameterDeclaration[];
 		const type = (isShort ? typeParametersOrType : typeOrUndefined) as TS.TypeNode[] | undefined;
 
-		return typescript.createTypeAliasDeclaration(decorators as never, modifiers as never, name as never, typeParameters as never, type as never);
+		return typescript4Cast.createTypeAliasDeclaration(decorators as never, modifiers as never, name as never, typeParameters as never, type as never) as never;
 	}
 
 	function updateTypeAliasDeclaration(
@@ -3910,7 +4160,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const typeParameters = (isShort ? nameOrTypeParameters : typeParametersOrType) as readonly TS.TypeParameterDeclaration[];
 		const type = (isShort ? typeParametersOrType : typeOrUndefined) as TS.TypeNode[] | undefined;
 
-		return typescript.updateTypeAliasDeclaration(node, decorators as never, modifiers as never, name as never, typeParameters as never, type as never);
+		return typescript4Cast.updateTypeAliasDeclaration(node as never, decorators as never, modifiers as never, name as never, typeParameters as never, type as never) as never;
 	}
 
 	function createFunctionDeclaration(
@@ -3952,7 +4202,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? parametersOrType : typeOrBody) as TS.TypeNode;
 		const body = (isShort ? typeOrBody : bodyOrUndefined) as TS.Block | undefined;
 
-		return typescript.createFunctionDeclaration(
+		return typescript4Cast.createFunctionDeclaration(
 			decorators as never,
 			modifiers as never,
 			asteriskToken as never,
@@ -4006,7 +4256,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const type = (isShort ? parametersOrType : typeOrBody) as TS.TypeNode;
 		const body = (isShort ? typeOrBody : bodyOrUndefined) as TS.Block | undefined;
 
-		return typescript.updateFunctionDeclaration(
+		return typescript4Cast.updateFunctionDeclaration(
 			node as never,
 			decorators as never,
 			modifiers as never,
@@ -4050,7 +4300,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
 		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.ClassElement[];
 
-		return typescript.createClassDeclaration(
+		return typescript4Cast.createClassDeclaration(
 			decorators as never,
 			modifiers as never,
 			name as never,
@@ -4094,7 +4344,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
 		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.ClassElement[];
 
-		return typescript.updateClassDeclaration(
+		return typescript4Cast.updateClassDeclaration(
 			node as never,
 			decorators as never,
 			modifiers as never,
@@ -4136,7 +4386,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
 		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.TypeElement[];
 
-		return typescript.createInterfaceDeclaration(
+		return typescript4Cast.createInterfaceDeclaration(
 			decorators as never,
 			modifiers as never,
 			name as never,
@@ -4180,7 +4430,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const heritageClauses = (isShort ? typeParametersOrHeritageClauses : heritageClausesOrMembers) as readonly TS.HeritageClause[] | undefined;
 		const members = (isShort ? heritageClausesOrMembers : membersOrUndefined) as TS.TypeElement[];
 
-		return typescript.updateInterfaceDeclaration(
+		return typescript4Cast.updateInterfaceDeclaration(
 			node as never,
 			decorators as never,
 			modifiers as never,
@@ -4210,7 +4460,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const name = (isShort ? modifiersOrName : nameOrMembers) as string | TS.Identifier;
 		const members = (isShort ? nameOrMembers : membersOrUndefined) as readonly TS.EnumMember[];
 
-		return typescript.createEnumDeclaration(decorators as never, modifiers as never, name as never, members as never) as unknown as TS.EnumDeclaration;
+		return typescript4Cast.createEnumDeclaration(decorators as never, modifiers as never, name as never, members as never) as unknown as TS.EnumDeclaration;
 	}
 
 	function updateEnumDeclaration(
@@ -4239,7 +4489,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const name = (isShort ? modifiersOrName : nameOrMembers) as string | TS.Identifier;
 		const members = (isShort ? nameOrMembers : membersOrUndefined) as readonly TS.EnumMember[];
 
-		return typescript.updateEnumDeclaration(node as never, decorators as never, modifiers as never, name as never, members as never) as unknown as TS.EnumDeclaration;
+		return typescript4Cast.updateEnumDeclaration(node as never, decorators as never, modifiers as never, name as never, members as never) as unknown as TS.EnumDeclaration;
 	}
 
 	function createModuleDeclaration(modifiers: readonly TS.Modifier[] | undefined, name: TS.ModuleName, body: TS.ModuleBody | undefined, flags?: TS.NodeFlags): TS.ModuleDeclaration;
@@ -4268,7 +4518,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const body = (isShort ? nameOrBody : bodyOrFlags) as TS.ModuleBody | undefined;
 		const flags = (isShort ? bodyOrFlags : flagsOrUndefined) as TS.NodeFlags | undefined;
 
-		return typescript.createModuleDeclaration(decorators as never, modifiers as never, name as never, body as never, flags as never) as unknown as TS.ModuleDeclaration;
+		return typescript4Cast.createModuleDeclaration(decorators as never, modifiers as never, name as never, body as never, flags as never) as unknown as TS.ModuleDeclaration;
 	}
 
 	function updateModuleDeclaration(
@@ -4301,7 +4551,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const name = (isShort ? modifiersOrName : nameOrBody) as TS.ModuleName;
 		const body = (isShort ? nameOrBody : bodyOrUndefined) as TS.ModuleBody | undefined;
 
-		return typescript.updateModuleDeclaration(node as never, decorators as never, modifiers as never, name as never, body as never) as unknown as TS.ModuleDeclaration;
+		return typescript4Cast.updateModuleDeclaration(node as never, decorators as never, modifiers as never, name as never, body as never) as unknown as TS.ModuleDeclaration;
 	}
 
 	function createExportAssignment(modifiers: readonly TS.Modifier[] | undefined, isExportEquals: boolean | undefined, expression: TS.Expression): TS.ExportAssignment;
@@ -4323,7 +4573,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const isExportEquals = (isShort ? modifiersOrIsExportEquals : isExportEqualsOrExpression) as boolean;
 		const expression = (isShort ? isExportEqualsOrExpression : expressionOrUndefined) as TS.Expression;
 
-		return typescript.createExportAssignment(decorators as never, modifiers as never, isExportEquals as never, expression as never) as unknown as TS.ExportAssignment;
+		return typescript4Cast.createExportAssignment(decorators as never, modifiers as never, isExportEquals as never, expression as never) as unknown as TS.ExportAssignment;
 	}
 
 	function updateExportAssignment(node: TS.ExportAssignment, modifiers: readonly TS.Modifier[] | undefined, expression: TS.Expression): TS.ExportAssignment;
@@ -4344,7 +4594,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrExpression as readonly TS.Modifier[]);
 		const expression = (isShort ? modifiersOrExpression : expressionOrUndefined) as TS.Expression;
 
-		return typescript.updateExportAssignment(node as never, decorators as never, modifiers as never, expression as never) as unknown as TS.ExportAssignment;
+		return typescript4Cast.updateExportAssignment(node as never, decorators as never, modifiers as never, expression as never) as unknown as TS.ExportAssignment;
 	}
 
 	function createTypeParameterDeclaration(name: string | TS.Identifier, constraint?: TS.TypeNode, defaultType?: TS.TypeNode): TS.TypeParameterDeclaration;
@@ -4366,9 +4616,13 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const constraint = (isShort ? nameOrConstraint : constraintOrDefaultType) as TS.TypeNode | undefined;
 		const defaultType = (isShort ? constraintOrDefaultType : defaultTypeOrUndefined) as TS.TypeNode | undefined;
 
-		const typeParameterDeclaration = typescript.createTypeParameterDeclaration(name, constraint, defaultType) as unknown as TS.TypeParameterDeclaration;
+		const typeParameterDeclaration = typescript4Cast.createTypeParameterDeclaration(
+			name as never,
+			constraint as never,
+			defaultType as never
+		) as unknown as TS.TypeParameterDeclaration;
 		if (modifiers != null) {
-			(typeParameterDeclaration as Mutable<TS.TypeParameterDeclaration>).modifiers = typescript.createNodeArray(modifiers);
+			(typeParameterDeclaration as unknown as Mutable<TS.TypeParameterDeclaration>).modifiers = typescript4Cast.createNodeArray(modifiers as never) as never;
 		}
 
 		return typeParameterDeclaration;
@@ -4395,21 +4649,26 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		const constraint = (isShort ? nameOrConstraint : constraintOrDefaultType) as TS.TypeNode | undefined;
 		const defaultType = (isShort ? constraintOrDefaultType : defaultTypeOrUndefined) as TS.TypeNode | undefined;
 
-		const typeParameterDeclaration = typescript.updateTypeParameterDeclaration(node, name, constraint, defaultType) as unknown as TS.TypeParameterDeclaration;
+		const typeParameterDeclaration = typescript4Cast.updateTypeParameterDeclaration(
+			node as never,
+			name as never,
+			constraint as never,
+			defaultType as never
+		) as unknown as TS.TypeParameterDeclaration;
 		if (modifiers != null) {
-			(typeParameterDeclaration as Mutable<TS.TypeParameterDeclaration>).modifiers = typescript.createNodeArray(modifiers);
+			(typeParameterDeclaration as unknown as Mutable<TS.TypeParameterDeclaration>).modifiers = typescript4Cast.createNodeArray(modifiers as never) as never;
 		}
 
 		return typeParameterDeclaration;
 	}
 
-	const {updateSourceFileNode, ...common} = typescript;
+	const {updateSourceFileNode, ...common} = typescript as typeof typescript & Record<keyof Omit<typeof typescript4Cast, keyof typeof typescript>, never>;
 
 	return {
 		["__compatUpgraded" as never]: true,
 		...common,
 
-		createToken,
+		createToken: createToken as never,
 		createConstructorTypeNode,
 		updateConstructorTypeNode,
 		createImportTypeNode,
@@ -4453,12 +4712,16 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		createJSDocMemberName,
 		createJSDocLinkCode,
 		createJSDocLinkPlain,
+		createJSDocOverloadTag,
+		createJSDocThrowsTag,
+		createJSDocSatisfiesTag,
 		createTemplateLiteralType,
 		createTemplateLiteralTypeSpan,
 		createClassStaticBlockDeclaration,
 		createAssertClause,
 		createAssertEntry,
 		createImportTypeAssertionContainer,
+		createJsxNamespacedName,
 		createIndexSignature,
 		updateIndexSignature,
 		createSatisfiesExpression,
@@ -4486,34 +4749,34 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		updateTypeParameterDeclaration,
 
 		createComma(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createComma(left, right) as TS.BinaryExpression;
+			return typescript4Cast.createComma(left as never, right as never) as unknown as TS.BinaryExpression;
 		},
 		createAssignment(left: TS.ObjectLiteralExpression | TS.ArrayLiteralExpression, right: TS.Expression): TS.DestructuringAssignment {
-			return typescript.createAssignment(left, right) as TS.DestructuringAssignment;
+			return typescript4Cast.createAssignment(left as never, right as never) as unknown as TS.DestructuringAssignment;
 		},
 		createLessThan(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createLessThan(left, right) as TS.BinaryExpression;
+			return typescript4Cast.createLessThan(left as never, right as never) as unknown as TS.BinaryExpression;
 		},
 		createSourceFile(statements: readonly TS.Statement[], endOfFileToken: TS.EndOfFileToken, flags: TS.NodeFlags): TS.SourceFile {
-			const sourceFile = typescript.createSourceFile("", "", 0, undefined, 0) as Mutable<TS.SourceFile>;
+			const sourceFile = typescript.createSourceFile("", "", 0, undefined, 0) as unknown as Mutable<TS.SourceFile>;
 			sourceFile.endOfFileToken = endOfFileToken;
 			sourceFile.flags |= flags;
-			sourceFile.statements = typescript.createNodeArray(statements);
+			sourceFile.statements = typescript4Cast.createNodeArray(statements as never) as never;
 			return sourceFile;
 		},
 		createClassExpression,
 		createExpressionWithTypeArguments(expression: TS.Expression, typeArguments: readonly TS.TypeNode[] | undefined): TS.ExpressionWithTypeArguments {
-			return typescript.createExpressionWithTypeArguments(typeArguments, expression);
+			return typescript4Cast.createExpressionWithTypeArguments(typeArguments as never, expression as never) as never;
 		},
 		updateExpressionWithTypeArguments(
 			node: TS.ExpressionWithTypeArguments,
 			expression: TS.Expression,
 			typeArguments: readonly TS.TypeNode[] | undefined
 		): TS.ExpressionWithTypeArguments {
-			return typescript.updateExpressionWithTypeArguments(node, typeArguments, expression);
+			return typescript4Cast.updateExpressionWithTypeArguments(node as never, typeArguments as never, expression as never) as never;
 		},
 		updateImportClause(node: TS.ImportClause, isTypeOnly: boolean, name: TS.Identifier | undefined, namedBindings: TS.NamedImportBindings | undefined): TS.ImportClause {
-			return typescript.updateImportClause(node, name, namedBindings, isTypeOnly);
+			return typescript4Cast.updateImportClause(node as never, name as never, namedBindings as never, isTypeOnly as never) as never;
 		},
 		updateExportDeclaration,
 		createTypePredicateNode(
@@ -4521,7 +4784,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			parameterName: TS.Identifier | TS.ThisTypeNode | string,
 			type: TS.TypeNode | undefined
 		): TS.TypePredicateNode {
-			return typescript.createTypePredicateNode(parameterName, type!);
+			return typescript4Cast.createTypePredicateNode(parameterName as never, type as never) as never;
 		},
 		updateTypePredicateNode(
 			node: TS.TypePredicateNode,
@@ -4529,7 +4792,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			parameterName: TS.Identifier | TS.ThisTypeNode,
 			type: TS.TypeNode | undefined
 		): TS.TypePredicateNode {
-			return typescript.updateTypePredicateNode(node, parameterName, type!);
+			return typescript4Cast.updateTypePredicateNode(node as never, parameterName as never, type as never) as never;
 		},
 		createMethodSignature(
 			modifiers: readonly TS.Modifier[] | undefined,
@@ -4539,12 +4802,18 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			parameters: readonly TS.ParameterDeclaration[],
 			type: TS.TypeNode | undefined
 		): TS.MethodSignature {
-			const methodSignature = typescript.createMethodSignature(typeParameters, parameters, type, name, questionToken) as Mutable<TS.MethodSignature>;
+			const methodSignature = typescript4Cast.createMethodSignature(
+				typeParameters as never,
+				parameters as never,
+				type as never,
+				name as never,
+				questionToken as never
+			) as unknown as Mutable<TS.MethodSignature>;
 
 			// Also set the modifiers
 			// Workaround for: https://github.com/microsoft/TypeScript/issues/35959
 			if (modifiers != null) {
-				methodSignature.modifiers = typescript.createNodeArray(modifiers);
+				methodSignature.modifiers = typescript4Cast.createNodeArray(modifiers as never) as never;
 			}
 			return methodSignature;
 		},
@@ -4557,12 +4826,19 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			parameters: TS.NodeArray<TS.ParameterDeclaration>,
 			type: TS.TypeNode | undefined
 		): TS.MethodSignature {
-			const methodSignature = typescript.updateMethodSignature(node, typeParameters, parameters, type, name, questionToken) as Mutable<TS.MethodSignature>;
+			const methodSignature = typescript4Cast.updateMethodSignature(
+				node as never,
+				typeParameters as never,
+				parameters as never,
+				type as never,
+				name as never,
+				questionToken as never
+			) as unknown as Mutable<TS.MethodSignature>;
 
 			// Also set the modifiers
 			// Workaround for: https://github.com/microsoft/TypeScript/issues/35959
 			if (modifiers !== methodSignature.modifiers) {
-				methodSignature.modifiers = modifiers == null ? modifiers : typescript.createNodeArray(modifiers);
+				methodSignature.modifiers = modifiers == null ? modifiers : (typescript4Cast.createNodeArray(modifiers as never) as never);
 			}
 			return methodSignature;
 		},
@@ -4573,31 +4849,31 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			questionToken: TS.QuestionToken | undefined,
 			type: TS.TypeNode | undefined
 		): TS.PropertySignature {
-			return typescript.updatePropertySignature(node, modifiers, name, questionToken, type, undefined);
+			return typescript4Cast.updatePropertySignature(node as never, modifiers as never, name as never, questionToken as never, type as never, undefined as never) as never;
 		},
 		createAwaitExpression(expression: TS.Expression): TS.AwaitExpression {
-			return typescript.createAwait(expression);
+			return typescript4Cast.createAwait(expression as never) as never;
 		},
 		createBinaryExpression(left: TS.Expression, operator: TS.BinaryOperator | TS.BinaryOperatorToken, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, operator, right);
+			return typescript4Cast.createBinary(left as never, operator as never, right as never) as never;
 		},
 		createBitwiseAnd(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.AmpersandToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.AmpersandToken as never, right as never) as never;
 		},
 		createBitwiseNot(operand: TS.Expression): TS.PrefixUnaryExpression {
-			return typescript.createPrefix(typescript.SyntaxKind.TildeToken, operand);
+			return typescript4Cast.createPrefix(typescript.SyntaxKind.TildeToken as never, operand as never) as never;
 		},
 		createBitwiseOr(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.BarToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.BarToken as never, right as never) as never;
 		},
 		createBitwiseXor(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.CaretToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.CaretToken as never, right as never) as never;
 		},
 		createBreakStatement(label?: string | TS.Identifier): TS.BreakStatement {
-			return typescript.createBreak(label);
+			return typescript4Cast.createBreak(label as never) as never;
 		},
 		createCommaListExpression(elements: readonly TS.Expression[]): TS.CommaListExpression {
-			return typescript.createCommaList(elements);
+			return typescript4Cast.createCommaList(elements as never) as never;
 		},
 		createConditionalExpression(
 			condition: TS.Expression,
@@ -4607,37 +4883,37 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			whenFalse: TS.Expression
 		): TS.ConditionalExpression {
 			if (questionToken == null || colonToken == null) {
-				return typescript.createConditional(condition, whenTrue, whenFalse);
+				return typescript4Cast.createConditional(condition as never, whenTrue as never, whenFalse as never) as never;
 			}
-			return typescript.createConditional(condition, questionToken, whenTrue, colonToken, whenFalse);
+			return typescript4Cast.createConditional(condition as never, questionToken as never, whenTrue as never, colonToken as never, whenFalse as never) as never;
 		},
 		createConstructorDeclaration,
 		createContinueStatement(label?: string | TS.Identifier): TS.ContinueStatement {
-			return typescript.createContinue(label);
+			return typescript4Cast.createContinue(label as never) as never;
 		},
 		createDeleteExpression(expression: TS.Expression): TS.DeleteExpression {
-			return typescript.createDelete(expression);
+			return typescript4Cast.createDelete(expression as never) as never;
 		},
 		createDivide(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.SlashToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.SlashToken as never, right as never) as never;
 		},
 		createDoStatement(statement: TS.Statement, expression: TS.Expression): TS.DoStatement {
-			return typescript.createDo(statement, expression);
+			return typescript4Cast.createDo(statement as never, expression as never) as never;
 		},
 		createElementAccessExpression(expression: TS.Expression, index: number | TS.Expression): TS.ElementAccessExpression {
-			return typescript.createElementAccess(expression, index);
+			return typescript4Cast.createElementAccess(expression as never, index as never) as never;
 		},
 		createEquality(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.EqualsEqualsToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.EqualsEqualsToken as never, right as never) as never;
 		},
 		createExponent(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.AsteriskAsteriskToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.AsteriskAsteriskToken as never, right as never) as never;
 		},
 		createForInStatement(initializer: TS.ForInitializer, expression: TS.Expression, statement: TS.Statement): TS.ForInStatement {
-			return typescript.createForIn(initializer, expression, statement);
+			return typescript4Cast.createForIn(initializer as never, expression as never, statement as never) as never;
 		},
 		createForOfStatement(awaitModifier: TS.AwaitKeyword | undefined, initializer: TS.ForInitializer, expression: TS.Expression, statement: TS.Statement): TS.ForOfStatement {
-			return typescript.createForOf(awaitModifier, initializer, expression, statement);
+			return typescript4Cast.createForOf(awaitModifier as never, initializer as never, expression as never, statement as never) as never;
 		},
 		createForStatement(
 			initializer: TS.ForInitializer | undefined,
@@ -4645,118 +4921,118 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			incrementor: TS.Expression | undefined,
 			statement: TS.Statement
 		): TS.ForStatement {
-			return typescript.createFor(initializer, condition, incrementor, statement);
+			return typescript4Cast.createFor(initializer as never, condition as never, incrementor as never, statement as never) as never;
 		},
 		createGreaterThan(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.GreaterThanToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.GreaterThanToken as never, right as never) as never;
 		},
 		createGreaterThanEquals(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.GreaterThanEqualsToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.GreaterThanEqualsToken as never, right as never) as never;
 		},
 		createIfStatement(expression: TS.Expression, thenStatement: TS.Statement, elseStatement?: TS.Statement): TS.IfStatement {
-			return typescript.createIf(expression, thenStatement, elseStatement);
+			return typescript4Cast.createIf(expression as never, thenStatement as never, elseStatement as never) as never;
 		},
 		createInequality(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.ExclamationEqualsToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.ExclamationEqualsToken as never, right as never) as never;
 		},
 		createLabeledStatement(label: string | TS.Identifier, statement: TS.Statement): TS.LabeledStatement {
-			return typescript.createLabel(label, statement);
+			return typescript4Cast.createLabel(label as never, statement as never) as never;
 			createParameterDeclaration;
 		},
 		createLeftShift(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.LessThanLessThanToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.LessThanLessThanToken as never, right as never) as never;
 		},
 		createLessThanEquals(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.LessThanEqualsToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.LessThanEqualsToken as never, right as never) as never;
 		},
 		createMethodDeclaration,
 		createModulo(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.PercentToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.PercentToken as never, right as never) as never;
 		},
 		createMultiply(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.AsteriskToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.AsteriskToken as never, right as never) as never;
 		},
 		createNamedTupleMember,
 		createNewExpression(expression: TS.Expression, typeArguments: readonly TS.TypeNode[] | undefined, argumentsArray: readonly TS.Expression[] | undefined): TS.NewExpression {
-			return typescript.createNew(expression, typeArguments, argumentsArray);
+			return typescript4Cast.createNew(expression as never, typeArguments as never, argumentsArray as never) as never;
 		},
 		createParameterDeclaration,
 		createParenthesizedExpression(expression: TS.Expression): TS.ParenthesizedExpression {
-			return typescript.createParen(expression);
+			return typescript4Cast.createParen(expression as never) as never;
 		},
 		createPostfixDecrement(operand: TS.Expression): TS.PostfixUnaryExpression {
-			return typescript.createPostfix(operand, typescript.SyntaxKind.MinusMinusToken);
+			return typescript4Cast.createPostfix(operand as never, typescript.SyntaxKind.MinusMinusToken as never) as never;
 		},
 		createPostfixUnaryExpression(operand: TS.Expression, operator: TS.PostfixUnaryOperator): TS.PostfixUnaryExpression {
-			return typescript.createPostfix(operand, operator);
+			return typescript4Cast.createPostfix(operand as never, operator as never) as never;
 		},
 		createPrefixDecrement(operand: TS.Expression): TS.PrefixUnaryExpression {
-			return typescript.createPrefix(typescript.SyntaxKind.MinusMinusToken, operand);
+			return typescript4Cast.createPrefix(typescript.SyntaxKind.MinusMinusToken as never, operand as never) as never;
 		},
 		createPrefixIncrement(operand: TS.Expression): TS.PrefixUnaryExpression {
-			return typescript.createPrefix(typescript.SyntaxKind.PlusPlusToken, operand);
+			return typescript4Cast.createPrefix(typescript.SyntaxKind.PlusPlusToken as never, operand as never) as never;
 		},
 		createPrefixMinus(operand: TS.Expression): TS.PrefixUnaryExpression {
-			return typescript.createPrefix(typescript.SyntaxKind.MinusToken, operand);
+			return typescript4Cast.createPrefix(typescript.SyntaxKind.MinusToken as never, operand as never) as never;
 		},
 		createPrefixPlus(operand: TS.Expression): TS.PrefixUnaryExpression {
-			return typescript.createPrefix(typescript.SyntaxKind.PlusToken, operand);
+			return typescript4Cast.createPrefix(typescript.SyntaxKind.PlusToken as never, operand as never) as never;
 		},
 		createPrefixUnaryExpression(operator: TS.PrefixUnaryOperator, operand: TS.Expression): TS.PrefixUnaryExpression {
-			return typescript.createPrefix(operator, operand);
+			return typescript4Cast.createPrefix(operator as never, operand as never) as never;
 		},
 		createPropertyDeclaration,
 		createRightShift(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.GreaterThanGreaterThanToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.GreaterThanGreaterThanToken as never, right as never) as never;
 		},
 		createSetAccessorDeclaration,
 		createSpreadElement(expression: TS.Expression): TS.SpreadElement {
-			return typescript.createSpread(expression);
+			return typescript4Cast.createSpread(expression as never) as never;
 		},
 		createSwitchStatement(expression: TS.Expression, caseBlock: TS.CaseBlock): TS.SwitchStatement {
-			return typescript.createSwitch(expression, caseBlock);
+			return typescript4Cast.createSwitch(expression as never, caseBlock as never) as never;
 		},
 		createTaggedTemplateExpression(tag: TS.Expression, typeArguments: readonly TS.TypeNode[] | undefined, template: TS.TemplateLiteral): TS.TaggedTemplateExpression {
-			return typescript.createTaggedTemplate(tag, typeArguments, template);
+			return typescript4Cast.createTaggedTemplate(tag as never, typeArguments as never, template as never) as never;
 		},
 		createThrowStatement(expression: TS.Expression): TS.ThrowStatement {
-			return typescript.createThrow(expression);
+			return typescript4Cast.createThrow(expression as never) as never;
 		},
 		createTryStatement(tryBlock: TS.Block, catchClause: TS.CatchClause | undefined, finallyBlock: TS.Block | undefined): TS.TryStatement {
-			return typescript.createTry(tryBlock, catchClause, finallyBlock);
+			return typescript4Cast.createTry(tryBlock as never, catchClause as never, finallyBlock as never) as never;
 		},
 		createTypeOfExpression(expression: TS.Expression): TS.TypeOfExpression {
-			return typescript.createTypeOf(expression);
+			return typescript4Cast.createTypeOf(expression as never) as never;
 		},
 		createUnsignedRightShift(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
-			return typescript.createBinary(left, typescript.SyntaxKind.GreaterThanGreaterThanGreaterThanToken, right);
+			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.GreaterThanGreaterThanGreaterThanToken as never, right as never) as never;
 		},
 		createVoidExpression(expression: TS.Expression): TS.VoidExpression {
-			return typescript.createVoid(expression);
+			return typescript4Cast.createVoid(expression as never) as never;
 		},
 		createWhileStatement(expression: TS.Expression, statement: TS.Statement): TS.WhileStatement {
-			return typescript.createWhile(expression, statement);
+			return typescript4Cast.createWhile(expression as never, statement as never) as never;
 		},
 		createWithStatement(expression: TS.Expression, statement: TS.Statement): TS.WithStatement {
-			return typescript.createWith(expression, statement);
+			return typescript4Cast.createWith(expression as never, statement as never) as never;
 		},
 		createYieldExpression(asteriskToken: TS.AsteriskToken | undefined, expression: TS.Expression | undefined): TS.YieldExpression {
-			return typescript.createYield(asteriskToken, expression!);
+			return typescript4Cast.createYield(asteriskToken as never, expression as never) as never;
 		},
 		restoreOuterExpressions(outerExpression: TS.Expression | undefined, innerExpression: TS.Expression, kinds?: TS.OuterExpressionKinds): TS.Expression {
 			return innerExpression;
 		},
 		updateAwaitExpression(node: TS.AwaitExpression, expression: TS.Expression): TS.AwaitExpression {
-			return typescript.updateAwait(node, expression);
+			return typescript4Cast.updateAwait(node as never, expression as never) as never;
 		},
 		updateBinaryExpression(node: TS.BinaryExpression, left: TS.Expression, operator: TS.BinaryOperator | TS.BinaryOperatorToken, right: TS.Expression): TS.BinaryExpression {
-			return typescript.updateBinary(node, left, right, operator);
+			return typescript4Cast.updateBinary(node as never, left as never, right as never, operator as never) as never;
 		},
 		updateBreakStatement(node: TS.BreakStatement, label: TS.Identifier | undefined): TS.BreakStatement {
-			return typescript.updateBreak(node, label);
+			return typescript4Cast.updateBreak(node as never, label as never) as never;
 		},
 		updateCommaListExpression(node: TS.CommaListExpression, elements: readonly TS.Expression[]): TS.CommaListExpression {
-			return typescript.updateCommaList(node, elements);
+			return typescript4Cast.updateCommaList(node as never, elements as never) as never;
 		},
 		updateConditionalExpression(
 			node: TS.ConditionalExpression,
@@ -4766,22 +5042,22 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			colonToken: TS.ColonToken,
 			whenFalse: TS.Expression
 		): TS.ConditionalExpression {
-			return typescript.updateConditional(node, condition, questionToken, whenTrue, colonToken, whenFalse);
+			return typescript4Cast.updateConditional(node as never, condition as never, questionToken as never, whenTrue as never, colonToken as never, whenFalse as never) as never;
 		},
 		updateContinueStatement(node: TS.ContinueStatement, label: TS.Identifier | undefined): TS.ContinueStatement {
-			return typescript.updateContinue(node, label);
+			return typescript4Cast.updateContinue(node as never, label as never) as never;
 		},
 		updateDeleteExpression(node: TS.DeleteExpression, expression: TS.Expression): TS.DeleteExpression {
-			return typescript.updateDelete(node, expression);
+			return typescript4Cast.updateDelete(node as never, expression as never) as never;
 		},
 		updateDoStatement(node: TS.DoStatement, statement: TS.Statement, expression: TS.Expression): TS.DoStatement {
-			return typescript.updateDo(node, statement, expression);
+			return typescript4Cast.updateDo(node as never, statement as never, expression as never) as never;
 		},
 		updateElementAccessExpression(node: TS.ElementAccessExpression, expression: TS.Expression, argumentExpression: TS.Expression): TS.ElementAccessExpression {
-			return typescript.updateElementAccess(node, expression, argumentExpression);
+			return typescript4Cast.updateElementAccess(node as never, expression as never, argumentExpression as never) as never;
 		},
 		updateForInStatement(node: TS.ForInStatement, initializer: TS.ForInitializer, expression: TS.Expression, statement: TS.Statement): TS.ForInStatement {
-			return typescript.updateForIn(node, initializer, expression, statement);
+			return typescript4Cast.updateForIn(node as never, initializer as never, expression as never, statement as never) as never;
 		},
 		updateForOfStatement(
 			node: TS.ForOfStatement,
@@ -4790,7 +5066,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			expression: TS.Expression,
 			statement: TS.Statement
 		): TS.ForOfStatement {
-			return typescript.updateForOf(node, awaitModifier, initializer, expression, statement);
+			return typescript4Cast.updateForOf(node as never, awaitModifier as never, initializer as never, expression as never, statement as never) as never;
 		},
 		updateForStatement(
 			node: TS.ForStatement,
@@ -4799,10 +5075,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			incrementor: TS.Expression | undefined,
 			statement: TS.Statement
 		): TS.ForStatement {
-			return typescript.updateFor(node, initializer, condition, incrementor, statement);
+			return typescript4Cast.updateFor(node as never, initializer as never, condition as never, incrementor as never, statement as never) as never;
 		},
 		updateIfStatement(node: TS.IfStatement, expression: TS.Expression, thenStatement: TS.Statement, elseStatement: TS.Statement | undefined): TS.IfStatement {
-			return typescript.updateIf(node, expression, thenStatement, elseStatement);
+			return typescript4Cast.updateIf(node as never, expression as never, thenStatement as never, elseStatement as never) as never;
 		},
 		updateJSDocAugmentsTag(
 			node: TS.JSDocAugmentsTag,
@@ -5037,8 +5313,38 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		updateJSDocLinkPlain(node: TS.JSDocLinkPlain, name: TS.EntityName | TS.JSDocMemberName | undefined, text: string): TS.JSDocLinkPlain {
 			return name === node.name && text === node.text ? node : typescript.setTextRange(createJSDocLinkPlain(name, text), node);
 		},
+		updateJSDocOverloadTag(
+			node: TS.JSDocOverloadTag,
+			tagName: TS.Identifier | undefined,
+			typeExpression: TS.JSDocSignature,
+			comment: string | TS.NodeArray<TS.JSDocComment> | undefined
+		): TS.JSDocOverloadTag {
+			return tagName === node.tagName && typeExpression === node.typeExpression && comment === node.comment
+				? node
+				: typescript.setTextRange(createJSDocOverloadTag(tagName, typeExpression, comment), node);
+		},
+		updateJSDocThrowsTag(
+			node: TS.JSDocThrowsTag,
+			tagName: TS.Identifier | undefined,
+			typeExpression: TS.JSDocTypeExpression | undefined,
+			comment?: string | TS.NodeArray<TS.JSDocComment> | undefined
+		): TS.JSDocThrowsTag {
+			return tagName === node.tagName && typeExpression === node.typeExpression && comment === node.comment
+				? node
+				: typescript.setTextRange(createJSDocThrowsTag(tagName ?? node.tagName, typeExpression, comment), node);
+		},
+		updateJSDocSatisfiesTag(
+			node: TS.JSDocSatisfiesTag,
+			tagName: TS.Identifier | undefined,
+			typeExpression: TS.JSDocTypeExpression,
+			comment: string | TS.NodeArray<TS.JSDocComment> | undefined
+		): TS.JSDocSatisfiesTag {
+			return tagName === node.tagName && typeExpression === node.typeExpression && comment === node.comment
+				? node
+				: typescript.setTextRange(createJSDocSatisfiesTag(tagName, typeExpression, comment), node);
+		},
 		updateLabeledStatement(node: TS.LabeledStatement, label: TS.Identifier, statement: TS.Statement): TS.LabeledStatement {
-			return typescript.updateLabel(node, label, statement);
+			return typescript4Cast.updateLabel(node as never, label as never, statement as never) as never;
 		},
 		updateMethodDeclaration,
 		updateNamedTupleMember(
@@ -5058,34 +5364,34 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			typeArguments: readonly TS.TypeNode[] | undefined,
 			argumentsArray: readonly TS.Expression[] | undefined
 		): TS.NewExpression {
-			return typescript.updateNew(node, expression, typeArguments, argumentsArray);
+			return typescript4Cast.updateNew(node as never, expression as never, typeArguments as never, argumentsArray as never) as never;
 		},
 		updateObjectLiteralExpression(node: TS.ObjectLiteralExpression, properties: readonly TS.ObjectLiteralElementLike[]): TS.ObjectLiteralExpression {
-			return typescript.updateObjectLiteral(node, properties);
+			return typescript4Cast.updateObjectLiteral(node as never, properties as never) as never;
 		},
 		updateParameterDeclaration,
 		updateParenthesizedExpression(node: TS.ParenthesizedExpression, expression: TS.Expression): TS.ParenthesizedExpression {
-			return typescript.updateParen(node, expression);
+			return typescript4Cast.updateParen(node as never, expression as never) as never;
 		},
 		updatePostfixUnaryExpression(node: TS.PostfixUnaryExpression, operand: TS.Expression): TS.PostfixUnaryExpression {
-			return typescript.updatePostfix(node, operand);
+			return typescript4Cast.updatePostfix(node as never, operand as never) as never;
 		},
 		updatePrefixUnaryExpression(node: TS.PrefixUnaryExpression, operand: TS.Expression): TS.PrefixUnaryExpression {
-			return typescript.updatePrefix(node, operand);
+			return typescript4Cast.updatePrefix(node as never, operand as never) as never;
 		},
 		updatePropertyAccessExpression(node: TS.PropertyAccessExpression, expression: TS.Expression, name: TS.MemberName): TS.PropertyAccessExpression {
-			return typescript.updatePropertyAccess(node, expression, name);
+			return typescript4Cast.updatePropertyAccess(node as never, expression as never, name as never) as never;
 		},
 		updatePropertyDeclaration,
 		updateReturnStatement(node: TS.ReturnStatement, expression: TS.Expression | undefined): TS.ReturnStatement {
-			return typescript.updateReturn(node, expression);
+			return typescript4Cast.updateReturn(node as never, expression as never) as never;
 		},
 		updateSetAccessorDeclaration,
 		updateSpreadElement(node: TS.SpreadElement, expression: TS.Expression): TS.SpreadElement {
-			return typescript.updateSpread(node, expression);
+			return typescript4Cast.updateSpread(node as never, expression as never) as never;
 		},
 		updateSwitchStatement(node: TS.SwitchStatement, expression: TS.Expression, caseBlock: TS.CaseBlock): TS.SwitchStatement {
-			return typescript.updateSwitch(node, expression, caseBlock);
+			return typescript4Cast.updateSwitch(node as never, expression as never, caseBlock as never) as never;
 		},
 		updateTaggedTemplateExpression(
 			node: TS.TaggedTemplateExpression,
@@ -5093,7 +5399,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			typeArguments: readonly TS.TypeNode[] | undefined,
 			template: TS.TemplateLiteral
 		): TS.TaggedTemplateExpression {
-			return typescript.updateTaggedTemplate(node, tag, typeArguments, template);
+			return typescript4Cast.updateTaggedTemplate(node as never, tag as never, typeArguments as never, template as never) as never;
 		},
 		updateTemplateLiteralType(node: TS.TemplateLiteralTypeNode, head: TS.TemplateHead, templateSpans: readonly TS.TemplateLiteralTypeSpan[]): TS.TemplateLiteralTypeNode {
 			return head === node.head && templateSpans === node.templateSpans ? node : typescript.setTextRange(createTemplateLiteralType(head, templateSpans), node);
@@ -5111,32 +5417,35 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		updateImportTypeAssertionContainer(node: TS.ImportTypeAssertionContainer, clause: TS.AssertClause, multiLine?: boolean): TS.ImportTypeAssertionContainer {
 			return node.assertClause !== clause || node.multiLine !== multiLine ? typescript.setTextRange(createImportTypeAssertionContainer(clause, multiLine), node) : node;
 		},
+		updateJsxNamespacedName(node: TS.JsxNamespacedName, namespace: TS.Identifier, name: TS.Identifier): TS.JsxNamespacedName {
+			return node.namespace !== namespace || node.name !== name ? typescript.setTextRange(createJsxNamespacedName(namespace, name), node) : node;
+		},
 		updateThrowStatement(node: TS.ThrowStatement, expression: TS.Expression): TS.ThrowStatement {
-			return typescript.updateThrow(node, expression);
+			return typescript4Cast.updateThrow(node as never, expression as never) as never;
 		},
 		updateTryStatement(node: TS.TryStatement, tryBlock: TS.Block, catchClause: TS.CatchClause | undefined, finallyBlock: TS.Block | undefined): TS.TryStatement {
-			return typescript.updateTry(node, tryBlock, catchClause, finallyBlock);
+			return typescript4Cast.updateTry(node as never, tryBlock as never, catchClause as never, finallyBlock as never) as never;
 		},
 		updateTypeOfExpression(node: TS.TypeOfExpression, expression: TS.Expression): TS.TypeOfExpression {
-			return typescript.updateTypeOf(node, expression);
+			return typescript4Cast.updateTypeOf(node as never, expression as never) as never;
 		},
 		updateVoidExpression(node: TS.VoidExpression, expression: TS.Expression): TS.VoidExpression {
-			return typescript.updateVoid(node, expression);
+			return typescript4Cast.updateVoid(node as never, expression as never) as never;
 		},
 		updateWhileStatement(node: TS.WhileStatement, expression: TS.Expression, statement: TS.Statement): TS.WhileStatement {
-			return typescript.updateWhile(node, expression, statement);
+			return typescript4Cast.updateWhile(node as never, expression as never, statement as never) as never;
 		},
 		updateWithStatement(node: TS.WithStatement, expression: TS.Expression, statement: TS.Statement): TS.WithStatement {
-			return typescript.updateWith(node, expression, statement);
+			return typescript4Cast.updateWith(node as never, expression as never, statement as never) as never;
 		},
 		updateYieldExpression(node: TS.YieldExpression, asteriskToken: TS.AsteriskToken | undefined, expression: TS.Expression | undefined): TS.YieldExpression {
-			return typescript.updateYield(node, asteriskToken, expression);
+			return typescript4Cast.updateYield(node as never, asteriskToken as never, expression as never) as never;
 		},
 		createImportClause(isTypeOnly: boolean, name: TS.Identifier | undefined, namedBindings: TS.NamedImportBindings | undefined): TS.ImportClause {
-			return typescript.createImportClause(name, namedBindings, isTypeOnly);
+			return typescript4Cast.createImportClause(name as never, namedBindings as never, isTypeOnly as never) as never;
 		},
 		createCallExpression(expression: TS.Expression, typeArguments: readonly TS.TypeNode[] | undefined, argumentsArray: readonly TS.Expression[] | undefined): TS.CallExpression {
-			return typescript.createCall(expression, typeArguments, argumentsArray);
+			return typescript4Cast.createCall(expression as never, typeArguments as never, argumentsArray as never) as never;
 		},
 		updateCallExpression(
 			node: TS.CallExpression,
@@ -5144,13 +5453,13 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			typeArguments: readonly TS.TypeNode[] | undefined,
 			argumentsArray: readonly TS.Expression[]
 		): TS.CallExpression {
-			return typescript.updateCall(node, expression, typeArguments, argumentsArray);
+			return typescript4Cast.updateCall(node as never, expression as never, typeArguments as never, argumentsArray as never) as never;
 		},
 		createArrayLiteralExpression(elements?: readonly TS.Expression[], multiLine?: boolean): TS.ArrayLiteralExpression {
-			return typescript.createArrayLiteral(elements, multiLine);
+			return typescript4Cast.createArrayLiteral(elements as never, multiLine as never) as never;
 		},
 		updateArrayLiteralExpression(node: TS.ArrayLiteralExpression, elements: readonly TS.Expression[]): TS.ArrayLiteralExpression {
-			return typescript.updateArrayLiteral(node, elements);
+			return typescript4Cast.updateArrayLiteral(node as never, elements as never) as never;
 		},
 		updateSourceFile(
 			node: TS.SourceFile,
@@ -5161,25 +5470,33 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			hasNoDefaultLib?: boolean,
 			libReferences?: readonly TS.FileReference[]
 		): TS.SourceFile {
-			return typescript.updateSourceFileNode(node, statements, isDeclarationFile, referencedFiles, typeReferences, hasNoDefaultLib, libReferences);
+			return typescript4Cast.updateSourceFileNode(
+				node as never,
+				statements as never,
+				isDeclarationFile as never,
+				referencedFiles as never,
+				typeReferences as never,
+				hasNoDefaultLib as never,
+				libReferences as never
+			) as never;
 		},
 		updateClassExpression,
 		createPropertyAccessExpression(expression: TS.Expression, name: string | TS.MemberName): TS.PropertyAccessExpression {
-			return typescript.createPropertyAccess(expression, name);
+			return typescript4Cast.createPropertyAccess(expression as never, name as never) as never;
 		},
 		createGetAccessorDeclaration,
 		updateGetAccessorDeclaration,
 		createReturnStatement(expression?: TS.Expression): TS.ReturnStatement {
-			return typescript.createReturn(expression);
+			return typescript4Cast.createReturn(expression as never) as never;
 		},
 		createObjectLiteralExpression(properties?: readonly TS.ObjectLiteralElementLike[], multiLine?: boolean): TS.ObjectLiteralExpression {
-			return typescript.createObjectLiteral(properties, multiLine);
+			return typescript4Cast.createObjectLiteral(properties as never, multiLine as never) as never;
 		},
 		createVariableDeclaration(name: string | TS.BindingName, exclamationToken?: TS.ExclamationToken, type?: TS.TypeNode, initializer?: TS.Expression): TS.VariableDeclaration {
-			if (typescript.createVariableDeclaration.length === 4) {
-				return typescript.createVariableDeclaration(name, exclamationToken, type, initializer);
+			if (typescript4Cast.createVariableDeclaration.length === 4) {
+				return typescript4Cast.createVariableDeclaration(name as never, exclamationToken as never, type as never, initializer as never) as never;
 			}
-			return typescript.createVariableDeclaration(name, type, initializer);
+			return typescript4Cast.createVariableDeclaration(name as never, type as never, initializer as never) as never;
 		},
 		updateVariableDeclaration(
 			node: TS.VariableDeclaration,
@@ -5188,18 +5505,18 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			type: TS.TypeNode | undefined,
 			initializer: TS.Expression | undefined
 		): TS.VariableDeclaration {
-			if (typescript.updateVariableDeclaration.length === 4) {
-				return typescript.updateVariableDeclaration(node, name, type, initializer);
+			if (typescript4Cast.updateVariableDeclaration.length === 4) {
+				return typescript4Cast.updateVariableDeclaration(node as never, name as never, type as never, initializer as never) as never;
 			}
 
-			return typescript.updateVariableDeclaration(node, name, exclamationToken, type, initializer);
+			return typescript4Cast.updateVariableDeclaration(node as never, name as never, exclamationToken as never, type as never, initializer as never) as never;
 		},
 		createPropertyAccessChain(expression: TS.Expression, questionDotToken: TS.QuestionDotToken | undefined, name: string | TS.MemberName): TS.PropertyAccessChain {
 			if ("createPropertyAccessChain" in (typescript as typeof TS)) {
-				return typescript.createPropertyAccessChain(expression, questionDotToken, name);
+				return typescript4Cast.createPropertyAccessChain(expression as never, questionDotToken as never, name as never) as never;
 			}
 
-			const node = typescript.createPropertyAccess(expression, name) as Mutable<TS.PropertyAccessChain>;
+			const node = typescript4Cast.createPropertyAccess(expression as never, name as never) as unknown as Mutable<TS.PropertyAccessChain>;
 			node.questionDotToken = questionDotToken;
 			return node;
 		},
@@ -5210,10 +5527,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			name: TS.MemberName
 		): TS.PropertyAccessChain {
 			if ("updatePropertyAccessChain" in (typescript as typeof TS)) {
-				return typescript.updatePropertyAccessChain(node, expression, questionDotToken, name);
+				return typescript4Cast.updatePropertyAccessChain(node as never, expression as never, questionDotToken as never, name as never) as never;
 			}
 
-			const newNode = typescript.updatePropertyAccess(node, expression, name) as Mutable<TS.PropertyAccessChain>;
+			const newNode = typescript4Cast.updatePropertyAccess(node as never, expression as never, name as never) as unknown as Mutable<TS.PropertyAccessChain>;
 			newNode.questionDotToken = questionDotToken;
 			return newNode;
 		},
@@ -5280,7 +5597,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		 * Some TypeScript versions require that the value is a string argument
 		 */
 		createNumericLiteral(value: string | number, numericLiteralFlags?: TS.TokenFlags): TS.NumericLiteral {
-			return typescript.createNumericLiteral(String(value), numericLiteralFlags);
+			return typescript4Cast.createNumericLiteral(String(value), numericLiteralFlags) as never;
 		}
 	};
 }

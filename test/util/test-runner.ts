@@ -1,7 +1,7 @@
 import path from "crosspath";
 import fs from "fs";
 import semver from "semver";
-import type {ExecutionContext, OneOrMoreMacros, Macro} from "ava";
+import avaTest, {type ExecutionContext} from "ava";
 import type * as TS from "typescript";
 
 function getNearestPackageJson(from = import.meta.url): Record<string, unknown> | undefined {
@@ -21,32 +21,19 @@ function getNearestPackageJson(from = import.meta.url): Record<string, unknown> 
 
 const pkg = getNearestPackageJson();
 // ava macros
-export interface ExtendedImplementationArgumentOptions {
+export interface ExecutionContextOptions {
 	typescript: typeof TS;
 	typescriptModuleSpecifier: string;
+	typescriptVersion: string;
 }
-export type ExtendedImplementation = (t: ExecutionContext, options: ExtendedImplementationArgumentOptions) => void | Promise<void>;
-function makeTypeScriptMacro(version: string, specifier: string) {
-	const macro: Macro<[ExtendedImplementation]> = async (t, impl) =>
-		impl(t, {
-			typescript: (await import(specifier)).default,
-			typescriptModuleSpecifier: specifier
-		});
-	macro.title = (provided = "") => `${provided} (TypeScript v${version})`;
 
-	return macro;
-}
-const noMatchingVersionMacro: Macro<[ExtendedImplementation]> = t => {
-	t.pass("No matching TypeScript versions");
-};
-noMatchingVersionMacro.title = (provided = "") => `${provided} (No matching TypeScript versions)`;
+export type ExtendedImplementation = (t: ExecutionContext, options: ExecutionContextOptions) => void | Promise<void>;
 
 const {devDependencies} = pkg as {devDependencies: Record<string, string>};
 
 // Set of all TypeScript versions parsed from package.json
 const availableTsVersions = new Set<string>();
-// Map of TypeScript version to ava macro
-const macros = new Map<string, Macro<[ExtendedImplementation]>>();
+const TS_OPTIONS_RECORDS = new Map<string, ExecutionContextOptions>();
 
 const tsRangeRegex = /(npm:typescript@)?[\^~]*(.+)$/;
 const filter = process.env.TS_VERSION;
@@ -58,26 +45,43 @@ for (const [specifier, range] of Object.entries(devDependencies)) {
 		if (context === "npm:typescript@" || specifier === "typescript") {
 			availableTsVersions.add(version);
 			if (filter === undefined || (filter.toUpperCase() === "CURRENT" && specifier === "typescript") || semver.satisfies(version, filter, {includePrerelease: true})) {
-				macros.set(version, makeTypeScriptMacro(version, specifier));
+				TS_OPTIONS_RECORDS.set(version, {
+					typescript: (await import(specifier)).default,
+					typescriptModuleSpecifier: specifier,
+					typescriptVersion: version
+				});
 			}
 		}
 	}
 }
 
-if (macros.size === 0) {
+if (availableTsVersions.size === 0) {
 	throw new Error(`The TS_VERSION environment variable matches none of the available TypeScript versions.
 Filter: ${process.env.TS_VERSION}
 Available TypeScript versions: ${[...availableTsVersions].join(", ")}`);
 }
 
-export function withTypeScriptVersions(extraFilter: string): OneOrMoreMacros<[ExtendedImplementation], unknown> {
-	const filteredMacros = [...macros.entries()].filter(([version]) => semver.satisfies(version, extraFilter, {includePrerelease: true})).map(([, macro]) => macro);
-
-	if (filteredMacros.length === 0) {
-		filteredMacros.push(noMatchingVersionMacro);
-	}
-
-	return filteredMacros as OneOrMoreMacros<[ExtendedImplementation], unknown>;
+interface TestRunOptions {
+	only: boolean;
 }
 
-export const withTypeScript = withTypeScriptVersions("*");
+export function test(title: string, tsVersionGlob: string | undefined, impl: ExtendedImplementation, runOptions?: Partial<TestRunOptions>) {
+	const allOptions =
+		tsVersionGlob == null || tsVersionGlob === "*"
+			? TS_OPTIONS_RECORDS.values()
+			: [...TS_OPTIONS_RECORDS.entries()].filter(([version]) => semver.satisfies(version, tsVersionGlob, {includePrerelease: true})).map(([, options]) => options);
+
+	for (const currentOptions of allOptions) {
+		const fullTitle = `${title} (TypeScript v${currentOptions.typescriptVersion})`;
+
+		if (Boolean(runOptions?.only)) {
+			avaTest.only(fullTitle, async t => impl(t, currentOptions));
+		} else {
+			avaTest(fullTitle, async t => impl(t, currentOptions));
+		}
+	}
+}
+
+test.only = function (title: string, tsVersionGlob: string | undefined, impl: ExtendedImplementation) {
+	return test(title, tsVersionGlob, impl, {only: true});
+};

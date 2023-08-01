@@ -1,17 +1,16 @@
-import test from "ava";
-import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
 import {formatStatements} from "./util/format-statements.js";
 import {formatCode} from "./util/format-code.js";
 import {ensureNodeFactory} from "../src/index.js";
+import {test} from "./util/test-runner.js";
 
-test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", withTypeScriptVersions(">=4.9"), (t, {typescript}) => {
+test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", ">=5.1", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.true(factory === typescript.factory);
 });
 
 test(
 	"Wrapping a NodeFactory that require modifications in a call to `ensureNodeFactory` returns an updated version of the NodeFactory that conforms to the latest API. #1",
-	withTypeScriptVersions(">=4.0 && <4.2"),
+	`>=4.0 <4.2`,
 	(t, {typescript}) => {
 		const factory = ensureNodeFactory(typescript);
 		t.true(factory.createSourceFile === typescript.factory.createSourceFile);
@@ -23,7 +22,17 @@ test(
 	}
 );
 
-test("Wrapping a TypeScript object with no Node Factory returns an object that conforms with the Node Factory API. #1", withTypeScriptVersions("<4.0"), (t, {typescript}) => {
+test(
+	"Wrapping a NodeFactory that require modifications in a call to `ensureNodeFactory` returns an updated version of the NodeFactory that conforms to the latest API. #1",
+	`>=5.0 <5.1`,
+	(t, {typescript}) => {
+		const factory = ensureNodeFactory(typescript);
+		t.true(factory.createImportEqualsDeclaration === typescript.factory.createImportEqualsDeclaration);
+		t.false(factory.createJsxNamespacedName === typescript.factory.createJsxNamespacedName);
+	}
+);
+
+test("Wrapping a TypeScript object with no Node Factory returns an object that conforms with the Node Factory API. #1", "<4.0", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.false(factory === typescript.factory);
 	t.false(factory === (typescript as never));
@@ -31,7 +40,7 @@ test("Wrapping a TypeScript object with no Node Factory returns an object that c
 	t.true("createBitwiseAnd" in factory);
 });
 
-test("Calling ensureNodeFactory with an already wrapped TypeScript object performs no further wrapping. #1", withTypeScriptVersions("<4.0"), (t, {typescript}) => {
+test("Calling ensureNodeFactory with an already wrapped TypeScript object performs no further wrapping. #1", "<4.0", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.false(factory === typescript.factory);
 	t.false(factory === (typescript as never));
@@ -39,7 +48,7 @@ test("Calling ensureNodeFactory with an already wrapped TypeScript object perfor
 	t.true(factory === factory2);
 });
 
-test("It is possible to construct VariableStatements via the Node Factory wrapper for legacy versions of TypeScript. #1", withTypeScriptVersions("<4.0"), (t, {typescript}) => {
+test("It is possible to construct VariableStatements via the Node Factory wrapper for legacy versions of TypeScript. #1", "<4.0", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
@@ -64,34 +73,34 @@ test("It is possible to construct VariableStatements via the Node Factory wrappe
 	);
 });
 
-test("It is possible to construct JSDoc comments. #1", withTypeScriptVersions("<4.0"), (t, {typescript}) => {
+test("It is possible to construct JSDoc comments. #1", "<4.0", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.notThrows(() => factory.createJSDocComment("Hello, World!"));
 	t.deepEqual(factory.createJSDocComment("Hello, World!").kind, typescript.SyntaxKind.JSDocComment);
 });
 
-test("It is possible to construct JSDoc comments. #2", withTypeScriptVersions("<4.0"), (t, {typescript}) => {
+test("It is possible to construct JSDoc comments. #2", "<4.0", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.notThrows(() => factory.createJSDocProtectedTag(undefined, undefined));
 	t.notThrows(() => factory.createJSDocAuthorTag(undefined, undefined));
 });
 
-test("It is possible to construct JSDoc comments. #3", withTypeScriptVersions("<4.4"), (t, {typescript}) => {
+test("It is possible to construct JSDoc comments. #3", "<4.4", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.notThrows(() => factory.createJSDocMemberName(factory.createIdentifier("foo"), factory.createIdentifier("bar")));
 });
 
-test("It is possible to construct JSDoc comments. #4", withTypeScriptVersions("<4.4"), (t, {typescript}) => {
+test("It is possible to construct JSDoc comments. #4", "<4.4", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.notThrows(() => factory.createJSDocLinkCode(factory.createIdentifier("foo"), "Foo"));
 });
 
-test("It is possible to construct JSDoc comments. #5", withTypeScriptVersions("<4.4"), (t, {typescript}) => {
+test("It is possible to construct JSDoc comments. #5", "<4.4", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	t.notThrows(() => factory.createJSDocLinkPlain(factory.createIdentifier("foo"), "Foo"));
 });
 
-test("It is possible to construct PropertyAccessChains, even for older TypeScript versions. #1", withTypeScriptVersions("<3.6"), (t, {typescript}) => {
+test("It is possible to construct PropertyAccessChains, even for older TypeScript versions. #1", "<3.6", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	factory.createPropertyAccessChain(factory.createIdentifier("foo"), factory.createToken(typescript.SyntaxKind.QuestionDotToken), factory.createIdentifier("bar"));
 
@@ -106,7 +115,7 @@ test("It is possible to construct PropertyAccessChains, even for older TypeScrip
 	);
 });
 
-test("It is possible to construct PropertyAccessChains. #1", withTypeScriptVersions(">= 3.7 && < 4.0"), (t, {typescript}) => {
+test("It is possible to construct PropertyAccessChains. #1", ">= 3.7 <4.0", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	factory.createPropertyAccessChain(factory.createIdentifier("foo"), factory.createToken(typescript.SyntaxKind.QuestionDotToken), factory.createIdentifier("bar"));
 
@@ -121,22 +130,17 @@ test("It is possible to construct PropertyAccessChains. #1", withTypeScriptVersi
 	);
 });
 
-test("It is possible to construct ClassStaticBlockDeclarations, even for older TypeScript versions. #1", withTypeScriptVersions("<4.4"), (t, {typescript}) => {
+test("It is possible to construct ClassStaticBlockDeclarations, even for older TypeScript versions. #1", "<4.4", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
-		formatStatements(
-			typescript,
-			factory.createClassDeclaration(undefined, undefined, undefined, undefined, undefined, [
-				factory.createClassStaticBlockDeclaration(undefined, undefined, factory.createBlock([]))
-			])
-		),
+		formatStatements(typescript, factory.createClassDeclaration(undefined, undefined, undefined, undefined, [factory.createClassStaticBlockDeclaration(factory.createBlock([]))])),
 		formatCode(`\
 		class {}`)
 	);
 });
 
-test("It is possible to construct SatisfiesExpressions, even for older TypeScript versions. #1", withTypeScriptVersions("<4.9"), (t, {typescript}) => {
+test("It is possible to construct SatisfiesExpressions, even for older TypeScript versions. #1", "<4.9", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
@@ -159,14 +163,13 @@ test("It is possible to construct SatisfiesExpressions, even for older TypeScrip
 	);
 });
 
-test("It is possible to construct AssertClauses, even for older TypeScript versions. #1", withTypeScriptVersions("<4.5"), (t, {typescript}) => {
+test("It is possible to construct AssertClauses, even for older TypeScript versions. #1", "<4.5", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
 		formatStatements(
 			typescript,
 			factory.createImportDeclaration(
-				undefined,
 				undefined,
 				factory.createImportClause(false, factory.createIdentifier("obj"), undefined),
 				factory.createStringLiteral("./something.json"),
@@ -177,14 +180,13 @@ test("It is possible to construct AssertClauses, even for older TypeScript versi
 	);
 });
 
-test("It is possible to construct AssertEntries, even for older TypeScript versions. #1", withTypeScriptVersions("<4.5"), (t, {typescript}) => {
+test("It is possible to construct AssertEntries, even for older TypeScript versions. #1", "<4.5", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
 		formatStatements(
 			typescript,
 			factory.createImportDeclaration(
-				undefined,
 				undefined,
 				factory.createImportClause(false, factory.createIdentifier("obj"), undefined),
 				factory.createStringLiteral("./something.json"),
@@ -195,7 +197,7 @@ test("It is possible to construct AssertEntries, even for older TypeScript versi
 	);
 });
 
-test("It is possible to construct type-only ImportSpecifiers, even for older TypeScript versions. #1", withTypeScriptVersions("<4.5"), (t, {typescript}) => {
+test("It is possible to construct type-only ImportSpecifiers, even for older TypeScript versions. #1", "<4.5", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
@@ -212,14 +214,13 @@ test("It is possible to construct type-only ImportSpecifiers, even for older Typ
 	);
 });
 
-test("It is possible to construct type-only ExportSpecifiers, even for older TypeScript versions. #1", withTypeScriptVersions("<4.5"), (t, {typescript}) => {
+test("It is possible to construct type-only ExportSpecifiers, even for older TypeScript versions. #1", "<4.5", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
 		formatStatements(
 			typescript,
 			factory.createExportDeclaration(
-				undefined,
 				undefined,
 				false,
 				factory.createNamedExports([factory.createExportSpecifier(true, undefined, factory.createIdentifier("Foo"))]),
@@ -231,21 +232,20 @@ test("It is possible to construct type-only ExportSpecifiers, even for older Typ
 	);
 });
 
-test("It is possible to pass a number as argument to factory.createNumericLiteral. #1", withTypeScript, (t, {typescript}) => {
+test("It is possible to pass a number as argument to factory.createNumericLiteral. #1", "*", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(formatStatements(typescript, factory.createExpressionStatement(factory.createNumericLiteral(0))), formatCode(`0`));
 });
 
-test("It is possible to have separate write types on properties, even for older TypeScript versions. #1", withTypeScriptVersions("<4.3"), (t, {typescript}) => {
+test("It is possible to have separate write types on properties, even for older TypeScript versions. #1", "<4.3", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
 		formatStatements(
 			typescript,
-			factory.createClassDeclaration(undefined, undefined, undefined, undefined, undefined, [
+			factory.createClassDeclaration(undefined, undefined, undefined, undefined, [
 				factory.createGetAccessorDeclaration(
-					undefined,
 					undefined,
 					"size",
 					[],
@@ -254,9 +254,8 @@ test("It is possible to have separate write types on properties, even for older 
 				),
 				factory.createSetAccessorDeclaration(
 					undefined,
-					undefined,
 					"size",
-					[factory.createParameterDeclaration(undefined, undefined, undefined, "value", undefined, factory.createKeywordTypeNode(typescript.SyntaxKind.StringKeyword), undefined)],
+					[factory.createParameterDeclaration(undefined, undefined, "value", undefined, factory.createKeywordTypeNode(typescript.SyntaxKind.StringKeyword), undefined)],
 					factory.createBlock([])
 				)
 			])
@@ -272,14 +271,13 @@ test("It is possible to have separate write types on properties, even for older 
 	);
 });
 
-test("It is possible to pass assertions when creating ImportTypeNodes, even on older TypeScript versions. #1", withTypeScriptVersions("<4.7"), (t, {typescript}) => {
+test("It is possible to pass assertions when creating ImportTypeNodes, even on older TypeScript versions. #1", "<4.7", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
 		formatStatements(
 			typescript,
 			factory.createTypeAliasDeclaration(
-				undefined,
 				undefined,
 				"foo",
 				undefined,
@@ -298,14 +296,13 @@ test("It is possible to pass assertions when creating ImportTypeNodes, even on o
 	);
 });
 
-test("It is possible to pass assertions when creating ImportTypeNodes, even on older TypeScript versions. #2", withTypeScriptVersions("4.7"), (t, {typescript}) => {
+test("It is possible to pass assertions when creating ImportTypeNodes, even on older TypeScript versions. #2", "4.7", (t, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	t.deepEqual(
 		formatStatements(
 			typescript,
 			factory.createTypeAliasDeclaration(
-				undefined,
 				undefined,
 				"foo",
 				undefined,
