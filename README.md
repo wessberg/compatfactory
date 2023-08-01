@@ -43,8 +43,8 @@ wrap its factory functions with the new API such that you can simply use one API
 
 <!-- SHADOW_SECTION_FEATURES_END -->
 
-- A simple wrapper that enables you to use one API for every TypeScript version
-- Simple and tiny
+- A simple wrapper that enables you to use the most recent TypeScript Compiler API for every TypeScript version without having to worry about inconsistensies
+- Tiny
 
 <!-- SHADOW_SECTION_FEATURE_IMAGE_START -->
 
