@@ -33,7 +33,7 @@ set of factory functions for creating and updating nodes, and over to a new Node
 
 Nowadays, if you maintain a library or a tool that needs to work across multiple versions of TypeScript and you use any of TypeScript's Compiler APIs, you're going to have a really tough time. It will be error prone, difficult to read, and hard to maintain. There are many differences between the signatures of these methods across all versions of TypeScript, and many may not even exist.
 
-Thankfully, this is why this library exists. It simply provides a helper function, `ensureNodeFactory`, which takes a `NodeFactory` or a typescript object, and then returns an object conforming to the `NodeFactory` interface.
+This library exists to fix this problem. It simply provides a helper function, `ensureNodeFactory`, which takes a `NodeFactory` or a typescript object, and then returns an object conforming to the `NodeFactory` interface.
 In case a `NodeFactory` is passed to it, or if one could be found via the `typescript.factory` property, it will patch any inconsistencies there may be between the signatures of the factory functions across TypeScript versions and most often simply return the existing one with no further edits. For older TypeScript versions, it will
 wrap its factory functions with the new API such that you can simply use one API for all your operations! 🎉
 
