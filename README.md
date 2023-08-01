@@ -28,15 +28,14 @@
 
 <!-- SHADOW_SECTION_DESCRIPTION_LONG_END -->
 
-With the release of TypeScript 4.0, the team announced that [they would move away](https://devblogs.microsoft.com/typescript/announcing-typescript-4-0/#usage-of-typescripts-compatfactory-is-deprecated) from the old
-set of factory functions for creating and updating nodes, and over to a new Node Factory API.
+TypeScript's Compiler APIs are constantly evolving. With the release of TypeScript 4.0, the TypeScript team announced that [they would move away](https://devblogs.microsoft.com/typescript/announcing-typescript-4-0/#usage-of-typescripts-compatfactory-is-deprecated) from the old
+set of factory functions for creating and updating nodes, and over to a new Node Factory API. With the release of TypeScript 5.0, the old factory functions were removed entirely.
 
-While this is great, a lot of tooling around TypeScript works across multiple versions of it and either have to stick with the old, deprecated factory functions, stop supporting older versions of TypeScript,
-or interchangeably use the old or new factory functions depending on the TypeScript version being used. This is cumbersome, error prone, difficult to read, and hard to maintain.
+Nowadays, if you maintain a library or a tool that needs to work across multiple versions of TypeScript and you use any of TypeScript's Compiler APIs, you're going to have a really tough time. It will be error prone, difficult to read, and hard to maintain. There are many differences between the signatures of these methods across all versions of TypeScript, and many may not even exist.
 
-This library provides a little helper function, `ensureNodeFactory`, which takes a `NodeFactory` or a typescript object, and then returns an object conforming to the `NodeFactory` interface.
+Thankfully, this is why this library exists. It simply provides a helper function, `ensureNodeFactory`, which takes a `NodeFactory` or a typescript object, and then returns an object conforming to the `NodeFactory` interface.
 In case a `NodeFactory` is passed to it, or if one could be found via the `typescript.factory` property, it will patch any inconsistencies there may be between the signatures of the factory functions across TypeScript versions and most often simply return the existing one with no further edits. For older TypeScript versions, it will
-wrap its factory functions with the new API such that you can simply use one API for all your operations.
+wrap its factory functions with the new API such that you can simply use one API for all your operations! 🎉
 
 <!-- SHADOW_SECTION_FEATURES_START -->
 
@@ -55,9 +54,9 @@ wrap its factory functions with the new API such that you can simply use one API
 
 ## Backers
 
-| <a href="https://usebubbles.com"><img alt="Bubbles" src="https://uploads-ssl.webflow.com/5d682047c28b217055606673/5e5360be16879c1d0dca6514_icon-thin-128x128%402x.png" height="70"   /></a> | <a href="https://www.xerox.com"><img alt="Xerox" src="https://avatars.githubusercontent.com/u/9158512?s=200&v=4" height="70"   /></a> | <a href="https://changelog.me"><img alt="Trent Raymond" src="https://avatars.githubusercontent.com/u/1509616?v=4" height="70"   /></a> | <a href="https://scrubtheweb.com"><img alt="scrubtheweb" src="https://avatars.githubusercontent.com/u/41668218?v=4" height="70"   /></a> | <a href="https://github.com/hjoelh"><img alt="Joel" src="https://avatars.githubusercontent.com/u/68335961?v=4" height="70"   /></a> |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| [Bubbles](https://usebubbles.com)<br><strong>Twitter</strong>: [@usebubbles](https://twitter.com/usebubbles)                                                                                | [Xerox](https://www.xerox.com)                                                                                                        | [Trent Raymond](https://changelog.me)                                                                                                  | [scrubtheweb](https://scrubtheweb.com)                                                                                                   | [Joel](https://github.com/hjoelh)                                                                                                   |
+| <a href="https://changelog.me"><img alt="Trent Raymond" src="https://avatars.githubusercontent.com/u/1509616?v=4" height="70"   /></a> | <a href="https://scrubtheweb.com/computers/programming/1"><img alt="scrubtheweb" src="https://avatars.githubusercontent.com/u/41668218?v=4" height="70"   /></a> |
+| -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Trent Raymond](https://changelog.me)                                                                                                  | [scrubtheweb](https://scrubtheweb.com/computers/programming/1)                                                                                                   |
 
 ### Patreon
 
