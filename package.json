@@ -99,7 +99,7 @@
     "typescript-5-0-4": "npm:typescript@5.0.4"
   },
   "peerDependencies": {
-    "typescript": ">=3.x || >= 4.x"
+    "typescript": ">=3.x || >= 4.x || >= 5.x"
   },
   "exports": {
     "import": "./dist/esm/index.js",
