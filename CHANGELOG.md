@@ -1,3 +1,18 @@
+# [3.0.0](https://github.com/wessberg/compatfactory/compare/v2.0.9...v3.0.0) (2023-08-01)
+
+
+### Bug Fixes
+
+* allow TypeScript@5 and newer as peer dependency ([68cf1e7](https://github.com/wessberg/compatfactory/commit/68cf1e71f4ca6e1455cc075d3a18ef03f2293abf))
+* update docs ([865d43a](https://github.com/wessberg/compatfactory/commit/865d43a9e2b72abd2f9bd6a03ab51630d9de028b))
+
+
+### Features
+
+* add support for TypeScript v5.1 ([1b1111c](https://github.com/wessberg/compatfactory/commit/1b1111c7e1595f941d9d9781d2a23a0d5f08f8a1))
+
+
+
 ## [2.0.9](https://github.com/wessberg/compatfactory/compare/v2.0.8...v2.0.9) (2023-01-09)
 
 
