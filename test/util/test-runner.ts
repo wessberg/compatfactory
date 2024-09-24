@@ -75,13 +75,9 @@ export function test(title: string, tsVersionGlob: string | undefined, impl: Ext
 		const fullTitle = `${title} (TypeScript v${currentOptions.typescriptVersion})`;
 
 		if (Boolean(runOptions?.only)) {
-			testModule.only(fullTitle, async t => impl(t, currentOptions));
+			testModule(fullTitle, {only: true}, async t => impl(t, currentOptions));
 		} else {
 			testModule(fullTitle, async t => impl(t, currentOptions));
 		}
 	}
 }
-
-test.only = function (title: string, tsVersionGlob: string | undefined, impl: ExtendedImplementation): void {
-	return test(title, tsVersionGlob, impl, {only: true});
-};

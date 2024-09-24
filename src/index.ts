@@ -56,10 +56,16 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const badCreateImportEqualsDeclaration = badDecoratorsAsFirstArgument && factory.createImportEqualsDeclaration.length === 4;
 	const badCreateImportSpecifier = badDecoratorsAsFirstArgument && factory.createImportSpecifier.length === 2;
 	const badCreateExportSpecifier = badDecoratorsAsFirstArgument && factory.createExportSpecifier.length === 2;
-	const badCreateImportTypeNode = badDecoratorsAsFirstArgument && factory.createImportTypeNode.length < 5;
+
+	// Versions of createImportTypeNode that does not support Import Attributes
+	const badCreateImportTypeNode = factory.createImportAttribute == null;
+
 	const badCreateMappedTypeNodeA = badDecoratorsAsFirstArgument && factory.createMappedTypeNode.length === 4;
 	const badCreateMappedTypeNodeB = badDecoratorsAsFirstArgument && factory.createMappedTypeNode.length === 5;
 	const badCreateTypeParameterDeclaration = badDecoratorsAsFirstArgument && factory.createTypeParameterDeclaration.length === 3;
+
+	// Versions 4.8 and 4.9 of TypeScript for which createImportDeclaration does not support Import Attributes
+	const badCreateImportDeclaration = !badDecoratorsAsFirstArgument && factory.createImportDeclaration.length === 0;
 
 	const missingCreateSatisfiesExpression = factory.createSatisfiesExpression == null;
 	const missingCreateClassStaticBlockDeclaration = factory.createClassStaticBlockDeclaration == null;
@@ -69,6 +75,8 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const missingCreateAssertClause = factory.createAssertClause == null;
 	const missingCreateAssertEntry = factory.createAssertEntry == null;
 	const missingCreateImportTypeAssertionContainer = factory.createImportTypeAssertionContainer == null;
+	const missingCreateImportAttributes = factory.createImportAttributes == null;
+	const missingCreateImportAttribute = factory.createImportAttribute == null;
 	const missingCreateJSDocMemberName = factory.createJSDocMemberName == null;
 	const missingCreateJSDocLinkCode = factory.createJSDocLinkCode == null;
 	const missingCreateJSDocLinkPlain = factory.createJSDocLinkPlain == null;
@@ -76,12 +84,16 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const missingCreateJSDocThrowsTag = factory.createJSDocThrowsTag == null;
 	const missingCreateJSDocSatisfiesTag = factory.createJSDocSatisfiesTag == null;
 	const missingCreateJsxNamespacedName = factory.createJsxNamespacedName == null;
+	const missingReplaceModifiers = factory.replaceModifiers == null;
+	const missingReplaceDecoratorsAndModifiers = factory.replaceDecoratorsAndModifiers == null;
+	const missingReplacePropertyName = factory.replacePropertyName == null;
 
 	const needsModifications =
 		badCreateImportEqualsDeclaration ||
 		badCreateImportSpecifier ||
 		badCreateExportSpecifier ||
 		badCreateImportTypeNode ||
+		badCreateImportDeclaration ||
 		badCreateMappedTypeNodeA ||
 		badCreateMappedTypeNodeB ||
 		badCreateTypeParameterDeclaration ||
@@ -93,6 +105,8 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		missingCreateAssertClause ||
 		missingCreateAssertEntry ||
 		missingCreateImportTypeAssertionContainer ||
+		missingCreateImportAttributes ||
+		missingCreateImportAttribute ||
 		missingCreateJSDocMemberName ||
 		missingCreateJSDocLinkCode ||
 		missingCreateJSDocLinkPlain ||
@@ -100,6 +114,9 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		missingCreateJSDocThrowsTag ||
 		missingCreateJSDocSatisfiesTag ||
 		missingCreateJsxNamespacedName ||
+		missingReplaceModifiers ||
+		missingReplaceDecoratorsAndModifiers ||
+		missingReplacePropertyName ||
 		badDecoratorsAsFirstArgument;
 
 	if (needsModifications) {
@@ -271,22 +288,25 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						function createImportTypeNode(argument: TS.TypeNode, qualifier?: TS.EntityName, typeArguments?: readonly TS.TypeNode[], isTypeOf?: boolean): TS.ImportTypeNode;
 						function createImportTypeNode(
 							argument: TS.TypeNode,
-							assertions?: TS.ImportTypeAssertionContainer,
+							attributes?: TS.ImportAttributes,
 							qualifier?: TS.EntityName,
 							typeArguments?: readonly TS.TypeNode[],
 							isTypeOf?: boolean
 						): TS.ImportTypeNode;
 						function createImportTypeNode(
 							argument: TS.TypeNode,
-							assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
+							attributesOrQualifier?: TS.ImportAttributes | TS.EntityName,
 							qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
 							typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
 							isTypeOfOrUndefined?: boolean
 						): TS.ImportTypeNode {
+							// Never pass ImportAttributes to the factory function if it doesn't support it
+							const qualifier = attributesOrQualifier != null && attributesOrQualifier.kind === 300 /* ImportAttributes */ ? undefined : attributesOrQualifier!;
+
 							if (arguments.length < 5) {
 								return (factory as unknown as import("typescript-4-6-4").NodeFactory).createImportTypeNode(
 									argument as never,
-									assertionsOrQualifier as never,
+									qualifier as never,
 									qualifierOrTypeArguments as never,
 									typeArgumentsOrIsTypeOf as never
 								) as unknown as TS.ImportTypeNode;
@@ -310,7 +330,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						function updateImportTypeNode(
 							node: TS.ImportTypeNode,
 							argument: TS.TypeNode,
-							assertions?: TS.ImportTypeAssertionContainer,
+							attributes?: TS.ImportAttributes,
 							qualifier?: TS.EntityName,
 							typeArguments?: readonly TS.TypeNode[],
 							isTypeOf?: boolean
@@ -318,16 +338,19 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						function updateImportTypeNode(
 							node: TS.ImportTypeNode,
 							argument: TS.TypeNode,
-							assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
+							attributesOrQualifier?: TS.ImportAttributes | TS.EntityName,
 							qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
 							typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
 							isTypeOfOrUndefined?: boolean
 						): TS.ImportTypeNode {
+							// Never pass ImportAttributes to the factory function if it doesn't support it
+							const qualifierOrUndefined = attributesOrQualifier != null && attributesOrQualifier.kind === 300 /* ImportAttributes */ ? undefined : attributesOrQualifier!;
+
 							if (arguments.length < 6) {
 								return (factory as unknown as import("typescript-4-6-4").NodeFactory).updateImportTypeNode(
 									node as never,
 									argument as never,
-									assertionsOrQualifier as never,
+									qualifierOrUndefined as never,
 									qualifierOrTypeArguments as never,
 									typeArgumentsOrIsTypeOf as never
 								) as unknown as TS.ImportTypeNode;
@@ -343,6 +366,40 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						}
 
 						return {createImportTypeNode, updateImportTypeNode};
+					})()
+				: {}),
+			...(badCreateImportDeclaration
+				? (() => {
+						function createImportDeclaration(
+							modifiers: readonly TS.ModifierLike[] | undefined,
+							importClause: TS.ImportClause | undefined,
+							moduleSpecifier: TS.Expression,
+							_?: TS.ImportAttributes
+						): TS.ImportDeclaration {
+							return (factory as unknown as import("typescript-4-8-2").NodeFactory).createImportDeclaration(
+								modifiers as never,
+								importClause as never,
+								moduleSpecifier as never
+							) as unknown as TS.ImportDeclaration;
+						}
+
+						function updateImportDeclaration(
+							node: TS.ImportDeclaration,
+							modifiers: readonly TS.Modifier[] | undefined,
+							importClause: TS.ImportClause | undefined,
+							moduleSpecifier: TS.Expression,
+							_?: TS.ImportAttributes
+						): TS.ImportDeclaration {
+							return (factory as unknown as import("typescript-4-8-2").NodeFactory).updateImportDeclaration(
+								node as never,
+								modifiers as never,
+								importClause as never,
+								moduleSpecifier as never,
+								undefined
+							) as unknown as TS.ImportDeclaration;
+						}
+
+						return {createImportDeclaration, updateImportDeclaration};
 					})()
 				: {}),
 			...(badCreateMappedTypeNodeA
@@ -648,6 +705,98 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						return {
 							createImportTypeAssertionContainer,
 							updateImportTypeAssertionContainer
+						};
+					})()
+				: {}),
+
+			...(missingCreateImportAttributes
+				? (() => {
+						function createImportAttributes(elements: TS.NodeArray<TS.ImportAttribute>, multiLine?: boolean): TS.ImportAttributes {
+							const node = factory.createEmptyStatement() as unknown as Mutable<TS.ImportAttributes>;
+							node.elements = elements;
+							node.multiLine = multiLine;
+							return node;
+						}
+
+						function updateImportAttributes(node: TS.ImportAttributes, elements: TS.NodeArray<TS.ImportAttribute>, multiLine?: boolean): TS.ImportAttributes {
+							return node.elements !== elements || node.multiLine !== multiLine ? update(createImportAttributes(elements, multiLine), node) : node;
+						}
+
+						return {
+							createImportAttributes,
+							updateImportAttributes
+						};
+					})()
+				: {}),
+
+			...(missingCreateImportAttribute
+				? (() => {
+						function createImportAttribute(name: TS.ImportAttributeName, value: TS.Expression): TS.ImportAttribute {
+							const node = factory.createEmptyStatement() as unknown as Mutable<TS.ImportAttribute>;
+							node.name = name;
+							node.value = value;
+							return node;
+						}
+
+						function updateImportAttribute(node: TS.ImportAttribute, name: TS.ImportAttributeName, value: TS.Expression): TS.ImportAttribute {
+							return node.name !== name || node.value !== value ? update(createImportAttribute(name, value), node) : node;
+						}
+
+						return {
+							createImportAttribute,
+							updateImportAttribute
+						};
+					})()
+				: {}),
+
+			...(missingReplaceModifiers
+				? (() => {
+						function replaceModifiers<T extends TS.HasModifiers>(n: T, modifiers: readonly TS.Modifier[] | TS.ModifierFlags | undefined): T {
+							let modifierArray;
+							if (typeof modifiers === "number") {
+								modifierArray = factory.createModifiersFromModifierFlags(modifiers);
+							} else {
+								modifierArray = modifiers;
+							}
+
+							const clone = "cloneNode" in factory ? (factory.cloneNode as (n: T) => Mutable<TS.HasModifiers>)(n) : ({...n} as Mutable<TS.HasModifiers>);
+							clone.modifiers = factory.createNodeArray(modifierArray);
+							return clone as T;
+						}
+
+						return {
+							replaceModifiers
+						};
+					})()
+				: {}),
+
+			...(missingReplaceDecoratorsAndModifiers
+				? (() => {
+						function replaceDecoratorsAndModifiers<T extends TS.HasModifiers & TS.HasDecorators>(n: T, modifiers: readonly TS.ModifierLike[] | undefined): T {
+							const clone =
+								"cloneNode" in factory ? (factory.cloneNode as (n: T) => Mutable<TS.HasModifiers & TS.HasDecorators>)(n) : ({...n} as Mutable<TS.HasModifiers & TS.HasDecorators>);
+							clone.modifiers = factory.createNodeArray(modifiers);
+							return clone as T;
+						}
+
+						return {
+							replaceDecoratorsAndModifiers
+						};
+					})()
+				: {}),
+
+			...(missingReplacePropertyName
+				? (() => {
+						function replacePropertyName<
+							T extends TS.AccessorDeclaration | TS.MethodDeclaration | TS.MethodSignature | TS.PropertyDeclaration | TS.PropertySignature | TS.PropertyAssignment
+						>(n: T, name: T["name"]): T {
+							const clone = "cloneNode" in factory ? (factory.cloneNode as (n: T) => Mutable<T>)(n) : ({...n} as Mutable<T>);
+							clone.name = name;
+							return clone as T;
+						}
+
+						return {
+							replacePropertyName
 						};
 					})()
 				: {}),
@@ -2199,35 +2348,35 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							modifiers: readonly TS.Modifier[] | undefined,
 							importClause: TS.ImportClause | undefined,
 							moduleSpecifier: TS.Expression,
-							assertClause?: TS.AssertClause
+							attributes?: TS.ImportAttributes
 						): TS.ImportDeclaration;
 						function createImportDeclaration(
 							decorators: readonly TS.Decorator[] | undefined,
 							modifiers: readonly TS.Modifier[] | undefined,
 							importClause: TS.ImportClause | undefined,
 							moduleSpecifier: TS.Expression,
-							assertClause?: TS.AssertClause
+							attributes?: TS.ImportAttributes
 						): TS.ImportDeclaration;
 						function createImportDeclaration(
 							decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 							modifiersOrImportClause: readonly TS.Modifier[] | TS.ImportClause | undefined,
 							importClauseOrModuleSpecifier: TS.ImportClause | TS.Expression | undefined,
-							moduleSpecifierOrAssertClause: TS.Expression | TS.AssertClause | undefined,
-							assertClauseOrUndefined?: TS.AssertClause
+							moduleSpecifierOrAttributes: TS.Expression | TS.ImportAttributes | undefined,
+							attributesOrUndefined?: TS.ImportAttributes
 						): TS.ImportDeclaration {
 							const isShort = modifiersOrImportClause != null && !Array.isArray(modifiersOrImportClause);
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
 							const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
-							const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression;
-							const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
+							const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAttributes) as TS.Expression;
+							const attributes = (isShort ? moduleSpecifierOrAttributes : attributesOrUndefined) as TS.ImportAttributes | undefined;
 
 							return (factory as unknown as import("typescript-4-7-2").NodeFactory).createImportDeclaration(
 								decorators as never,
 								modifiers as never,
 								importClause as never,
 								moduleSpecifier as never,
-								assertClause as never
+								attributes as never
 							) as unknown as TS.ImportDeclaration;
 						}
 
@@ -2236,7 +2385,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							modifiers: readonly TS.Modifier[] | undefined,
 							importClause: TS.ImportClause | undefined,
 							moduleSpecifier: TS.Expression,
-							assertClause?: TS.AssertClause
+							attributes?: TS.ImportAttributes
 						): TS.ImportDeclaration;
 						function updateImportDeclaration(
 							node: TS.ImportDeclaration,
@@ -2244,22 +2393,22 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							modifiers: readonly TS.Modifier[] | undefined,
 							importClause: TS.ImportClause | undefined,
 							moduleSpecifier: TS.Expression,
-							assertClause?: TS.AssertClause
+							attributes?: TS.ImportAttributes
 						): TS.ImportDeclaration;
 						function updateImportDeclaration(
 							node: TS.ImportDeclaration,
 							decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 							modifiersOrImportClause: readonly TS.Modifier[] | TS.ImportClause | undefined,
 							importClauseOrModuleSpecifier: TS.ImportClause | TS.Expression | undefined,
-							moduleSpecifierOrAssertClause: TS.Expression | TS.AssertClause | undefined,
-							assertClauseOrUndefined?: TS.AssertClause
+							moduleSpecifierOrAttributes: TS.Expression | TS.ImportAttributes | undefined,
+							attributesOrUndefined?: TS.ImportAttributes
 						): TS.ImportDeclaration {
 							const isShort = importClauseOrModuleSpecifier != null && importClauseOrModuleSpecifier.kind !== 267; /* ImportClause */
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
 							const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
-							const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression;
-							const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
+							const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAttributes) as TS.Expression;
+							const attributes = (isShort ? moduleSpecifierOrAttributes : attributesOrUndefined) as TS.ImportAttributes | undefined;
 
 							return (factory as unknown as import("typescript-4-7-2").NodeFactory).updateImportDeclaration(
 								node as never,
@@ -2267,7 +2416,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								modifiers as never,
 								importClause as never,
 								moduleSpecifier as never,
-								assertClause as never
+								attributes as never
 							) as unknown as TS.ImportDeclaration;
 						}
 
@@ -2331,7 +2480,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							isTypeOnly: boolean,
 							exportClause: TS.NamedExportBindings | undefined,
 							moduleSpecifier?: TS.Expression,
-							assertClause?: TS.AssertClause
+							attributes?: TS.ImportAttributes
 						): TS.ExportDeclaration;
 						function createExportDeclaration(
 							decorators: readonly TS.Decorator[] | undefined,
@@ -2339,15 +2488,15 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							isTypeOnly: boolean,
 							exportClause: TS.NamedExportBindings | undefined,
 							moduleSpecifier?: TS.Expression,
-							assertClause?: TS.AssertClause
+							attributes?: TS.ImportAttributes
 						): TS.ExportDeclaration;
 						function createExportDeclaration(
 							decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 							modifiersOrIsTypeOnly: readonly TS.Modifier[] | boolean | undefined,
 							isTypeOnlyOrExportClause: boolean | TS.NamedExportBindings | undefined,
 							exportClauseOrModuleSpecifier: TS.NamedExportBindings | TS.Expression | undefined,
-							moduleSpecifierOrAssertClause: TS.Expression | TS.AssertClause | undefined,
-							assertClauseOrUndefined?: TS.AssertClause
+							moduleSpecifierOrImportAttributes: TS.Expression | TS.ImportAttributes | undefined,
+							attributesOrUndefined?: TS.ImportAttributes
 						): TS.ExportDeclaration {
 							const isLong = typeof modifiersOrIsTypeOnly !== "boolean" && (arguments.length >= 6 || Array.isArray(modifiersOrIsTypeOnly));
 							const isShort = !isLong;
@@ -2355,8 +2504,8 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrIsTypeOnly as readonly TS.Modifier[]);
 							const isTypeOnly = (isShort ? modifiersOrIsTypeOnly : isTypeOnlyOrExportClause) as boolean;
 							const exportClause = (isShort ? isTypeOnlyOrExportClause : exportClauseOrModuleSpecifier) as TS.NamedExportBindings | undefined;
-							const moduleSpecifier = (isShort ? exportClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression | undefined;
-							const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
+							const moduleSpecifier = (isShort ? exportClauseOrModuleSpecifier : moduleSpecifierOrImportAttributes) as TS.Expression | undefined;
+							const attributes = (isShort ? moduleSpecifierOrImportAttributes : attributesOrUndefined) as TS.ImportAttributes | undefined;
 
 							return (factory as unknown as import("typescript-4-7-2").NodeFactory).createExportDeclaration(
 								decorators as never,
@@ -2364,7 +2513,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								isTypeOnly as never,
 								exportClause as never,
 								moduleSpecifier as never,
-								assertClause as never
+								attributes as never
 							) as unknown as TS.ExportDeclaration;
 						}
 
@@ -2374,7 +2523,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							isTypeOnly: boolean,
 							exportClause: TS.NamedExportBindings | undefined,
 							moduleSpecifier?: TS.Expression,
-							assertClause?: TS.AssertClause
+							attributes?: TS.ImportAttributes
 						): TS.ExportDeclaration;
 						function updateExportDeclaration(
 							node: TS.ExportDeclaration,
@@ -2383,7 +2532,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							isTypeOnly: boolean,
 							exportClause: TS.NamedExportBindings | undefined,
 							moduleSpecifier?: TS.Expression,
-							assertClause?: TS.AssertClause
+							attributes?: TS.ImportAttributes
 						): TS.ExportDeclaration;
 						function updateExportDeclaration(
 							node: TS.ExportDeclaration,
@@ -2391,8 +2540,8 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							modifiersOrIsTypeOnly: readonly TS.Modifier[] | boolean | undefined,
 							isTypeOnlyOrExportClause: boolean | TS.NamedExportBindings | undefined,
 							exportClauseOrModuleSpecifier: TS.NamedExportBindings | TS.Expression | undefined,
-							moduleSpecifierOrAssertClause: TS.Expression | TS.AssertClause | undefined,
-							assertClauseOrUndefined?: TS.AssertClause
+							moduleSpecifierOrAttributes: TS.Expression | TS.ImportAttributes | undefined,
+							attributesOrUndefined?: TS.ImportAttributes
 						): TS.ExportDeclaration {
 							const isLong = typeof modifiersOrIsTypeOnly !== "boolean" && (arguments.length >= 7 || Array.isArray(modifiersOrIsTypeOnly));
 							const isShort = !isLong;
@@ -2400,8 +2549,8 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrIsTypeOnly as readonly TS.Modifier[]);
 							const isTypeOnly = (isShort ? modifiersOrIsTypeOnly : isTypeOnlyOrExportClause) as boolean;
 							const exportClause = (isShort ? isTypeOnlyOrExportClause : exportClauseOrModuleSpecifier) as TS.NamedExportBindings | undefined;
-							const moduleSpecifier = (isShort ? exportClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression | undefined;
-							const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
+							const moduleSpecifier = (isShort ? exportClauseOrModuleSpecifier : moduleSpecifierOrAttributes) as TS.Expression | undefined;
+							const attributes = (isShort ? moduleSpecifierOrAttributes : attributesOrUndefined) as TS.ImportAttributes | undefined;
 
 							return (factory as unknown as import("typescript-4-7-2").NodeFactory).updateExportDeclaration(
 								node as never,
@@ -2410,7 +2559,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								isTypeOnly as never,
 								exportClause as never,
 								moduleSpecifier as never,
-								assertClause as never
+								attributes as never
 							) as unknown as TS.ExportDeclaration;
 						}
 
@@ -3114,6 +3263,20 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return node;
 	}
 
+	function createImportAttributes(elements: TS.NodeArray<TS.ImportAttribute>, multiLine?: boolean): TS.ImportAttributes {
+		const node = typescript4Cast.createEmptyStatement() as unknown as Mutable<TS.ImportAttributes>;
+		node.elements = elements;
+		node.multiLine = multiLine;
+		return node;
+	}
+
+	function createImportAttribute(name: TS.ImportAttributeName, value: TS.Expression): TS.ImportAttribute {
+		const node = typescript4Cast.createEmptyStatement() as unknown as Mutable<TS.ImportAttribute>;
+		node.name = name;
+		node.value = value;
+		return node;
+	}
+
 	function createJsxNamespacedName(namespace: TS.Identifier, name: TS.Identifier): TS.JsxNamespacedName {
 		const node = typescript4Cast.createEmptyStatement() as unknown as Mutable<TS.JsxNamespacedName>;
 		node.namespace = namespace;
@@ -3124,14 +3287,14 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	function createImportTypeNode(argument: TS.TypeNode, qualifier?: TS.EntityName, typeArguments?: readonly TS.TypeNode[], isTypeOf?: boolean): TS.ImportTypeNode;
 	function createImportTypeNode(
 		argument: TS.TypeNode,
-		assertions?: TS.ImportTypeAssertionContainer,
+		attributes?: TS.ImportAttributes,
 		qualifier?: TS.EntityName,
 		typeArguments?: readonly TS.TypeNode[],
 		isTypeOf?: boolean
 	): TS.ImportTypeNode;
 	function createImportTypeNode(
 		argument: TS.TypeNode,
-		assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
+		attributesOrQualifier?: TS.ImportAttributes | TS.EntityName,
 		qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
 		typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
 		isTypeOfOrUndefined?: boolean
@@ -3140,7 +3303,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			if (arguments.length < 5) {
 				return typescript4Cast.createImportTypeNode(
 					argument as never,
-					assertionsOrQualifier as never,
+					attributesOrQualifier as never,
 					qualifierOrTypeArguments as never,
 					typeArgumentsOrIsTypeOf as never
 				) as never;
@@ -3148,10 +3311,10 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				return typescript4Cast.createImportTypeNode(argument as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never) as never;
 			}
 		} else {
-			const assertion = assertionsOrQualifier && "assertClause" in assertionsOrQualifier ? assertionsOrQualifier : undefined;
+			const attributes = attributesOrQualifier && "elements" in attributesOrQualifier ? attributesOrQualifier : undefined;
 			const qualifier = (
-				assertionsOrQualifier && typescript.isEntityName(assertionsOrQualifier)
-					? assertionsOrQualifier
+				attributesOrQualifier && typescript.isEntityName(attributesOrQualifier)
+					? attributesOrQualifier
 					: qualifierOrTypeArguments && !Array.isArray(qualifierOrTypeArguments)
 						? qualifierOrTypeArguments
 						: undefined
@@ -3162,7 +3325,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			isTypeOfOrUndefined = typeof typeArgumentsOrIsTypeOf === "boolean" ? typeArgumentsOrIsTypeOf : typeof isTypeOfOrUndefined === "boolean" ? isTypeOfOrUndefined : false;
 			const node = typescript4Cast.createNode(200) as unknown as Mutable<TS.ImportTypeNode>;
 			node.argument = argument;
-			node.assertions = assertion;
+			node.attributes = attributes;
 			node.qualifier = qualifier;
 			node.typeArguments = typeArguments == null ? undefined : (typescript4Cast.createNodeArray(typeArguments as never) as never);
 			node.isTypeOf = isTypeOfOrUndefined;
@@ -3181,7 +3344,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	function updateImportTypeNode(
 		node: TS.ImportTypeNode,
 		argument: TS.TypeNode,
-		assertions?: TS.ImportTypeAssertionContainer,
+		attributes?: TS.ImportAttributes,
 		qualifier?: TS.EntityName,
 		typeArguments?: readonly TS.TypeNode[],
 		isTypeOf?: boolean
@@ -3189,7 +3352,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	function updateImportTypeNode(
 		node: TS.ImportTypeNode,
 		argument: TS.TypeNode,
-		assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
+		attributesOrQualifier?: TS.ImportAttributes | TS.EntityName,
 		qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
 		typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
 		isTypeOfOrUndefined?: boolean
@@ -3199,7 +3362,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				return typescript4Cast.updateImportTypeNode(
 					node as never,
 					argument as never,
-					assertionsOrQualifier as never,
+					attributesOrQualifier as never,
 					qualifierOrTypeArguments as never,
 					typeArgumentsOrIsTypeOf as never
 				) as never;
@@ -3213,22 +3376,22 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				) as never;
 			}
 		} else {
-			const assertion = assertionsOrQualifier && "assertClause" in assertionsOrQualifier /* SyntaxKind.ImportTypeAssertionContainer */ ? assertionsOrQualifier : undefined;
+			const attributes = attributesOrQualifier && "elements" in attributesOrQualifier /* SyntaxKind.ImportTypeAssertionContainer */ ? attributesOrQualifier : undefined;
 			const qualifier =
-				assertionsOrQualifier && typescript.isEntityName(assertionsOrQualifier)
-					? assertionsOrQualifier
+				attributesOrQualifier && typescript.isEntityName(attributesOrQualifier)
+					? attributesOrQualifier
 					: qualifierOrTypeArguments && !Array.isArray(qualifierOrTypeArguments)
 						? qualifierOrTypeArguments
 						: undefined;
 			const typeArguments = Array.isArray(qualifierOrTypeArguments) ? qualifierOrTypeArguments : Array.isArray(typeArgumentsOrIsTypeOf) ? typeArgumentsOrIsTypeOf : undefined;
 			isTypeOfOrUndefined = typeof typeArgumentsOrIsTypeOf === "boolean" ? typeArgumentsOrIsTypeOf : typeof isTypeOfOrUndefined === "boolean" ? isTypeOfOrUndefined : node.isTypeOf;
 			return node.argument !== argument ||
-				node.assertions !== assertion ||
+				node.attributes !== attributes ||
 				node.qualifier !== qualifier ||
 				node.typeArguments !== typeArguments ||
 				node.isTypeOf !== isTypeOfOrUndefined
 				? typescript.setTextRange(
-						createImportTypeNode(argument, assertionsOrQualifier as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never),
+						createImportTypeNode(argument, attributesOrQualifier as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never),
 						node
 					)
 				: node;
@@ -4004,35 +4167,35 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		modifiers: readonly TS.Modifier[] | undefined,
 		importClause: TS.ImportClause | undefined,
 		moduleSpecifier: TS.Expression,
-		assertClause?: TS.AssertClause
+		attributes?: TS.ImportAttributes
 	): TS.ImportDeclaration;
 	function createImportDeclaration(
 		decorators: readonly TS.Decorator[] | undefined,
 		modifiers: readonly TS.Modifier[] | undefined,
 		importClause: TS.ImportClause | undefined,
 		moduleSpecifier: TS.Expression,
-		assertClause?: TS.AssertClause
+		attributes?: TS.ImportAttributes
 	): TS.ImportDeclaration;
 	function createImportDeclaration(
 		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 		modifiersOrImportClause: readonly TS.Modifier[] | TS.ImportClause | undefined,
 		importClauseOrModuleSpecifier: TS.ImportClause | TS.Expression | undefined,
-		moduleSpecifierOrAssertClause: TS.Expression | TS.AssertClause | undefined,
-		assertClauseOrUndefined?: TS.AssertClause
+		moduleSpecifierOrAttributes: TS.Expression | TS.ImportAttributes | undefined,
+		attributesOrUndefined?: TS.ImportAttributes
 	): TS.ImportDeclaration {
 		const isShort = modifiersOrImportClause != null && !Array.isArray(modifiersOrImportClause);
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
 		const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
-		const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression;
-		const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
+		const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAttributes) as TS.Expression;
+		const attributes = (isShort ? moduleSpecifierOrAttributes : attributesOrUndefined) as TS.ImportAttributes | undefined;
 
 		return typescript4Cast.createImportDeclaration(
 			decorators as never,
 			modifiers as never,
 			importClause as never,
 			moduleSpecifier as never,
-			assertClause as never
+			attributes as never
 		) as unknown as TS.ImportDeclaration;
 	}
 
@@ -4041,7 +4204,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		modifiers: readonly TS.Modifier[] | undefined,
 		importClause: TS.ImportClause | undefined,
 		moduleSpecifier: TS.Expression,
-		assertClause?: TS.AssertClause
+		attributes?: TS.ImportAttributes
 	): TS.ImportDeclaration;
 	function updateImportDeclaration(
 		node: TS.ImportDeclaration,
@@ -4049,22 +4212,22 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		modifiers: readonly TS.Modifier[] | undefined,
 		importClause: TS.ImportClause | undefined,
 		moduleSpecifier: TS.Expression,
-		assertClause?: TS.AssertClause
+		attributes?: TS.ImportAttributes
 	): TS.ImportDeclaration;
 	function updateImportDeclaration(
 		node: TS.ImportDeclaration,
 		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 		modifiersOrImportClause: readonly TS.Modifier[] | TS.ImportClause | undefined,
 		importClauseOrModuleSpecifier: TS.ImportClause | TS.Expression | undefined,
-		moduleSpecifierOrAssertClause: TS.Expression | TS.AssertClause | undefined,
-		assertClauseOrUndefined?: TS.AssertClause
+		moduleSpecifierOrAttributes: TS.Expression | TS.ImportAttributes | undefined,
+		attributesOrUndefined?: TS.ImportAttributes
 	): TS.ImportDeclaration {
 		const isShort = importClauseOrModuleSpecifier != null && importClauseOrModuleSpecifier.kind !== 267; /* ImportClause */
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
 		const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
-		const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAssertClause) as TS.Expression;
-		const assertClause = (isShort ? moduleSpecifierOrAssertClause : assertClauseOrUndefined) as TS.AssertClause | undefined;
+		const moduleSpecifier = (isShort ? importClauseOrModuleSpecifier : moduleSpecifierOrAttributes) as TS.Expression;
+		const attributes = (isShort ? moduleSpecifierOrAttributes : attributesOrUndefined) as TS.ImportAttributes | undefined;
 
 		return typescript4Cast.updateImportDeclaration(
 			node as never,
@@ -4072,7 +4235,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			modifiers as never,
 			importClause as never,
 			moduleSpecifier as never,
-			assertClause as never
+			attributes as never
 		) as unknown as TS.ImportDeclaration;
 	}
 
@@ -4718,6 +4881,8 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		createAssertClause,
 		createAssertEntry,
 		createImportTypeAssertionContainer,
+		createImportAttributes,
+		createImportAttribute,
 		createJsxNamespacedName,
 		createIndexSignature,
 		updateIndexSignature,
@@ -5413,6 +5578,12 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		updateImportTypeAssertionContainer(node: TS.ImportTypeAssertionContainer, clause: TS.AssertClause, multiLine?: boolean): TS.ImportTypeAssertionContainer {
 			return node.assertClause !== clause || node.multiLine !== multiLine ? typescript.setTextRange(createImportTypeAssertionContainer(clause, multiLine), node) : node;
 		},
+		updateImportAttributes(node: TS.ImportAttributes, elements: TS.NodeArray<TS.ImportAttribute>, multiLine?: boolean): TS.ImportAttributes {
+			return node.elements !== elements || node.multiLine !== multiLine ? typescript.setTextRange(createImportAttributes(elements, multiLine), node) : node;
+		},
+		updateImportAttribute(node: TS.ImportAttribute, name: TS.ImportAttributeName, value: TS.Expression): TS.ImportAttribute {
+			return node.name !== name || node.value !== value ? typescript.setTextRange(createImportAttribute(name, value), node) : node;
+		},
 		updateJsxNamespacedName(node: TS.JsxNamespacedName, namespace: TS.Identifier, name: TS.Identifier): TS.JsxNamespacedName {
 			return node.namespace !== namespace || node.name !== name ? typescript.setTextRange(createJsxNamespacedName(namespace, name), node) : node;
 		},
@@ -5594,6 +5765,37 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		 */
 		createNumericLiteral(value: string | number, numericLiteralFlags?: TS.TokenFlags): TS.NumericLiteral {
 			return typescript4Cast.createNumericLiteral(String(value), numericLiteralFlags) as never;
+		},
+
+		replaceModifiers<T extends TS.HasModifiers>(n: T, modifiers: readonly TS.Modifier[] | TS.ModifierFlags | undefined): T {
+			let modifierArray;
+			if (typeof modifiers === "number") {
+				modifierArray = typescript4Cast.createModifiersFromModifierFlags(modifiers as never);
+			} else {
+				modifierArray = modifiers;
+			}
+
+			const clone = "cloneNode" in typescript4Cast ? (typescript4Cast.cloneNode as (n: T) => Mutable<TS.HasModifiers>)(n) : ({...n} as Mutable<TS.HasModifiers>);
+			clone.modifiers = typescript4Cast.createNodeArray(modifierArray as never) as never;
+			return clone as T;
+		},
+
+		replaceDecoratorsAndModifiers<T extends TS.HasModifiers & TS.HasDecorators>(n: T, modifiers: readonly TS.ModifierLike[] | undefined): T {
+			const clone =
+				"cloneNode" in typescript4Cast
+					? (typescript4Cast.cloneNode as (n: T) => Mutable<TS.HasModifiers & TS.HasDecorators>)(n)
+					: ({...n} as Mutable<TS.HasModifiers & TS.HasDecorators>);
+			clone.modifiers = typescript4Cast.createNodeArray(modifiers as never) as never;
+			return clone as T;
+		},
+
+		replacePropertyName<T extends TS.AccessorDeclaration | TS.MethodDeclaration | TS.MethodSignature | TS.PropertyDeclaration | TS.PropertySignature | TS.PropertyAssignment>(
+			n: T,
+			name: T["name"]
+		): T {
+			const clone = "cloneNode" in typescript4Cast ? (typescript4Cast.cloneNode as (n: T) => Mutable<T>)(n) : ({...n} as Mutable<T>);
+			clone.name = name;
+			return clone as T;
 		}
 	};
 }
