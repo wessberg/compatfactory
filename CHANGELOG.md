@@ -1,3 +1,9 @@
+## [4.0.1](https://github.com/wessberg/compatfactory/compare/v4.0.0...v4.0.1) (2024-09-24)
+
+### Bug Fixes
+
+- handle export declarations on TS v4.8 and 4.9 ([b05744c](https://github.com/wessberg/compatfactory/commit/b05744ce495fee96a99267de8ccff2bc1f610bf4))
+
 # [4.0.0](https://github.com/wessberg/compatfactory/compare/v3.0.0...v4.0.0) (2024-09-24)
 
 ### Features
