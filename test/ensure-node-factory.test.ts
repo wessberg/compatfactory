@@ -4,7 +4,7 @@ import {ensureNodeFactory} from "../src/index.js";
 import {test} from "./util/test-runner.js";
 import assert from "node:assert";
 
-test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", ">=5.3", (_, {typescript}) => {
+test("Wrapping a NodeFactory that require no modifications in a call to `ensureNodeFactory` is a noop. #1", ">=5.5", (_, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 	assert(factory === typescript.factory);
 });

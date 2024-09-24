@@ -83,6 +83,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 	const missingCreateJSDocOverloadTag = factory.createJSDocOverloadTag == null;
 	const missingCreateJSDocThrowsTag = factory.createJSDocThrowsTag == null;
 	const missingCreateJSDocSatisfiesTag = factory.createJSDocSatisfiesTag == null;
+	const missingCreateJSDocImportTag = factory.createJSDocImportTag == null;
 	const missingCreateJsxNamespacedName = factory.createJsxNamespacedName == null;
 	const missingReplaceModifiers = factory.replaceModifiers == null;
 	const missingReplaceDecoratorsAndModifiers = factory.replaceDecoratorsAndModifiers == null;
@@ -113,6 +114,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		missingCreateJSDocOverloadTag ||
 		missingCreateJSDocThrowsTag ||
 		missingCreateJSDocSatisfiesTag ||
+		missingCreateJSDocImportTag ||
 		missingCreateJsxNamespacedName ||
 		missingReplaceModifiers ||
 		missingReplaceDecoratorsAndModifiers ||
@@ -984,6 +986,53 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						return {
 							createJSDocSatisfiesTag,
 							updateJSDocSatisfiesTag
+						};
+					})()
+				: {}),
+			...(missingCreateJSDocImportTag
+				? (() => {
+						function createJSDocImportTag(
+							tagName: TS.Identifier | undefined,
+							importClause: TS.ImportClause | undefined,
+							moduleSpecifier: TS.Expression,
+							attributes?: TS.ImportAttributes,
+							comment?: string | TS.NodeArray<TS.JSDocComment>
+						): TS.JSDocImportTag {
+							const base = factory.createJSDocComment(undefined, undefined) as unknown as Mutable<TS.JSDoc>;
+							delete base.comment;
+							delete base.tags;
+
+							const node = base as unknown as Mutable<TS.JSDocImportTag>;
+
+							if (tagName != null) node.tagName = tagName;
+							node.comment = comment;
+							node.importClause = importClause;
+							node.moduleSpecifier = moduleSpecifier;
+							node.attributes = attributes;
+
+							return node;
+						}
+
+						function updateJSDocImportTag(
+							node: TS.JSDocImportTag,
+							tagName: TS.Identifier | undefined,
+							importClause: TS.ImportClause | undefined,
+							moduleSpecifier: TS.Expression,
+							attributes: TS.ImportAttributes | undefined,
+							comment: string | TS.NodeArray<TS.JSDocComment> | undefined
+						): TS.JSDocImportTag {
+							return tagName === node.tagName &&
+								importClause === node.importClause &&
+								comment === node.comment &&
+								moduleSpecifier === node.moduleSpecifier &&
+								attributes === node.attributes
+								? node
+								: update(createJSDocImportTag(tagName, importClause, moduleSpecifier, attributes, comment), node);
+						}
+
+						return {
+							createJSDocImportTag,
+							updateJSDocImportTag
 						};
 					})()
 				: {}),
@@ -3191,6 +3240,24 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return node;
 	}
 
+	function createJSDocImportTag(
+		tagName: TS.Identifier | undefined,
+		importClause: TS.ImportClause | undefined,
+		moduleSpecifier: TS.Expression,
+		attributes?: TS.ImportAttributes,
+		comment?: string | TS.NodeArray<TS.JSDocComment>
+	): TS.JSDocImportTag {
+		const node = typescript4Cast.createNode((typescript.SyntaxKind.JSDocImportTag ?? typescript.SyntaxKind.JSDocComment) as never) as unknown as Mutable<TS.JSDocImportTag>;
+
+		if (tagName != null) node.tagName = tagName;
+		node.comment = comment;
+		node.importClause = importClause;
+		node.moduleSpecifier = moduleSpecifier;
+		node.attributes = attributes;
+
+		return node;
+	}
+
 	function createClassStaticBlockDeclaration(body: TS.Block): TS.ClassStaticBlockDeclaration;
 	function createClassStaticBlockDeclaration(
 		decorators: readonly TS.Decorator[] | undefined,
@@ -4875,6 +4942,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		createJSDocOverloadTag,
 		createJSDocThrowsTag,
 		createJSDocSatisfiesTag,
+		createJSDocImportTag,
 		createTemplateLiteralType,
 		createTemplateLiteralTypeSpan,
 		createClassStaticBlockDeclaration,
@@ -5504,6 +5572,24 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				? node
 				: typescript.setTextRange(createJSDocSatisfiesTag(tagName, typeExpression, comment), node);
 		},
+
+		updateJSDocImportTag(
+			node: TS.JSDocImportTag,
+			tagName: TS.Identifier | undefined,
+			importClause: TS.ImportClause | undefined,
+			moduleSpecifier: TS.Expression,
+			attributes: TS.ImportAttributes | undefined,
+			comment: string | TS.NodeArray<TS.JSDocComment> | undefined
+		): TS.JSDocImportTag {
+			return tagName === node.tagName &&
+				importClause === node.importClause &&
+				comment === node.comment &&
+				moduleSpecifier === node.moduleSpecifier &&
+				attributes === node.attributes
+				? node
+				: typescript.setTextRange(createJSDocImportTag(tagName, importClause, moduleSpecifier, attributes, comment), node);
+		},
+
 		updateLabeledStatement(node: TS.LabeledStatement, label: TS.Identifier, statement: TS.Statement): TS.LabeledStatement {
 			return typescript4Cast.updateLabel(node as never, label as never, statement as never) as never;
 		},
