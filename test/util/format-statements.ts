@@ -9,6 +9,7 @@ export function formatStatements(typescript: typeof TS, statements: MaybeArray<T
 		newLine: typescript.NewLineKind.LineFeed
 	});
 
+	// eslint-disable-next-line @typescript-eslint/unbound-method
 	const createToken = "factory" in typescript ? typescript.factory.createToken : (typescript as {createToken: never}).createToken;
 
 	const sourceFile = factory.createSourceFile(Array.isArray(statements) ? statements : [statements], createToken(typescript.SyntaxKind.EndOfFileToken), 0);
