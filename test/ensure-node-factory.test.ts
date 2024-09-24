@@ -336,6 +336,24 @@ test("It is possible to pass 'with' assertions when creating ImportDeclarations,
 	);
 });
 
+test("It is possible to pass 'with' assertions when creating ExportDeclarations, even on older TypeScript versions. #1", "<5.3", (_, {typescript}) => {
+	const factory = ensureNodeFactory(typescript);
+
+	assert.deepEqual(
+		formatStatements(
+			typescript,
+			factory.createExportDeclaration(
+				undefined,
+				false,
+				factory.createNamedExports([factory.createExportSpecifier(false, undefined, factory.createIdentifier("foo"))]),
+				factory.createStringLiteral("./foo"),
+				factory.createImportAttributes(factory.createNodeArray([factory.createImportAttribute(factory.createIdentifier("type"), factory.createStringLiteral("json"))]))
+			)
+		),
+		formatCode(`export {foo} from "./foo";`)
+	);
+});
+
 test("It is possible to use 'using' modifiers, even for older TypeScript versions. #1", "<5.2", (_, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 

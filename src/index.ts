@@ -66,6 +66,8 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 
 	// Versions 4.8 and 4.9 of TypeScript for which createImportDeclaration does not support Import Attributes
 	const badCreateImportDeclaration = !badDecoratorsAsFirstArgument && factory.createImportDeclaration.length === 0;
+	// Versions 4.8 and 4.9 of TypeScript for which createExportDeclaration does not support Import Attributes
+	const badCreateExportDeclaration = !badDecoratorsAsFirstArgument && factory.createExportDeclaration.length === 0;
 
 	const missingCreateSatisfiesExpression = factory.createSatisfiesExpression == null;
 	const missingCreateClassStaticBlockDeclaration = factory.createClassStaticBlockDeclaration == null;
@@ -95,6 +97,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 		badCreateExportSpecifier ||
 		badCreateImportTypeNode ||
 		badCreateImportDeclaration ||
+		badCreateExportDeclaration ||
 		badCreateMappedTypeNodeA ||
 		badCreateMappedTypeNodeB ||
 		badCreateTypeParameterDeclaration ||
@@ -402,6 +405,44 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						}
 
 						return {createImportDeclaration, updateImportDeclaration};
+					})()
+				: {}),
+			...(badCreateExportDeclaration
+				? (() => {
+						function createExportDeclaration(
+							modifiers: readonly TS.ModifierLike[] | undefined,
+							isTypeOnly: boolean,
+							exportClause: TS.NamedExportBindings | undefined,
+							moduleSpecifier?: TS.Expression,
+							_?: TS.ImportAttributes
+						): TS.ExportDeclaration {
+							return (factory as unknown as import("typescript-4-8-2").NodeFactory).createExportDeclaration(
+								modifiers as never,
+								isTypeOnly as never,
+								exportClause as never,
+								moduleSpecifier as never
+							) as unknown as TS.ExportDeclaration;
+						}
+
+						function updateExportDeclaration(
+							node: TS.ExportDeclaration,
+							modifiers: readonly TS.ModifierLike[] | undefined,
+							isTypeOnly: boolean,
+							exportClause: TS.NamedExportBindings | undefined,
+							moduleSpecifier: TS.Expression | undefined,
+							attributes: TS.ImportAttributes | undefined
+						): TS.ExportDeclaration {
+							return (factory as unknown as import("typescript-4-8-2").NodeFactory).updateExportDeclaration(
+								node as never,
+								modifiers as never,
+								isTypeOnly as never,
+								exportClause as never,
+								moduleSpecifier as never,
+								undefined
+							) as unknown as TS.ExportDeclaration;
+						}
+
+						return {createExportDeclaration, updateExportDeclaration};
 					})()
 				: {}),
 			...(badCreateMappedTypeNodeA
