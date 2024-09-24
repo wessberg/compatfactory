@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-/* eslint-disable @typescript-eslint/naming-convention,@typescript-eslint/no-unused-vars */
 import type * as TS from "typescript";
 import type * as TS4 from "typescript-4-9-4";
 import type {Mutable, RequiredExcept} from "helpertypes";
@@ -179,7 +176,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							modifiersOrIsTypeOnly: readonly TS.Modifier[] | boolean | undefined,
 							isTypeOnlyOrName: boolean | string | TS.Identifier,
 							nameOrModuleReference: string | TS.Identifier | TS.ModuleReference,
-							moduleReferenceOrUndefined?: TS.ModuleReference | undefined
+							moduleReferenceOrUndefined?: TS.ModuleReference
 						): TS.ImportEqualsDeclaration {
 							const isShort = arguments.length <= 4;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.Modifier[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -216,7 +213,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							modifiersOrIsTypeOnly: readonly TS.Modifier[] | boolean | undefined,
 							isTypeOnlyOrName: boolean | string | TS.Identifier,
 							nameOrModuleReference: string | TS.Identifier | TS.ModuleReference,
-							moduleReferenceOrUndefined?: TS.ModuleReference | undefined
+							moduleReferenceOrUndefined?: TS.ModuleReference
 						): TS.ImportEqualsDeclaration {
 							const isShort = arguments.length <= 5;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.Modifier[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -237,7 +234,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createImportEqualsDeclaration,
 							updateImportEqualsDeclaration
 						};
-				  })()
+					})()
 				: {}),
 			...(badCreateImportSpecifier
 				? {
@@ -252,7 +249,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								name as never
 							) as unknown as TS.ImportSpecifier;
 						}
-				  }
+					}
 				: {}),
 			...(badCreateExportSpecifier
 				? {
@@ -267,7 +264,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								name as never
 							) as unknown as TS.ExportSpecifier;
 						}
-				  }
+					}
 				: {}),
 			...(badCreateImportTypeNode
 				? (() => {
@@ -284,7 +281,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
 							qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
 							typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
-							isTypeOfOrUndefined?: boolean | undefined
+							isTypeOfOrUndefined?: boolean
 						): TS.ImportTypeNode {
 							if (arguments.length < 5) {
 								return (factory as unknown as import("typescript-4-6-4").NodeFactory).createImportTypeNode(
@@ -324,7 +321,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
 							qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
 							typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
-							isTypeOfOrUndefined?: boolean | undefined
+							isTypeOfOrUndefined?: boolean
 						): TS.ImportTypeNode {
 							if (arguments.length < 6) {
 								return (factory as unknown as import("typescript-4-6-4").NodeFactory).updateImportTypeNode(
@@ -346,7 +343,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						}
 
 						return {createImportTypeNode, updateImportTypeNode};
-				  })()
+					})()
 				: {}),
 			...(badCreateMappedTypeNodeA
 				? {
@@ -381,7 +378,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								type as never
 							) as unknown as TS.MappedTypeNode;
 						}
-				  }
+					}
 				: {}),
 			...(badCreateMappedTypeNodeB
 				? {
@@ -391,7 +388,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							nameType: TS.TypeNode | undefined,
 							questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
 							type: TS.TypeNode | undefined,
-							members?: TS.NodeArray<TS.TypeElement> | undefined
+							members?: TS.NodeArray<TS.TypeElement>
 						): TS.MappedTypeNode {
 							return (factory as unknown as import("typescript-4-4-3").NodeFactory).createMappedTypeNode(
 								readonlyToken as never,
@@ -409,7 +406,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							nameType: TS.TypeNode | undefined,
 							questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
 							type: TS.TypeNode | undefined,
-							members?: TS.NodeArray<TS.TypeElement> | undefined
+							members?: TS.NodeArray<TS.TypeElement>
 						): TS.MappedTypeNode {
 							return (factory as unknown as import("typescript-4-4-3").NodeFactory).updateMappedTypeNode(
 								node as never,
@@ -420,7 +417,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 								type as never
 							) as unknown as TS.MappedTypeNode;
 						}
-				  }
+					}
 				: {}),
 			...(badCreateTypeParameterDeclaration
 				? (() => {
@@ -434,7 +431,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						function createTypeParameterDeclaration(
 							modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
 							nameOrConstraint?: string | TS.Identifier | TS.TypeNode,
-							constraintOrDefaultType?: TS.TypeNode | TS.TypeNode,
+							constraintOrDefaultType?: TS.TypeNode,
 							defaultTypeOrUndefined?: TS.TypeNode
 						): TS.TypeParameterDeclaration {
 							const isShort =
@@ -473,7 +470,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							node: TS.TypeParameterDeclaration,
 							modifiersOrName: readonly TS.Modifier[] | TS.Identifier | undefined,
 							nameOrConstraint?: string | TS.Identifier | TS.TypeNode,
-							constraintOrDefaultType?: TS.TypeNode | TS.TypeNode,
+							constraintOrDefaultType?: TS.TypeNode,
 							defaultTypeOrUndefined?: TS.TypeNode
 						): TS.TypeParameterDeclaration {
 							const isShort = modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName; /* Identifier */
@@ -499,7 +496,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createTypeParameterDeclaration,
 							updateTypeParameterDeclaration
 						};
-				  })()
+					})()
 				: {}),
 			...(missingCreateSatisfiesExpression
 				? (() => {
@@ -515,7 +512,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createSatisfiesExpression,
 							updateSatisfiesExpression
 						};
-				  })()
+					})()
 				: {}),
 
 			...(missingCreateUniquePrivateName
@@ -532,7 +529,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						return {
 							createUniquePrivateName
 						};
-				  })()
+					})()
 				: {}),
 
 			...(missingGetGeneratedPrivateNameForNode
@@ -544,7 +541,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						return {
 							getGeneratedPrivateNameForNode
 						};
-				  })()
+					})()
 				: {}),
 
 			...(missingCreateClassStaticBlockDeclaration
@@ -557,10 +554,10 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						): TS.ClassStaticBlockDeclaration;
 						function createClassStaticBlockDeclaration(
 							decoratorsOrBlock: readonly TS.Decorator[] | TS.Block | undefined,
-							modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
+							modifiersOrUndefined?: readonly TS.Modifier[],
 							bodyOrUndefined?: TS.Block
 						): TS.ClassStaticBlockDeclaration {
-							const body = arguments.length >= 3 ? (bodyOrUndefined as TS.Block) : (decoratorsOrBlock as TS.Block);
+							const body = arguments.length >= 3 ? bodyOrUndefined! : (decoratorsOrBlock as TS.Block);
 
 							const node = factory.createEmptyStatement() as unknown as Mutable<TS.ClassStaticBlockDeclaration>;
 							node.body = body;
@@ -578,10 +575,10 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						function updateClassStaticBlockDeclaration(
 							node: TS.ClassStaticBlockDeclaration,
 							decoratorsOrBlock: readonly TS.Decorator[] | TS.Block | undefined,
-							modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
+							modifiersOrUndefined?: readonly TS.Modifier[],
 							bodyOrUndefined?: TS.Block
 						): TS.ClassStaticBlockDeclaration {
-							const body = arguments.length >= 4 ? (bodyOrUndefined as TS.Block) : (decoratorsOrBlock as TS.Block);
+							const body = arguments.length >= 4 ? bodyOrUndefined! : (decoratorsOrBlock as TS.Block);
 							return body === node.body ? node : update(createClassStaticBlockDeclaration(body), node);
 						}
 
@@ -589,7 +586,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createClassStaticBlockDeclaration,
 							updateClassStaticBlockDeclaration
 						};
-				  })()
+					})()
 				: {}),
 
 			...(missingCreateAssertClause
@@ -611,7 +608,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createAssertClause,
 							updateAssertClause
 						};
-				  })()
+					})()
 				: {}),
 
 			...(missingCreateAssertEntry
@@ -633,7 +630,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createAssertEntry,
 							updateAssertEntry
 						};
-				  })()
+					})()
 				: {}),
 			...(missingCreateImportTypeAssertionContainer
 				? (() => {
@@ -652,7 +649,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createImportTypeAssertionContainer,
 							updateImportTypeAssertionContainer
 						};
-				  })()
+					})()
 				: {}),
 
 			...(missingCreateJSDocMemberName
@@ -678,7 +675,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createJSDocMemberName,
 							updateJSDocMemberName
 						};
-				  })()
+					})()
 				: {}),
 			...(missingCreateJSDocLinkCode
 				? (() => {
@@ -703,7 +700,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createJSDocLinkCode,
 							updateJSDocLinkCode
 						};
-				  })()
+					})()
 				: {}),
 			...(missingCreateJSDocLinkPlain
 				? (() => {
@@ -728,7 +725,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createJSDocLinkPlain,
 							updateJSDocLinkPlain
 						};
-				  })()
+					})()
 				: {}),
 			...(missingCreateJSDocOverloadTag
 				? (() => {
@@ -765,7 +762,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createJSDocOverloadTag,
 							updateJSDocOverloadTag
 						};
-				  })()
+					})()
 				: {}),
 			...(missingCreateJSDocThrowsTag
 				? (() => {
@@ -802,7 +799,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createJSDocThrowsTag,
 							updateJSDocThrowsTag
 						};
-				  })()
+					})()
 				: {}),
 			...(missingCreateJSDocSatisfiesTag
 				? (() => {
@@ -839,7 +836,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createJSDocSatisfiesTag,
 							updateJSDocSatisfiesTag
 						};
-				  })()
+					})()
 				: {}),
 			...(missingCreateJsxNamespacedName
 				? (() => {
@@ -859,7 +856,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createJsxNamespacedName,
 							updateJsxNamespacedName
 						};
-				  })()
+					})()
 				: {}),
 			...(badDecoratorsAsFirstArgument
 				? (() => {
@@ -983,7 +980,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							nameOrQuestionOrExclamationToken: string | TS.PropertyName | TS.QuestionToken | TS.ExclamationToken | undefined,
 							questionOrExclamationTokenOrType: TS.QuestionToken | TS.ExclamationToken | TS.TypeNode | undefined,
 							typeOrInitializer: TS.TypeNode | TS.Expression | undefined,
-							initializerOrUndefined?: TS.Expression | undefined
+							initializerOrUndefined?: TS.Expression
 						): TS.PropertyDeclaration {
 							const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -1030,7 +1027,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							nameOrQuestionOrExclamationToken: string | TS.PropertyName | TS.QuestionToken | TS.ExclamationToken | undefined,
 							questionOrExclamationTokenOrType: TS.QuestionToken | TS.ExclamationToken | TS.TypeNode | undefined,
 							typeOrInitializer: TS.TypeNode | TS.Expression | undefined,
-							initializerOrUndefined?: TS.Expression | undefined
+							initializerOrUndefined?: TS.Expression
 						): TS.PropertyDeclaration {
 							const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -1188,7 +1185,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 							modifiersOrParameters: readonly TS.Modifier[] | readonly TS.ParameterDeclaration[] | undefined,
 							parametersOrBody: readonly TS.ParameterDeclaration[] | TS.Block | undefined,
-							bodyOrUndefined?: TS.Block | undefined
+							bodyOrUndefined?: TS.Block
 						): TS.ConstructorDeclaration {
 							const isShort = arguments.length <= 3;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -1222,7 +1219,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 							modifiersOrParameters: readonly TS.Modifier[] | readonly TS.ParameterDeclaration[] | undefined,
 							parametersOrBody: readonly TS.ParameterDeclaration[] | TS.Block | undefined,
-							bodyOrUndefined?: TS.Block | undefined
+							bodyOrUndefined?: TS.Block
 						): TS.ConstructorDeclaration {
 							const isShort = arguments.length <= 4;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -1341,7 +1338,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							modifiersOrName: readonly TS.ModifierLike[] | string | TS.PropertyName | undefined,
 							nameOrParameters: string | TS.PropertyName | readonly TS.ParameterDeclaration[],
 							parametersOrBody: readonly TS.ParameterDeclaration[] | TS.Block | undefined,
-							bodyOrUndefined?: TS.Block | undefined
+							bodyOrUndefined?: TS.Block
 						): TS.SetAccessorDeclaration {
 							const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -1380,7 +1377,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							modifiersOrName: readonly TS.ModifierLike[] | string | TS.PropertyName | undefined,
 							nameOrParameters: string | TS.PropertyName | readonly TS.ParameterDeclaration[],
 							parametersOrBody: readonly TS.ParameterDeclaration[] | TS.Block | undefined,
-							bodyOrUndefined?: TS.Block | undefined
+							bodyOrUndefined?: TS.Block
 						): TS.SetAccessorDeclaration {
 							const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -1471,7 +1468,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						): TS.ClassStaticBlockDeclaration;
 						function createClassStaticBlockDeclaration(
 							decoratorsOrBody: readonly TS.Decorator[] | TS.Block | undefined,
-							modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
+							modifiersOrUndefined?: readonly TS.Modifier[],
 							bodyOrUndefined?: TS.Block
 						): TS.ClassStaticBlockDeclaration {
 							const isShort = arguments.length <= 1;
@@ -1497,7 +1494,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 						function updateClassStaticBlockDeclaration(
 							node: TS.ClassStaticBlockDeclaration,
 							decoratorsOrBody: readonly TS.Decorator[] | TS.Block | undefined,
-							modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
+							modifiersOrUndefined?: readonly TS.Modifier[],
 							bodyOrUndefined?: TS.Block
 						): TS.ClassStaticBlockDeclaration {
 							const isShort = arguments.length <= 2;
@@ -1625,7 +1622,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeParametersOrParameters: readonly TS.TypeParameterDeclaration[] | readonly TS.ParameterDeclaration[] | undefined,
 							parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
 							typeOrBody: TS.TypeNode | TS.Block | undefined,
-							bodyOrUndefined?: TS.Block | undefined
+							bodyOrUndefined?: TS.Block
 						): TS.FunctionDeclaration {
 							const isShort = arguments.length <= 7;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -1681,7 +1678,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							typeParametersOrParameters: readonly TS.TypeParameterDeclaration[] | readonly TS.ParameterDeclaration[] | undefined,
 							parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
 							typeOrBody: TS.TypeNode | TS.Block | undefined,
-							bodyOrUndefined?: TS.Block | undefined
+							bodyOrUndefined?: TS.Block
 						): TS.FunctionDeclaration {
 							const isShort = arguments.length <= 8;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -2082,7 +2079,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 							modifiersOrName: readonly TS.Modifier[] | TS.ModuleName | undefined,
 							nameOrBody: TS.ModuleName | TS.ModuleBody | undefined,
-							bodyOrUndefined?: TS.ModuleBody | undefined
+							bodyOrUndefined?: TS.ModuleBody
 						): TS.ModuleDeclaration {
 							const isShort =
 								typeof modifiersOrName === "string" ||
@@ -2285,7 +2282,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 							modifiersOrIsExportEquals: readonly TS.Modifier[] | boolean | undefined,
 							isExportEqualsOrExpression: boolean | TS.Expression | undefined,
-							expressionOrUndefined?: TS.Expression | undefined
+							expressionOrUndefined?: TS.Expression
 						): TS.ExportAssignment {
 							const isShort = arguments.length <= 3;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -2314,7 +2311,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							node: TS.ExportAssignment,
 							decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 							modifiersOrExpression: readonly TS.Modifier[] | TS.Expression | undefined,
-							expressionOrUndefined?: TS.Expression | undefined
+							expressionOrUndefined?: TS.Expression
 						): TS.ExportAssignment {
 							const isShort = arguments.length <= 3;
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -2457,7 +2454,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							createExportDeclaration,
 							updateExportDeclaration
 						};
-				  })()
+					})()
 				: {})
 		};
 	}
@@ -2546,7 +2543,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		return node;
 	}
 
-	function createJSDocComment(comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink> | undefined, tags?: readonly TS.JSDocTag[] | undefined): TS.JSDoc {
+	function createJSDocComment(comment?: string | TS.NodeArray<TS.JSDocText | TS.JSDocLink>, tags?: readonly TS.JSDocTag[]): TS.JSDoc {
 		if ("createJSDocComment" in (typescript as typeof TS)) {
 			return typescript4Cast.createJSDocComment(comment as never, tags as never) as never;
 		}
@@ -3053,7 +3050,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	): TS.ClassStaticBlockDeclaration;
 	function createClassStaticBlockDeclaration(
 		decoratorsOrBody: readonly TS.Decorator[] | TS.Block | undefined,
-		modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
+		modifiersOrUndefined?: readonly TS.Modifier[],
 		bodyOrUndefined?: TS.Block
 	): TS.ClassStaticBlockDeclaration {
 		const isShort = arguments.length <= 1;
@@ -3076,7 +3073,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	function updateClassStaticBlockDeclaration(
 		node: TS.ClassStaticBlockDeclaration,
 		decoratorsOrBody: readonly TS.Decorator[] | TS.Block | undefined,
-		modifiersOrUndefined?: readonly TS.Modifier[] | undefined,
+		modifiersOrUndefined?: readonly TS.Modifier[],
 		bodyOrUndefined?: TS.Block
 	): TS.ClassStaticBlockDeclaration {
 		const isShort = arguments.length <= 2;
@@ -3137,7 +3134,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
 		qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
 		typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
-		isTypeOfOrUndefined?: boolean | undefined
+		isTypeOfOrUndefined?: boolean
 	): TS.ImportTypeNode {
 		if ("createImportTypeNode" in (typescript as typeof TS)) {
 			if (arguments.length < 5) {
@@ -3156,8 +3153,8 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				assertionsOrQualifier && typescript.isEntityName(assertionsOrQualifier)
 					? assertionsOrQualifier
 					: qualifierOrTypeArguments && !Array.isArray(qualifierOrTypeArguments)
-					? qualifierOrTypeArguments
-					: undefined
+						? qualifierOrTypeArguments
+						: undefined
 			) as TS.EntityName | undefined;
 			const typeArguments = (Array.isArray(qualifierOrTypeArguments) ? qualifierOrTypeArguments : Array.isArray(typeArgumentsOrIsTypeOf) ? typeArgumentsOrIsTypeOf : undefined) as
 				| undefined
@@ -3195,7 +3192,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		assertionsOrQualifier?: TS.ImportTypeAssertionContainer | TS.EntityName,
 		qualifierOrTypeArguments?: TS.EntityName | readonly TS.TypeNode[],
 		typeArgumentsOrIsTypeOf?: readonly TS.TypeNode[] | boolean,
-		isTypeOfOrUndefined?: boolean | undefined
+		isTypeOfOrUndefined?: boolean
 	): TS.ImportTypeNode {
 		if ("updateImportTypeNode" in (typescript as typeof TS)) {
 			if (arguments.length < 6) {
@@ -3221,8 +3218,8 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				assertionsOrQualifier && typescript.isEntityName(assertionsOrQualifier)
 					? assertionsOrQualifier
 					: qualifierOrTypeArguments && !Array.isArray(qualifierOrTypeArguments)
-					? qualifierOrTypeArguments
-					: undefined;
+						? qualifierOrTypeArguments
+						: undefined;
 			const typeArguments = Array.isArray(qualifierOrTypeArguments) ? qualifierOrTypeArguments : Array.isArray(typeArgumentsOrIsTypeOf) ? typeArgumentsOrIsTypeOf : undefined;
 			isTypeOfOrUndefined = typeof typeArgumentsOrIsTypeOf === "boolean" ? typeArgumentsOrIsTypeOf : typeof isTypeOfOrUndefined === "boolean" ? isTypeOfOrUndefined : node.isTypeOf;
 			return node.argument !== argument ||
@@ -3233,7 +3230,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 				? typescript.setTextRange(
 						createImportTypeNode(argument, assertionsOrQualifier as never, qualifierOrTypeArguments as never, typeArgumentsOrIsTypeOf as never, isTypeOfOrUndefined as never),
 						node
-				  )
+					)
 				: node;
 		}
 	}
@@ -3385,7 +3382,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 		modifiersOrParameters: readonly TS.Modifier[] | readonly TS.ParameterDeclaration[] | undefined,
 		parametersOrBody: readonly TS.ParameterDeclaration[] | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.ConstructorDeclaration {
 		const isShort = arguments.length <= 3;
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -3413,7 +3410,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 		modifiersOrParameters: readonly TS.Modifier[] | readonly TS.ParameterDeclaration[] | undefined,
 		parametersOrBody: readonly TS.ParameterDeclaration[] | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.ConstructorDeclaration {
 		const isShort = arguments.length <= 4;
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -3453,7 +3450,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeParametersOrParameters: readonly TS.TypeParameterDeclaration[] | readonly TS.ParameterDeclaration[] | undefined,
 		parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
 		typeOrBody: TS.TypeNode | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.MethodDeclaration {
 		const isShort = typeof asteriskTokenOrName === "string" || (asteriskTokenOrName != null && asteriskTokenOrName.kind !== (41 as number)); /* AsteriskToken */
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -3512,7 +3509,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeParametersOrParameters: readonly TS.TypeParameterDeclaration[] | readonly TS.ParameterDeclaration[] | undefined,
 		parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
 		typeOrBody: TS.TypeNode | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.MethodDeclaration {
 		const isShort = asteriskTokenOrName?.kind !== (41 as number); /* AsteriskToken */
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -3656,7 +3653,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		nameOrQuestionOrExclamationToken: string | TS.PropertyName | TS.QuestionToken | TS.ExclamationToken | undefined,
 		questionOrExclamationTokenOrType: TS.QuestionToken | TS.ExclamationToken | TS.TypeNode | undefined,
 		typeOrInitializer: TS.TypeNode | TS.Expression | undefined,
-		initializerOrUndefined?: TS.Expression | undefined
+		initializerOrUndefined?: TS.Expression
 	): TS.PropertyDeclaration {
 		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -3700,7 +3697,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		nameOrQuestionOrExclamationToken: string | TS.PropertyName | TS.QuestionToken | TS.ExclamationToken | undefined,
 		questionOrExclamationTokenOrType: TS.QuestionToken | TS.ExclamationToken | TS.TypeNode | undefined,
 		typeOrInitializer: TS.TypeNode | TS.Expression | undefined,
-		initializerOrUndefined?: TS.Expression | undefined
+		initializerOrUndefined?: TS.Expression
 	): TS.PropertyDeclaration {
 		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -3739,7 +3736,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		modifiersOrName: readonly TS.Modifier[] | string | TS.PropertyName | undefined,
 		nameOrParameters: string | TS.PropertyName | readonly TS.ParameterDeclaration[],
 		parametersOrBody: readonly TS.ParameterDeclaration[] | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.SetAccessorDeclaration {
 		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -3772,7 +3769,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		modifiersOrName: readonly TS.Modifier[] | string | TS.PropertyName | undefined,
 		nameOrParameters: TS.PropertyName | readonly TS.ParameterDeclaration[],
 		parametersOrBody: readonly TS.ParameterDeclaration[] | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.SetAccessorDeclaration {
 		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -3805,7 +3802,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		nameOrParameters: string | TS.PropertyName | readonly TS.ParameterDeclaration[],
 		parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
 		typeOrBody: TS.TypeNode | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.GetAccessorDeclaration {
 		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -3842,7 +3839,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		nameOrParameters: string | TS.PropertyName | readonly TS.ParameterDeclaration[],
 		parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
 		typeOrBody: TS.TypeNode | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.GetAccessorDeclaration {
 		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName));
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -4190,7 +4187,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeParametersOrParameters: readonly TS.TypeParameterDeclaration[] | readonly TS.ParameterDeclaration[] | undefined,
 		parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
 		typeOrBody: TS.TypeNode | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.FunctionDeclaration {
 		const isShort = arguments.length <= 7;
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -4244,7 +4241,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		typeParametersOrParameters: readonly TS.TypeParameterDeclaration[] | readonly TS.ParameterDeclaration[] | undefined,
 		parametersOrType: readonly TS.ParameterDeclaration[] | TS.TypeNode | undefined,
 		typeOrBody: TS.TypeNode | TS.Block | undefined,
-		bodyOrUndefined?: TS.Block | undefined
+		bodyOrUndefined?: TS.Block
 	): TS.FunctionDeclaration {
 		const isShort = arguments.length <= 8;
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -4539,7 +4536,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 		modifiersOrName: readonly TS.Modifier[] | TS.ModuleName | undefined,
 		nameOrBody: TS.ModuleName | TS.ModuleBody | undefined,
-		bodyOrUndefined?: TS.ModuleBody | undefined
+		bodyOrUndefined?: TS.ModuleBody
 	): TS.ModuleDeclaration {
 		const isShort =
 			typeof modifiersOrName === "string" ||
@@ -4565,7 +4562,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 		modifiersOrIsExportEquals: readonly TS.Modifier[] | boolean | undefined,
 		isExportEqualsOrExpression: boolean | TS.Expression | undefined,
-		expressionOrUndefined?: TS.Expression | undefined
+		expressionOrUndefined?: TS.Expression
 	): TS.ExportAssignment {
 		const isShort = arguments.length <= 3;
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -4587,7 +4584,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		node: TS.ExportAssignment,
 		decoratorsOrModifiers: readonly TS.Decorator[] | readonly TS.Modifier[] | undefined,
 		modifiersOrExpression: readonly TS.Modifier[] | TS.Expression | undefined,
-		expressionOrUndefined?: TS.Expression | undefined
+		expressionOrUndefined?: TS.Expression
 	): TS.ExportAssignment {
 		const isShort = arguments.length <= 3;
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
@@ -4607,7 +4604,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 	function createTypeParameterDeclaration(
 		modifiersOrName: readonly TS.Modifier[] | string | TS.Identifier | undefined,
 		nameOrConstraint?: string | TS.Identifier | TS.TypeNode,
-		constraintOrDefaultType?: TS.TypeNode | TS.TypeNode,
+		constraintOrDefaultType?: TS.TypeNode,
 		defaultTypeOrUndefined?: TS.TypeNode
 	): TS.TypeParameterDeclaration {
 		const isShort = typeof modifiersOrName === "string" || (modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName); /* Identifier */
@@ -4640,7 +4637,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		node: TS.TypeParameterDeclaration,
 		modifiersOrName: readonly TS.Modifier[] | TS.Identifier | undefined,
 		nameOrConstraint?: TS.Identifier | TS.TypeNode,
-		constraintOrDefaultType?: TS.TypeNode | TS.TypeNode,
+		constraintOrDefaultType?: TS.TypeNode,
 		defaultTypeOrUndefined?: TS.TypeNode
 	): TS.TypeParameterDeclaration {
 		const isShort = modifiersOrName != null && !Array.isArray(modifiersOrName) && "escapedText" in modifiersOrName; /* Identifier */
@@ -4937,7 +4934,6 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		},
 		createLabeledStatement(label: string | TS.Identifier, statement: TS.Statement): TS.LabeledStatement {
 			return typescript4Cast.createLabel(label as never, statement as never) as never;
-			createParameterDeclaration;
 		},
 		createLeftShift(left: TS.Expression, right: TS.Expression): TS.BinaryExpression {
 			return typescript4Cast.createBinary(left as never, typescript.SyntaxKind.LessThanLessThanToken as never, right as never) as never;
@@ -5327,7 +5323,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			node: TS.JSDocThrowsTag,
 			tagName: TS.Identifier | undefined,
 			typeExpression: TS.JSDocTypeExpression | undefined,
-			comment?: string | TS.NodeArray<TS.JSDocComment> | undefined
+			comment?: string | TS.NodeArray<TS.JSDocComment>
 		): TS.JSDocThrowsTag {
 			return tagName === node.tagName && typeExpression === node.typeExpression && comment === node.comment
 				? node
@@ -5542,7 +5538,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			nameType: TS.TypeNode | undefined,
 			questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
 			type: TS.TypeNode | undefined,
-			members?: TS.NodeArray<TS.TypeElement> | undefined
+			members?: TS.NodeArray<TS.TypeElement>
 		): TS.MappedTypeNode {
 			return (typescript as unknown as typeof import("typescript-3-9-2")).createMappedTypeNode(
 				readonlyToken as never,
@@ -5558,7 +5554,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 			nameType: TS.TypeNode | undefined,
 			questionToken: TS.QuestionToken | TS.PlusToken | TS.MinusToken | undefined,
 			type: TS.TypeNode | undefined,
-			members?: TS.NodeArray<TS.TypeElement> | undefined
+			members?: TS.NodeArray<TS.TypeElement>
 		): TS.MappedTypeNode {
 			return (typescript as unknown as typeof import("typescript-3-9-2")).updateMappedTypeNode(
 				node as never,
