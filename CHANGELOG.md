@@ -1,3 +1,9 @@
+## [4.0.2](https://github.com/wessberg/compatfactory/compare/v4.0.1...v4.0.2) (2024-09-25)
+
+### Bug Fixes
+
+- export- and import declaration bugs on TS 5.2 ([b5b9223](https://github.com/wessberg/compatfactory/commit/b5b92231e3fc33d8d69ff77684edfb23eafd46b9))
+
 ## [4.0.1](https://github.com/wessberg/compatfactory/compare/v4.0.0...v4.0.1) (2024-09-24)
 
 ### Bug Fixes
