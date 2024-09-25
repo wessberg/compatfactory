@@ -15,8 +15,8 @@ importers:
         specifier: 0.5.2
         version: 0.5.2(prettier@3.3.3)
       "@types/node":
-        specifier: 22.6.1
-        version: 22.6.1
+        specifier: 22.7.0
+        version: 22.7.0
       "@types/semver":
         specifier: ^7.5.8
         version: 7.5.8
@@ -24,8 +24,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       "@wessberg/ts-config":
-        specifier: ^5.0.4
-        version: 5.0.4(@eslint/js@9.11.1)(@wessberg/prettier-config@1.0.0)(eslint-config-prettier@9.1.0(eslint@9.11.1))(eslint-plugin-jsdoc@50.2.4(eslint@9.11.1))(eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0(eslint@9.11.1))(eslint@9.11.1)(prettier@3.3.3))(eslint@9.11.1)(typescript-eslint@8.7.0(eslint@9.11.1)(typescript@5.6.2))
+        specifier: ^5.0.16
+        version: 5.0.16(@eslint/js@9.11.1)(@wessberg/prettier-config@1.0.0)(eslint-config-prettier@9.1.0(eslint@9.11.1))(eslint-plugin-jsdoc@50.2.4(eslint@9.11.1))(eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0(eslint@9.11.1))(eslint@9.11.1)(prettier@3.3.3))(eslint@9.11.1)(typescript-eslint@8.7.0(eslint@9.11.1)(typescript@5.6.2))
       crosspath:
         specifier: 2.0.0
         version: 2.0.0
@@ -568,8 +568,8 @@ packages:
   "@types/node@17.0.45":
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
 
-  "@types/node@22.6.1":
-    resolution: {integrity: sha512-V48tCfcKb/e6cVUigLAaJDAILdMP0fUW6BidkPK4GpGjXcfbnoHasCZDwz3N3yVt5we2RHm4XTQCpv0KJz9zqw==}
+  "@types/node@22.7.0":
+    resolution: {integrity: sha512-MOdOibwBs6KW1vfqz2uKMlxq5xAfAZ98SZjO8e3XnAbFnTJtAspqhWk7hrdSAs9/Y14ZWMiy7/MxMUzAOadYEw==}
 
   "@types/normalize-package-data@2.4.4":
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -643,8 +643,8 @@ packages:
   "@wessberg/prettier-config@1.0.0":
     resolution: {integrity: sha512-iavB1OppqxDIIWqgakHC7gLVAZTBFckq/32CWJf+EOQYJ4cLdsNe4TF/QIcO4sqWgtzR8SDj8mSGhgKwZGqLBA==}
 
-  "@wessberg/ts-config@5.0.4":
-    resolution: {integrity: sha512-epDhdI5RO5MNNeW0DVd1oK3tCMqJr/E/g6qxahsD+p1/bIbpBjSw555YRMUbzp6AWKT0ksPIDVTpKlMdpmKNew==}
+  "@wessberg/ts-config@5.0.16":
+    resolution: {integrity: sha512-f6jRO1LVuXzkeGYirixNgvraScynvGhigm7iVhpAHWUa7UGjka10RgiYJwkYYjnV2ICFziBr4iu6JqLS5GuqTg==}
     peerDependencies:
       "@eslint/js": ">=9.x"
       "@wessberg/prettier-config": ^1.x
@@ -3200,7 +3200,7 @@ snapshots:
 
   "@types/node@17.0.45": {}
 
-  "@types/node@22.6.1":
+  "@types/node@22.7.0":
     dependencies:
       undici-types: 6.19.8
 
@@ -3295,7 +3295,7 @@ snapshots:
 
   "@wessberg/prettier-config@1.0.0": {}
 
-  "@wessberg/ts-config@5.0.4(@eslint/js@9.11.1)(@wessberg/prettier-config@1.0.0)(eslint-config-prettier@9.1.0(eslint@9.11.1))(eslint-plugin-jsdoc@50.2.4(eslint@9.11.1))(eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0(eslint@9.11.1))(eslint@9.11.1)(prettier@3.3.3))(eslint@9.11.1)(typescript-eslint@8.7.0(eslint@9.11.1)(typescript@5.6.2))":
+  "@wessberg/ts-config@5.0.16(@eslint/js@9.11.1)(@wessberg/prettier-config@1.0.0)(eslint-config-prettier@9.1.0(eslint@9.11.1))(eslint-plugin-jsdoc@50.2.4(eslint@9.11.1))(eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0(eslint@9.11.1))(eslint@9.11.1)(prettier@3.3.3))(eslint@9.11.1)(typescript-eslint@8.7.0(eslint@9.11.1)(typescript@5.6.2))":
     dependencies:
       "@eslint/js": 9.11.1
       "@wessberg/prettier-config": 1.0.0
