@@ -2454,7 +2454,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							moduleSpecifierOrAttributes: TS.Expression | TS.ImportAttributes | undefined,
 							_?: TS.ImportAttributes
 						): TS.ImportDeclaration {
-							const isShort = modifiersOrImportClause != null && !Array.isArray(modifiersOrImportClause);
+							const isShort = importClauseOrModuleSpecifier != null && !("namedBindings" in importClauseOrModuleSpecifier) && !("isTypeOnly" in importClauseOrModuleSpecifier);
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
 							const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
@@ -2491,7 +2491,7 @@ function normalizeNodeFactory(factory: PartialNodeFactory): TS.NodeFactory {
 							moduleSpecifierOrAttributes: TS.Expression | TS.ImportAttributes | undefined,
 							_?: TS.ImportAttributes
 						): TS.ImportDeclaration {
-							const isShort = importClauseOrModuleSpecifier != null && importClauseOrModuleSpecifier.kind !== 267; /* ImportClause */
+							const isShort = importClauseOrModuleSpecifier != null && !("namedBindings" in importClauseOrModuleSpecifier) && !("isTypeOnly" in importClauseOrModuleSpecifier);
 							const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 							const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
 							const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
@@ -4285,7 +4285,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		moduleSpecifierOrAttributes: TS.Expression | TS.ImportAttributes | undefined,
 		_?: TS.ImportAttributes
 	): TS.ImportDeclaration {
-		const isShort = modifiersOrImportClause != null && !Array.isArray(modifiersOrImportClause);
+		const isShort = importClauseOrModuleSpecifier != null && !("namedBindings" in importClauseOrModuleSpecifier) && !("isTypeOnly" in importClauseOrModuleSpecifier);
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
 		const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
@@ -4317,7 +4317,7 @@ function createNodeFactory(typescript: typeof TS): TS.NodeFactory {
 		moduleSpecifierOrAttributes: TS.Expression | TS.ImportAttributes | undefined,
 		_?: TS.ImportAttributes
 	): TS.ImportDeclaration {
-		const isShort = importClauseOrModuleSpecifier != null && importClauseOrModuleSpecifier.kind !== 267; /* ImportClause */
+		const isShort = importClauseOrModuleSpecifier != null && !("namedBindings" in importClauseOrModuleSpecifier) && !("isTypeOnly" in importClauseOrModuleSpecifier);
 		const decorators = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[0] : (decoratorsOrModifiers as readonly TS.Decorator[]);
 		const modifiers = isShort ? splitDecoratorsAndModifiers(decoratorsOrModifiers as readonly TS.ModifierLike[])[1] : (modifiersOrImportClause as readonly TS.Modifier[]);
 		const importClause = (isShort ? modifiersOrImportClause : importClauseOrModuleSpecifier) as TS.ImportClause | undefined;
