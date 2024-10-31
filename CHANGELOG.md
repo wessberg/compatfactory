@@ -1,3 +1,9 @@
+## [4.0.3](https://github.com/wessberg/compatfactory/compare/v4.0.2...v4.0.3) (2024-10-31)
+
+### Bug Fixes
+
+- bugs related to createImportDeclaration on older TypeScript versions ([8ef960e](https://github.com/wessberg/compatfactory/commit/8ef960e62b25b3c5870251551e13c0efbab8dec1))
+
 ## [4.0.2](https://github.com/wessberg/compatfactory/compare/v4.0.1...v4.0.2) (2024-09-25)
 
 ### Bug Fixes
