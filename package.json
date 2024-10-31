@@ -107,6 +107,10 @@
 	"types": "./dist/index.d.ts",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/wessberg/compatfactory?sponsor=1"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/wessberg/compatfactory.git"
