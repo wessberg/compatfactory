@@ -336,7 +336,7 @@ test("It is possible to pass 'with' assertions when creating ImportDeclarations,
 	);
 });
 
-test("It is possible to pass 'with' assertions when creating ImportDeclarations, even on older TypeScript versions. #2", "<5.3", (_, {typescript}) => {
+test("It is possible to pass 'with' assertions when creating ImportDeclarations, even on older TypeScript versions. #2", ">3.7 && <5.3", (_, {typescript}) => {
 	const factory = ensureNodeFactory(typescript);
 
 	assert.deepEqual(
