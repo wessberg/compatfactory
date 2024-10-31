@@ -1,3 +1,5 @@
+## [4.0.4](https://github.com/wessberg/compatfactory/compare/v4.0.3...v4.0.4) (2024-10-31)
+
 ## [4.0.3](https://github.com/wessberg/compatfactory/compare/v4.0.2...v4.0.3) (2024-10-31)
 
 ### Bug Fixes
